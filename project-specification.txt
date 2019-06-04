@@ -25,11 +25,20 @@
       artifact kotlin-test-junit
       scope test
     }
+    aws-rds {
+      group    com.amazonaws
+      artifact aws-java-sdk-rds
+    }
+
   }
   global [ stdlib test ]
   modules {
-    domain [coroutines]
-    server [domain]
+    server     [serverutil rds]
+    serverutil []
+    rds        [domain rdsutil]
+    domain     []
+    rdsutil    [aws-rds util]
+    util       [coroutines]
   }
   consoleEntryPoint {
     console com.seanshubin.condorcet.server.ServerApplication
