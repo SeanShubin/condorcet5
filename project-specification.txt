@@ -1,0 +1,39 @@
+{
+  prefix [com seanshubin]
+  name [condorcet]
+  description 'Condorcet voting system'
+  version 1.0-SNAPSHOT
+  language kotlin
+  developer {
+    name 'Sean Shubin'
+    githubName SeanShubin
+    mavenUserName SeanShubin
+    organization 'Sean Shubin'
+    url http://seanshubin.com/
+  }
+  dependencies {
+    stdlib {
+      group org.jetbrains.kotlin
+      artifact kotlin-stdlib-jdk8
+    }
+    coroutines {
+      group org.jetbrains.kotlinx
+      artifact kotlinx-coroutines-core
+    }
+    test {
+      group org.jetbrains.kotlin
+      artifact kotlin-test-junit
+      scope test
+    }
+  }
+  global [ stdlib test ]
+  modules {
+    domain [coroutines]
+    server [domain]
+  }
+  consoleEntryPoint {
+    console com.seanshubin.condorcet.server.ServerApplication
+  }
+  javaVersion 12
+  deployableToMavenCentral true
+}
