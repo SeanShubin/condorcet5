@@ -27,9 +27,10 @@ class ApiBackedByDb(private val db: DbApi) : Api {
     }
 
     override fun createElection(credentials: Credentials, electionName: String): ElectionDetail {
-//        assertCredentialsValid(credentials)
-//        assertElectionNameDoesNotExist(electionName)
-        val dbElection = db.createElection(credentials.userName, electionName)
+        val trimmedElectionName = trim(electionName)
+        assertCredentialsValid(credentials)
+        assertElectionNameDoesNotExist(trimmedElectionName)
+        val dbElection = db.createElection(credentials.userName, trimmedElectionName)
         return dbElection.toApiElectionDetail()
     }
 

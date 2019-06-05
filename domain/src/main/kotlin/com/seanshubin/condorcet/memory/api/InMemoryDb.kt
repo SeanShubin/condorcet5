@@ -24,9 +24,8 @@ class InMemoryDb : DbApi {
         return user.find(userName)
     }
 
-    override fun searchElectionByName(electionName: String): DbElection? {
-        TODO("not implemented")
-    }
+    override fun searchElectionByName(electionName: String): DbElection? =
+            election.searchOne { it.name.equals(electionName, ignoreCase = true) }
 
     override fun createElection(userName: String, electionName: String): DbElection {
         election.add(DbElection(
