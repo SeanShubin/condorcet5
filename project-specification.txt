@@ -29,14 +29,17 @@
       group    com.amazonaws
       artifact aws-java-sdk-rds
     }
-
+    arrow-core {
+        group    io.arrow-kt
+        artifact arrow-core
+    }
   }
   global [ stdlib test ]
   modules {
     server     [serverutil rds]
     serverutil []
     rds        [domain rdsutil]
-    domain     []
+    domain     [arrow-core]
     rdsutil    [aws-rds util]
     util       [coroutines]
   }

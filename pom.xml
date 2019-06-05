@@ -38,7 +38,12 @@
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-rds</artifactId>
-                <version>1.11.564</version>
+                <version>1.11.565</version>
+            </dependency>
+            <dependency>
+                <groupId>io.arrow-kt</groupId>
+                <artifactId>arrow-core</artifactId>
+                <version>0.8.2</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

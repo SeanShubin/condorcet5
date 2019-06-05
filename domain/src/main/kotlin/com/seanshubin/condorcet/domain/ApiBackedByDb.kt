@@ -7,16 +7,22 @@ import com.seanshubin.condorcet.db.DbUser
 
 class ApiBackedByDb(private val db: DbApi) : Api {
     override fun login(userNameOrUserEmail: String, userPassword: String): Credentials {
+        val trimmedUserNameOrUserEmail = trim(userNameOrUserEmail)
         val dbUser =
-                db.searchUserByName(userNameOrUserEmail) ?: db.searchUserByEmail(userNameOrUserEmail)
-                ?: throw RuntimeException("User with name or email '$userNameOrUserEmail' does not exist")
-        return dbUser.toApiCredentials()
+                db.searchUserByName(trimmedUserNameOrUserEmail) ?: db.searchUserByEmail(trimmedUserNameOrUserEmail)
+                ?: throw RuntimeException("User with name or email '$trimmedUserNameOrUserEmail' does not exist")
+        val givenCredentials = Credentials(dbUser.name, userPassword)
+        assertCredentialsValid(givenCredentials)
+        val actualCredentials = dbUser.toApiCredentials()
+        return actualCredentials
     }
 
     override fun register(userName: String, userEmail: String, userPassword: String): Credentials {
-        assertUserNameDoesNotExist(userName)
-        assertUserEmailDoesNotExist(userEmail)
-        val dbUser = db.createUser(userName, userEmail, userPassword)
+        val trimmedUserName = trim(userName)
+        val trimmedUserEmail = trim(userEmail)
+        assertUserNameDoesNotExist(trimmedUserName)
+        assertUserEmailDoesNotExist(trimmedUserEmail)
+        val dbUser = db.createUser(trimmedUserName, trimmedUserEmail, userPassword)
         return dbUser.toApiCredentials()
     }
 
@@ -28,7 +34,16 @@ class ApiBackedByDb(private val db: DbApi) : Api {
     }
 
     override fun copyElection(credentials: Credentials, newElectionName: String, electionToCopyName: String): ElectionDetail {
-        TODO("not implemented")
+        assertCredentialsValid(credentials)
+        assertElectionNameDoesNotExist(newElectionName)
+        val electionToCopy = getElectionDetail(electionToCopyName)
+        val newElection = electionToCopy.copy(
+                ownerName = credentials.userName,
+                name = newElectionName,
+                endIsoString = null,
+                status = ElectionStatus.EDITING)
+        createElection(newElection)
+        return newElection
     }
 
     override fun listElections(credentials: Credentials): List<ElectionSummary> {
@@ -101,7 +116,7 @@ class ApiBackedByDb(private val db: DbApi) : Api {
     }
 
     private fun assertUserEmailDoesNotExist(userEmail: String) {
-        if (db.searchUserByEmail(userEmail) != null) throw RuntimeException("User named '$userEmail' already exists")
+        if (db.searchUserByEmail(userEmail) != null) throw RuntimeException("User with email '$userEmail' already exists")
     }
 
     private fun assertCredentialsValid(credentials: Credentials) {
@@ -128,5 +143,19 @@ class ApiBackedByDb(private val db: DbApi) : Api {
         DbStatus.EDITING -> ElectionStatus.EDITING
         DbStatus.LIVE -> ElectionStatus.LIVE
         DbStatus.COMPLETE -> ElectionStatus.COMPLETE
+    }
+
+    private fun getElectionDetail(electionName: String): ElectionDetail {
+        TODO()
+    }
+
+    private fun createElection(electionDetail: ElectionDetail) {
+
+    }
+
+    private fun trim(s: String): String = s.trim().replace(whitespaceBlock, " ")
+
+    companion object {
+        private val whitespaceBlock = Regex("""\s+""")
     }
 }
