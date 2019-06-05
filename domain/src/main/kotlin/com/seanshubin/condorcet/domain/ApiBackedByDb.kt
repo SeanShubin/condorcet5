@@ -1,28 +1,30 @@
-package com.seanshubin.condorcet.memory.api
+package com.seanshubin.condorcet.domain
 
-import com.seanshubin.condorcet.domain.*
-import com.seanshubin.condorcet.memory.db.InMemoryTable
-import com.seanshubin.condorcet.memory.db.Table
+import com.seanshubin.condorcet.db.DbApi
+import com.seanshubin.condorcet.db.DbElection
+import com.seanshubin.condorcet.db.DbStatus
+import com.seanshubin.condorcet.db.DbUser
 
-class MemoryApi : Api {
-    private val user: Table<String, DbUser> = InMemoryTable("user")
-    private val election: Table<String, DbElection> = InMemoryTable("election")
-    private val candidate: Table<DbCandidate, DbCandidate> = InMemoryTable("candidate")
-    private val voter: Table<DbVoter, DbVoter> = InMemoryTable("voter")
-    private val ballot: Table<DbVoter, DbBallot> = InMemoryTable("ballot")
-    private val ranking: Table<DbUserElectionCandidate, DbRanking> = InMemoryTable("ranking")
-    private val tally: Table<DbElectionCandidate, DbTally> = InMemoryTable("tally")
-
+class ApiBackedByDb(private val db: DbApi) : Api {
     override fun login(userNameOrUserEmail: String, userPassword: String): Credentials {
-        TODO("not implemented")
+        val dbUser =
+                db.searchUserByName(userNameOrUserEmail) ?: db.searchUserByEmail(userNameOrUserEmail)
+                ?: throw RuntimeException("User with name or email '$userNameOrUserEmail' does not exist")
+        return dbUser.toApiCredentials()
     }
 
     override fun register(userName: String, userEmail: String, userPassword: String): Credentials {
-        TODO("not implemented")
+        assertUserNameDoesNotExist(userName)
+        assertUserEmailDoesNotExist(userEmail)
+        val dbUser = db.createUser(userName, userEmail, userPassword)
+        return dbUser.toApiCredentials()
     }
 
     override fun createElection(credentials: Credentials, electionName: String): ElectionDetail {
-        TODO("not implemented")
+        assertCredentialsValid(credentials)
+        assertElectionNameDoesNotExist(electionName)
+        val dbElection = db.createElection(credentials.userName, electionName)
+        return dbElection.toApiElectionDetail()
     }
 
     override fun copyElection(credentials: Credentials, newElectionName: String, electionToCopyName: String): ElectionDetail {
@@ -91,5 +93,40 @@ class MemoryApi : Api {
 
     override fun setSecretBallot(credentials: Credentials, electionName: String, secretBallot: Boolean): ElectionDetail {
         TODO("not implemented")
+
+    }
+
+    private fun assertUserNameDoesNotExist(userName: String) {
+        if (db.searchUserByName(userName) != null) throw RuntimeException("User named '$userName' already exists")
+    }
+
+    private fun assertUserEmailDoesNotExist(userEmail: String) {
+        if (db.searchUserByEmail(userEmail) != null) throw RuntimeException("User named '$userEmail' already exists")
+    }
+
+    private fun assertCredentialsValid(credentials: Credentials) {
+        val user = db.searchUserByName(credentials.userName) ?: authError(credentials)
+        if (user.password != credentials.userPassword) authError(credentials)
+    }
+
+    private fun assertElectionNameDoesNotExist(electionName: String) {
+        if (db.searchElectionByName(electionName) != null) throw RuntimeException("Election named '$electionName' already exists")
+    }
+
+    private fun authError(credentials: Credentials): Nothing =
+            throw RuntimeException("Invalid user/password combination for '${credentials.userName}'")
+
+    private fun DbUser.toApiCredentials(): Credentials = Credentials(userName = name, userPassword = password)
+
+    private fun DbElection.toApiElectionDetail(): ElectionDetail {
+        val candidateNames = db.listCandidateNames(name)
+        val voterNames = db.listVoterNames(name)
+        return ElectionDetail(owner, name, end, secret, status.toApiStatus(), candidateNames, voterNames)
+    }
+
+    private fun DbStatus.toApiStatus(): ElectionStatus = when (this) {
+        DbStatus.EDITING -> ElectionStatus.EDITING
+        DbStatus.LIVE -> ElectionStatus.LIVE
+        DbStatus.COMPLETE -> ElectionStatus.COMPLETE
     }
 }

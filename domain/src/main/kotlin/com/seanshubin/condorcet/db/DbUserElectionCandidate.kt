@@ -1,4 +1,4 @@
-package com.seanshubin.condorcet.memory.api
+package com.seanshubin.condorcet.db
 
 data class DbUserElectionCandidate(val userName: String,
                                    val electionName: String,

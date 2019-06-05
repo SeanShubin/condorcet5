@@ -15,6 +15,14 @@ interface Table<PkType, T : TableRow<PkType>> {
         }
     }
 
+    fun searchOne(p: (T) -> Boolean): T? {
+        val matching = listWhere(p)
+        return when (matching.size) {
+            0 -> null
+            1 -> matching[0]
+            else -> throw RuntimeException("Expected 0 or 1, got ${matching.size}")
+        }
+    }
     fun listWhere(p: (T) -> Boolean): List<T> = listAll().filter(p)
     fun existsWhere(p: (T) -> Boolean): Boolean = listWhere(p).isNotEmpty()
     fun removeValue(value: T) {
