@@ -17,6 +17,14 @@ class RdsDatabaseApiImpl(private val rdsClient: AmazonRDSAsync) : RdsDatabaseApi
         val describeDbInstancesRequest = DescribeDBInstancesRequest()
         val describeDbInstancesResponse = rdsClient.describeDBInstances(describeDbInstancesRequest)
         val dbInstances = describeDbInstancesResponse.dbInstances
+        for (dbInstance in dbInstances) {
+            println(dbInstance.dbInstanceIdentifier)
+            println(dbInstance.dbName)
+            println(dbInstance.dbInstanceStatus)
+            println(dbInstance.endpoint.address)
+            println(dbInstance.endpoint.hostedZoneId)
+            println(dbInstance.endpoint.port)
+        }
         return dbInstances.any { dbInstance -> dbInstance.dbInstanceIdentifier == instanceIdentifier }
     }
 
@@ -29,7 +37,7 @@ class RdsDatabaseApiImpl(private val rdsClient: AmazonRDSAsync) : RdsDatabaseApi
         val howOftenToCheck = Duration.ofSeconds(5)
         val howLongToWait = Duration.ofMinutes(2)
         retryDuration(howOftenToCheck, howLongToWait) {
-            databaseExists(instanceIdentifier)
+            !databaseExists(instanceIdentifier)
         }
     }
 }
