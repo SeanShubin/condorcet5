@@ -29,16 +29,25 @@ class InMemoryDb : DbApi {
     }
 
     override fun createElection(userName: String, electionName: String): DbElection {
-        TODO("not implemented")
+        election.add(DbElection(
+                owner = userName,
+                name = electionName,
+                end = null,
+                secret = true,
+                status = DbStatus.EDITING))
+        return election.find(electionName)
     }
 
     override fun listCandidateNames(electionName: String): List<String> {
-        TODO("not implemented")
+        return emptyList()
     }
 
     override fun listVoterNames(electionName: String): List<String> {
-        TODO("not implemented")
+        return emptyList()
     }
+
+    override fun findElectionByName(electionName: String): DbElection =
+            election.find(electionName)
 
     override fun <T> inTransaction(f: () -> T): T {
         TODO("not implemented")

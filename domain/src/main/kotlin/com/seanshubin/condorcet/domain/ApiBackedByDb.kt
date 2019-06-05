@@ -29,9 +29,8 @@ class ApiBackedByDb(private val db: DbApi) : Api {
     override fun createElection(credentials: Credentials, electionName: String): ElectionDetail {
 //        assertCredentialsValid(credentials)
 //        assertElectionNameDoesNotExist(electionName)
-//        val dbElection = db.createElection(credentials.userName, electionName)
-//        return dbElection.toApiElectionDetail()
-        TODO("not implemented")
+        val dbElection = db.createElection(credentials.userName, electionName)
+        return dbElection.toApiElectionDetail()
     }
 
     override fun copyElection(credentials: Credentials, newElectionName: String, electionToCopyName: String): ElectionDetail {
@@ -52,9 +51,8 @@ class ApiBackedByDb(private val db: DbApi) : Api {
         TODO("not implemented")
     }
 
-    override fun getElection(credentials: Credentials, electionName: String): ElectionDetail {
-        TODO("not implemented")
-    }
+    override fun getElection(credentials: Credentials, electionName: String): ElectionDetail =
+            db.findElectionByName(electionName).toApiElectionDetail()
 
     override fun doneEditingElection(credentials: Credentials, electionName: String): ElectionDetail {
         TODO("not implemented")
