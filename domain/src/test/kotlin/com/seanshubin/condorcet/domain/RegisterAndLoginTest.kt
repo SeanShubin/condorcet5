@@ -46,6 +46,21 @@ class RegisterAndLoginTest {
     }
 
     @Test
+    fun wrongName() {
+        // given
+        val api = createTestApi()
+        api.register("Alice", "alice@email.com", "password")
+
+        // when
+        val loginResult = Try { api.login("Bob", "password") }
+
+        // then
+        assertEquals(
+                "User with name or email 'Bob' does not exist",
+                (loginResult as Failure).exception.message)
+    }
+
+    @Test
     fun wrongPassword() {
         // given
         val api = createTestApi()
@@ -71,7 +86,7 @@ class RegisterAndLoginTest {
 
         // then
         assertEquals(
-                "User named 'alice' already exists",
+                "User with name 'alice' already exists",
                 (registerResult as Failure).exception.message)
     }
 
@@ -117,6 +132,36 @@ class RegisterAndLoginTest {
     }
 
     @Test
+    fun registerChecksForExistingEmailUsingTrimmed() {
+        // given
+        val api = createTestApi()
+        api.register("Alice", "  \t\r\n  alice@email.com  \t\r\n  ", "password")
+
+        // when
+        val registerResult = Try { api.register("Alice Smith", "\t\talice@email.com  ", "password") }
+
+        // then
+        assertEquals(
+                "User with email 'alice@email.com' already exists",
+                (registerResult as Failure).exception.message)
+    }
+
+    @Test
+    fun registerChecksForExistingNameUsingTrimmed() {
+        // given
+        val api = createTestApi()
+        api.register("  \t\r\n  Alice\t\r\n  Smith\t\r\n  ", "alice@email.com", "password")
+        // when
+
+        val registerResult = Try { api.register("Alice Smith", "alice@email.com", "password") }
+
+        // then
+        assertEquals(
+                "User with name 'Alice Smith' already exists",
+                (registerResult as Failure).exception.message)
+    }
+
+    @Test
     fun loginTrimAndCollapseWhitespaceOnUser() {
         // given
         val api = createTestApi()
@@ -127,6 +172,20 @@ class RegisterAndLoginTest {
 
         // then
         assertEquals(Credentials("Alice Smith", "password"), loginResult)
+    }
+
+    @Test
+    fun loginErrorShowsTrimmedName() {
+        // given
+        val api = createTestApi()
+
+        // when
+        val loginResult = Try { api.login("    alice    smith    ", "password") }
+
+        // then
+        assertEquals(
+                "User with name or email 'alice smith' does not exist",
+                (loginResult as Failure).exception.message)
     }
 
     @Test

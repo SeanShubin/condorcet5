@@ -112,7 +112,7 @@ class ApiBackedByDb(private val db: DbApi) : Api {
     }
 
     private fun assertUserNameDoesNotExist(userName: String) {
-        if (db.searchUserByName(userName) != null) throw RuntimeException("User named '$userName' already exists")
+        if (db.searchUserByName(userName) != null) throw RuntimeException("User with name '$userName' already exists")
     }
 
     private fun assertUserEmailDoesNotExist(userEmail: String) {
@@ -125,7 +125,7 @@ class ApiBackedByDb(private val db: DbApi) : Api {
     }
 
     private fun assertElectionNameDoesNotExist(electionName: String) {
-        if (db.searchElectionByName(electionName) != null) throw RuntimeException("Election named '$electionName' already exists")
+        if (db.searchElectionByName(electionName) != null) throw RuntimeException("Election with name '$electionName' already exists")
     }
 
     private fun authError(credentials: Credentials): Nothing =
