@@ -27,23 +27,25 @@ class ApiBackedByDb(private val db: DbApi) : Api {
     }
 
     override fun createElection(credentials: Credentials, electionName: String): ElectionDetail {
-        assertCredentialsValid(credentials)
-        assertElectionNameDoesNotExist(electionName)
-        val dbElection = db.createElection(credentials.userName, electionName)
-        return dbElection.toApiElectionDetail()
+//        assertCredentialsValid(credentials)
+//        assertElectionNameDoesNotExist(electionName)
+//        val dbElection = db.createElection(credentials.userName, electionName)
+//        return dbElection.toApiElectionDetail()
+        TODO("not implemented")
     }
 
     override fun copyElection(credentials: Credentials, newElectionName: String, electionToCopyName: String): ElectionDetail {
-        assertCredentialsValid(credentials)
-        assertElectionNameDoesNotExist(newElectionName)
-        val electionToCopy = getElectionDetail(electionToCopyName)
-        val newElection = electionToCopy.copy(
-                ownerName = credentials.userName,
-                name = newElectionName,
-                endIsoString = null,
-                status = ElectionStatus.EDITING)
-        createElection(newElection)
-        return newElection
+//        assertCredentialsValid(credentials)
+//        assertElectionNameDoesNotExist(newElectionName)
+//        val electionToCopy = getElectionDetail(electionToCopyName)
+//        val newElection = electionToCopy.copy(
+//                ownerName = credentials.userName,
+//                name = newElectionName,
+//                endIsoString = null,
+//                status = ElectionStatus.EDITING)
+//        createElection(newElection)
+//        return newElection
+        TODO("not implemented")
     }
 
     override fun listElections(credentials: Credentials): List<ElectionSummary> {
