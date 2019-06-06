@@ -21,9 +21,13 @@ class RdsDatabaseApiImpl(private val rdsClient: AmazonRDSAsync) : RdsDatabaseApi
             println(dbInstance.dbInstanceIdentifier)
             println(dbInstance.dbName)
             println(dbInstance.dbInstanceStatus)
-            println(dbInstance.endpoint.address)
-            println(dbInstance.endpoint.hostedZoneId)
-            println(dbInstance.endpoint.port)
+            val endpoint = dbInstance.endpoint
+            if (endpoint != null) {
+                println(endpoint.address)
+                println(endpoint.hostedZoneId)
+                println(endpoint.port)
+            }
+            println()
         }
         return dbInstances.any { dbInstance -> dbInstance.dbInstanceIdentifier == instanceIdentifier }
     }
@@ -35,7 +39,7 @@ class RdsDatabaseApiImpl(private val rdsClient: AmazonRDSAsync) : RdsDatabaseApi
 
     override fun waitForDatabaseToGoAway(instanceIdentifier: String) {
         val howOftenToCheck = Duration.ofSeconds(5)
-        val howLongToWait = Duration.ofMinutes(2)
+        val howLongToWait = Duration.ofMinutes(4)
         retryDuration(howOftenToCheck, howLongToWait) {
             !databaseExists(instanceIdentifier)
         }
