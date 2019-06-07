@@ -4,6 +4,8 @@ import com.seanshubin.condorcet.db.DbApi
 import com.seanshubin.condorcet.db.DbElection
 import com.seanshubin.condorcet.db.DbStatus
 import com.seanshubin.condorcet.db.DbUser
+import java.time.Instant
+import java.time.format.DateTimeParseException
 
 class ApiBackedByDb(private val db: DbApi) : Api {
     override fun login(userNameOrUserEmail: String, userPassword: String): Credentials {
@@ -105,6 +107,7 @@ class ApiBackedByDb(private val db: DbApi) : Api {
 
     override fun setEndDate(credentials: Credentials, electionName: String, isoEndDate: String?): ElectionDetail {
         assertCredentialsValid(credentials)
+        assertValidIsoDateTimeOrNull(isoEndDate)
         val election = db.findElectionByName(electionName)
         val newElection = election.copy(end = isoEndDate)
         db.updateElection(election)
@@ -156,6 +159,21 @@ class ApiBackedByDb(private val db: DbApi) : Api {
 
     private fun createElection(electionDetail: ElectionDetail) {
 
+    }
+
+    private fun assertValidIsoDateTimeOrNull(s: String?) {
+        if (s != null) {
+            assertValidIsoDateTime(s)
+        }
+
+    }
+
+    private fun assertValidIsoDateTime(s: String) {
+        try {
+            Instant.parse(s)
+        } catch (ex: DateTimeParseException) {
+            throw java.lang.RuntimeException("Unable to parse '$s' into an ISO date time")
+        }
     }
 
     private fun trim(s: String): String = s.trim().replace(whitespaceBlock, " ")

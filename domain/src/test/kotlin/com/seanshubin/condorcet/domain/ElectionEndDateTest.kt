@@ -38,6 +38,20 @@ class ElectionEndDateTest {
     }
 
     @Test
+    fun setEndDateToNull() {
+        // given
+        val api = createWithElection()
+        val isoEndDate = "2019-06-07T16:05:41.325574Z"
+
+        // when
+        api.setEndDate(validCredentials, electionName, isoEndDate)
+        val election = api.setEndDate(validCredentials, electionName, null)
+
+        // then
+        assertEquals(null, election.endIsoString)
+    }
+
+    @Test
     fun setEndDateAuth() {
         // given
         val api = createWithElection()
@@ -48,5 +62,18 @@ class ElectionEndDateTest {
 
         // then
         assertEquals("Invalid user/password combination for 'Alice'", (result as Failure).exception.message)
+    }
+
+    @Test
+    fun validateEndDateAuthIsIso() {
+        // given
+        val api = createWithElection()
+        val isoEndDate = "not iso date"
+
+        // when
+        val result = Try { api.setEndDate(validCredentials, electionName, isoEndDate) }
+
+        // then
+        assertEquals("Unable to parse 'not iso date' into an ISO date time", (result as Failure).exception.message)
     }
 }

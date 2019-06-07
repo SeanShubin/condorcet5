@@ -105,5 +105,4 @@ class CreateElectionTest {
         // then
         assertEquals("Election with name '$electionName' already exists", (result as Failure).exception.message)
     }
-
 }

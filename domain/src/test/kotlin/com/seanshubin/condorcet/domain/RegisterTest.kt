@@ -94,7 +94,7 @@ class RegisterTest {
     fun registerChecksForExistingNameUsingTrimmed() {
         // given
         val api = Tester.createEmpty()
-        api.register("  \t\r\n  Alice\t\r\n  Smith\t\r\n  ", "alice@email.com", "password")
+        api.register("Alice Smith".addWhitespaceNoise(), "alice@email.com", "password")
         // when
 
         val registerResult = Try { api.register("Alice Smith", "alice@email.com", "password") }
