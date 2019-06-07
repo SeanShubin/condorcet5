@@ -115,8 +115,11 @@ class ApiBackedByDb(private val db: DbApi) : Api {
     }
 
     override fun setSecretBallot(credentials: Credentials, electionName: String, secretBallot: Boolean): ElectionDetail {
-        TODO("not implemented")
-
+        assertCredentialsValid(credentials)
+        val election = db.findElectionByName(electionName)
+        val newElection = election.copy(secret = secretBallot)
+        db.updateElection(election)
+        return newElection.toApiElectionDetail()
     }
 
     private fun assertUserNameDoesNotExist(userName: String) {
