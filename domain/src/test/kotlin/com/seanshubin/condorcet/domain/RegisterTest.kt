@@ -6,6 +6,19 @@ import com.seanshubin.condorcet.domain.Tester.addWhitespaceNoise
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+/*
+reminder to test
+- name
+    - authentication
+    - authorization
+    - missing
+    - duplicate
+- email
+    - authentication
+    - authorization
+    - missing
+    - duplicate
+ */
 class RegisterTest {
     @Test
     fun register() {
@@ -17,6 +30,21 @@ class RegisterTest {
 
         // then
         assertEquals(Credentials("Alice", "password"), credentials)
+    }
+
+    @Test
+    fun disallowRegisterTwice() {
+        // given
+        val api = Tester.createEmpty()
+        api.register("Alice", "alice@email.com", "password")
+
+        // when
+        val registerResult = Try { api.register("Alice", "alice@email.com", "password") }
+
+        // then
+        assertEquals(
+                "User with name 'Alice' already exists",
+                (registerResult as Failure).exception.message)
     }
 
     @Test
