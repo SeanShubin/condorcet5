@@ -10,7 +10,6 @@ import com.seanshubin.condorcet.domain.Tester.validCredentials
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-
 class ElectionSecretBallotTest {
     @Test
     fun defaultsToTrue() {
@@ -37,7 +36,7 @@ class ElectionSecretBallotTest {
     }
 
     @Test
-    fun setSecretBallotAuth() {
+    fun setSecretBallotAuthentication() {
         // given
         val api = createWithElection()
 
@@ -46,6 +45,18 @@ class ElectionSecretBallotTest {
 
         // then
         assertEquals("Invalid user/password combination for 'Alice'", (result as Failure).exception.message)
+    }
+
+    @Test
+    fun setSecretBallotAuthorization() {
+        // given
+        val api = createWithElection()
+
+        // when
+        val result = Try { api.setSecretBallot(Tester.nonOwnerCredentials, electionName, false) }
+
+        // then
+        assertEquals("User 'Bob' is not allowed to edit election 'New Election' owned by user 'Alice'", (result as Failure).exception.message)
     }
 
     @Test

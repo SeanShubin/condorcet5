@@ -121,6 +121,7 @@ class ApiBackedByDb(private val db: DbApi) : Api {
 
     override fun setSecretBallot(credentials: Credentials, electionName: String, secretBallot: Boolean): ElectionDetail {
         assertCredentialsValid(credentials)
+        assertAllowedToEditElection(credentials, electionName)
         val election = db.findElectionByName(electionName)
         val newElection = election.copy(secret = secretBallot)
         db.updateElection(election)

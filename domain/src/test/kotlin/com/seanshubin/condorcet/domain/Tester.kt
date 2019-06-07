@@ -3,7 +3,6 @@ package com.seanshubin.condorcet.domain
 import com.seanshubin.condorcet.memory.api.InMemoryDb
 
 /*
-ElectionEndDate
 ElectionSecretBallot
 Login
 Register
