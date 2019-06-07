@@ -3,7 +3,7 @@ package com.seanshubin.condorcet.domain
 import arrow.core.Failure
 import arrow.core.Try
 import com.seanshubin.condorcet.domain.Tester.createWithElection
-import com.seanshubin.condorcet.domain.Tester.createWithUser
+import com.seanshubin.condorcet.domain.Tester.createWithUsers
 import com.seanshubin.condorcet.domain.Tester.electionName
 import com.seanshubin.condorcet.domain.Tester.invalidCredentials
 import com.seanshubin.condorcet.domain.Tester.validCredentials
@@ -15,7 +15,7 @@ class ElectionSecretBallotTest {
     @Test
     fun defaultsToTrue() {
         // given
-        val api = createWithUser()
+        val api = createWithUsers()
 
         // when
         val election = api.createElection(validCredentials, electionName)

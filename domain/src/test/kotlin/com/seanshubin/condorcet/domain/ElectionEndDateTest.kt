@@ -3,19 +3,19 @@ package com.seanshubin.condorcet.domain
 import arrow.core.Failure
 import arrow.core.Try
 import com.seanshubin.condorcet.domain.Tester.createWithElection
-import com.seanshubin.condorcet.domain.Tester.createWithUser
+import com.seanshubin.condorcet.domain.Tester.createWithUsers
 import com.seanshubin.condorcet.domain.Tester.electionName
 import com.seanshubin.condorcet.domain.Tester.invalidCredentials
+import com.seanshubin.condorcet.domain.Tester.nonOwnerCredentials
 import com.seanshubin.condorcet.domain.Tester.validCredentials
 import kotlin.test.Test
 import kotlin.test.assertEquals
-
 
 class ElectionEndDateTest {
     @Test
     fun defaultsToNull() {
         // given
-        val api = createWithUser()
+        val api = createWithUsers()
 
         // when
         val election = api.createElection(validCredentials, electionName)
@@ -52,7 +52,7 @@ class ElectionEndDateTest {
     }
 
     @Test
-    fun setEndDateAuth() {
+    fun setEndDateAuthentication() {
         // given
         val api = createWithElection()
         val isoEndDate = "2019-06-07T16:05:41.325574Z"
@@ -65,7 +65,20 @@ class ElectionEndDateTest {
     }
 
     @Test
-    fun validateEndDateAuthIsIso() {
+    fun setEndDateAuthorization() {
+        // given
+        val api = createWithElection()
+        val isoEndDate = "2019-06-07T16:05:41.325574Z"
+
+        // when
+        val result = Try { api.setEndDate(nonOwnerCredentials, electionName, isoEndDate) }
+
+        // then
+        assertEquals("User 'Bob' is not allowed to edit election 'New Election' owned by user 'Alice'", (result as Failure).exception.message)
+    }
+
+    @Test
+    fun validateEndDateIsIso() {
         // given
         val api = createWithElection()
         val isoEndDate = "not iso date"

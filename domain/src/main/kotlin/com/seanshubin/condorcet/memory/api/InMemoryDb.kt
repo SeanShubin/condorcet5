@@ -42,16 +42,19 @@ class InMemoryDb : DbApi {
         return election
     }
 
-    override fun listCandidateNames(electionName: String): List<String> {
-        return emptyList()
-    }
+    override fun listCandidateNames(electionName: String): List<String> =
+            candidateTable.listWhere { it.electionName == electionName }.map { it.name }
 
-    override fun listVoterNames(electionName: String): List<String> {
-        return emptyList()
-    }
+    override fun listVoterNames(electionName: String): List<String> =
+            voterTable.listWhere { it.electionName == electionName }.map { it.userName }
 
     override fun findElectionByName(electionName: String): DbElection =
             electionTable.find(electionName)
+
+    override fun setCandidates(electionName: String, candidateNames: List<String>) {
+        candidateTable.removeWhere { it.electionName == electionName }
+        candidateTable.addAll(candidateNames.map { DbCandidate(it, electionName) })
+    }
 
     override fun <T> inTransaction(f: () -> T): T {
         throw UnsupportedOperationException("The in memory database does not support transactions")

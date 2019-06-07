@@ -3,19 +3,19 @@ package com.seanshubin.condorcet.domain
 import arrow.core.Failure
 import arrow.core.Try
 import com.seanshubin.condorcet.domain.Tester.addWhitespaceNoise
-import com.seanshubin.condorcet.domain.Tester.createWithUser
+import com.seanshubin.condorcet.domain.Tester.createWithUsers
 import com.seanshubin.condorcet.domain.Tester.electionName
 import com.seanshubin.condorcet.domain.Tester.invalidCredentials
+import com.seanshubin.condorcet.domain.Tester.invertCapitalization
 import com.seanshubin.condorcet.domain.Tester.validCredentials
 import kotlin.test.Test
 import kotlin.test.assertEquals
-
 
 class CreateElectionTest {
     @Test
     fun createElectionReturnedEqualsRetrieved() {
         // given
-        val api = createWithUser()
+        val api = createWithUsers()
 
         // when
         val returnedElection = api.createElection(validCredentials, electionName)
@@ -28,7 +28,7 @@ class CreateElectionTest {
     @Test
     fun createElection() {
         // given
-        val api = createWithUser()
+        val api = createWithUsers()
 
         // when
         val election = api.createElection(validCredentials, electionName)
@@ -44,9 +44,9 @@ class CreateElectionTest {
     }
 
     @Test
-    fun authCreateElection() {
+    fun createElectionAuthentication() {
         // given
-        val api = createWithUser()
+        val api = createWithUsers()
 
         // when
         val result = Try { api.createElection(invalidCredentials, electionName) }
@@ -58,7 +58,7 @@ class CreateElectionTest {
     @Test
     fun createElectionTrimsWhitespace() {
         // given
-        val api = createWithUser()
+        val api = createWithUsers()
 
         // when
         val election = api.createElection(validCredentials, electionName.addWhitespaceNoise())
@@ -70,7 +70,7 @@ class CreateElectionTest {
     @Test
     fun noElectionsWithSameName() {
         // given
-        val api = createWithUser()
+        val api = createWithUsers()
 
         // when
         api.createElection(validCredentials, electionName)
@@ -81,9 +81,22 @@ class CreateElectionTest {
     }
 
     @Test
+    fun noElectionsWithSameNameCapitalization() {
+        // given
+        val api = createWithUsers()
+
+        // when
+        api.createElection(validCredentials, electionName)
+        val result = Try { api.createElection(validCredentials, electionName.invertCapitalization()) }
+
+        // then
+        assertEquals("Election with name '$electionName' already exists", (result as Failure).exception.message)
+    }
+
+    @Test
     fun noElectionsWithSameNameAfterTrimmed() {
         // given
-        val api = createWithUser()
+        val api = createWithUsers()
 
         // when
         api.createElection(validCredentials, electionName)
@@ -96,7 +109,7 @@ class CreateElectionTest {
     @Test
     fun noElectionsWithSameNameWithDifferentCapitalization() {
         // given
-        val api = createWithUser()
+        val api = createWithUsers()
 
         // when
         api.createElection(validCredentials, electionName)

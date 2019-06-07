@@ -69,8 +69,12 @@ class ApiBackedByDb(private val db: DbApi) : Api {
         TODO("not implemented")
     }
 
-    override fun updateCandidateNames(credentials: Credentials, electionName: String, candidateNames: List<String>): List<String> {
-        TODO("not implemented")
+    override fun updateCandidateNames(credentials: Credentials, electionName: String, candidateNames: List<String>): ElectionDetail {
+        assertCredentialsValid(credentials)
+        assertAllowedToEditElection(credentials, electionName)
+        val cleanCandidates = candidateNames.map(::trim).distinctBy { it.toLowerCase() }
+        db.setCandidates(electionName, cleanCandidates)
+        return db.findElectionByName(electionName).toApiElectionDetail()
     }
 
     override fun listEligibleVoters(credentials: Credentials, electionName: String): List<String> {
@@ -107,6 +111,7 @@ class ApiBackedByDb(private val db: DbApi) : Api {
 
     override fun setEndDate(credentials: Credentials, electionName: String, isoEndDate: String?): ElectionDetail {
         assertCredentialsValid(credentials)
+        assertAllowedToEditElection(credentials, electionName)
         assertValidIsoDateTimeOrNull(isoEndDate)
         val election = db.findElectionByName(electionName)
         val newElection = election.copy(end = isoEndDate)
@@ -120,6 +125,10 @@ class ApiBackedByDb(private val db: DbApi) : Api {
         val newElection = election.copy(secret = secretBallot)
         db.updateElection(election)
         return newElection.toApiElectionDetail()
+    }
+
+    override fun tally(credentials: Credentials, electionName: String): Tally {
+        TODO("not implemented")
     }
 
     private fun assertUserNameDoesNotExist(userName: String) {
@@ -136,7 +145,17 @@ class ApiBackedByDb(private val db: DbApi) : Api {
     }
 
     private fun assertElectionNameDoesNotExist(electionName: String) {
-        if (db.searchElectionByName(electionName) != null) throw RuntimeException("Election with name '$electionName' already exists")
+        val existingElection = db.searchElectionByName(electionName)
+        if (existingElection != null) {
+            throw RuntimeException("Election with name '${existingElection.name}' already exists")
+        }
+    }
+
+    private fun assertAllowedToEditElection(credentials: Credentials, electionName: String) {
+        val election = db.findElectionByName(electionName)
+        if (election.owner != credentials.userName) {
+            throw RuntimeException("User '${credentials.userName}' is not allowed to edit election '${election.name}' owned by user '${election.owner}'")
+        }
     }
 
     private fun authError(credentials: Credentials): Nothing =

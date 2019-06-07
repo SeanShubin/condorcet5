@@ -40,7 +40,9 @@ class ApiWrappedInDbTransaction(private val api: Api,
         api.listCandidates(credentials, electionName)
     }
 
-    override fun updateCandidateNames(credentials: Credentials, electionName: String, candidateNames: List<String>): List<String> = t.inTransaction {
+    override fun updateCandidateNames(credentials: Credentials,
+                                      electionName: String,
+                                      candidateNames: List<String>): ElectionDetail = t.inTransaction {
         api.updateCandidateNames(credentials, electionName, candidateNames)
     }
 
@@ -82,5 +84,9 @@ class ApiWrappedInDbTransaction(private val api: Api,
 
     override fun setSecretBallot(credentials: Credentials, electionName: String, secretBallot: Boolean): ElectionDetail = t.inTransaction {
         api.setSecretBallot(credentials, electionName, secretBallot)
+    }
+
+    override fun tally(credentials: Credentials, electionName: String): Tally = t.inTransaction {
+        api.tally(credentials, electionName)
     }
 }
