@@ -24,4 +24,6 @@ class InMemoryTable<PkType, T : TableRow<PkType>>(private val name: String) : Ta
         rows[index] = value
         pkIndex[value.primaryKey] = value
     }
+
+    override fun toString(): String = name
 }

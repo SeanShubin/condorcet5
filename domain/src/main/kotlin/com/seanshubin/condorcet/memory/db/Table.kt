@@ -33,7 +33,9 @@ interface Table<PkType, T : TableRow<PkType>> {
         listWhere(p).forEach(::removeValue)
     }
 
-    fun find(key: PkType): T = search(key)!!
+    fun find(key: PkType): T =
+            search(key) ?: throw RuntimeException("$this '$key' not found")
+    
     fun keyExists(key: PkType): Boolean = search(key) != null
     fun addAll(list: List<T>) {
         list.forEach(::add)

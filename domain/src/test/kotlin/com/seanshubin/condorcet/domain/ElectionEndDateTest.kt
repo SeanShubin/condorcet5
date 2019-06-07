@@ -76,4 +76,17 @@ class ElectionEndDateTest {
         // then
         assertEquals("Unable to parse 'not iso date' into an ISO date time", (result as Failure).exception.message)
     }
+
+    @Test
+    fun validateEndDateMissingElection() {
+        // given
+        val api = createWithElection()
+        val isoEndDate = "2019-06-07T16:05:41.325574Z"
+
+        // when
+        val result = Try { api.setEndDate(validCredentials, "No Election", isoEndDate) }
+
+        // then
+        assertEquals("election 'No Election' not found", (result as Failure).exception.message)
+    }
 }

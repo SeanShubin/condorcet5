@@ -5,13 +5,13 @@ import com.seanshubin.condorcet.memory.db.InMemoryTable
 import com.seanshubin.condorcet.memory.db.Table
 
 class InMemoryDb : DbApi {
-    private val userTable: Table<String, DbUser> = InMemoryTable("userTable")
-    private val electionTable: Table<String, DbElection> = InMemoryTable("electionTable")
-    private val candidateTable: Table<DbCandidate, DbCandidate> = InMemoryTable("candidateTable")
-    private val voterTable: Table<DbVoter, DbVoter> = InMemoryTable("voterTable")
+    private val userTable: Table<String, DbUser> = InMemoryTable("user")
+    private val electionTable: Table<String, DbElection> = InMemoryTable("election")
+    private val candidateTable: Table<DbCandidate, DbCandidate> = InMemoryTable("candidate")
+    private val voterTable: Table<DbVoter, DbVoter> = InMemoryTable("voter")
     private val ballotTable: Table<DbVoter, DbBallot> = InMemoryTable("ballotTable")
-    private val rankingTable: Table<DbUserElectionCandidate, DbRanking> = InMemoryTable("rankingTable")
-    private val tallyTable: Table<DbElectionCandidate, DbTally> = InMemoryTable("tallyTable")
+    private val rankingTable: Table<DbUserElectionCandidate, DbRanking> = InMemoryTable("ranking")
+    private val tallyTable: Table<DbElectionCandidate, DbTally> = InMemoryTable("tally")
 
     override fun searchUserByName(userName: String): DbUser? =
             userTable.searchOne { it.name.equals(userName, ignoreCase = true) }
@@ -54,6 +54,6 @@ class InMemoryDb : DbApi {
             electionTable.find(electionName)
 
     override fun <T> inTransaction(f: () -> T): T {
-        TODO("not implemented")
+        throw UnsupportedOperationException("The in memory database does not support transactions")
     }
 }
