@@ -7,6 +7,7 @@ interface DbApi : TransactionFunction {
     fun findElectionByName(electionName: String): DbElection
     fun searchElectionByName(electionName: String): DbElection?
     fun createElection(userName: String, electionName: String): DbElection
+    fun updateElection(election: DbElection): DbElection
     fun listCandidateNames(electionName: String): List<String>
     fun listVoterNames(electionName: String): List<String>
 }

@@ -2,7 +2,7 @@ package com.seanshubin.condorcet.domain
 
 import arrow.core.Failure
 import arrow.core.Try
-import com.seanshubin.condorcet.memory.api.InMemoryDb
+import com.seanshubin.condorcet.domain.Tester.addWhitespaceNoise
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -10,7 +10,7 @@ class LoginTest {
     @Test
     fun loginWithName() {
         // given
-        val api = createTestApi()
+        val api = Tester.createEmpty()
         api.register("Alice", "alice@email.com", "password")
 
         // when
@@ -23,7 +23,7 @@ class LoginTest {
     @Test
     fun loginWithEmail() {
         // given
-        val api = createTestApi()
+        val api = Tester.createEmpty()
         api.register("Alice", "alice@email.com", "password")
 
         // when
@@ -36,7 +36,7 @@ class LoginTest {
     @Test
     fun wrongName() {
         // given
-        val api = createTestApi()
+        val api = Tester.createEmpty()
         api.register("Alice", "alice@email.com", "password")
 
         // when
@@ -51,7 +51,7 @@ class LoginTest {
     @Test
     fun wrongPassword() {
         // given
-        val api = createTestApi()
+        val api = Tester.createEmpty()
         api.register("Alice", "alice@email.com", "password")
 
         // when
@@ -66,11 +66,11 @@ class LoginTest {
     @Test
     fun loginTrimAndCollapseWhitespaceOnUser() {
         // given
-        val api = createTestApi()
+        val api = Tester.createEmpty()
         api.register("Alice Smith", "alice@email.com", "password")
 
         // when
-        val loginResult = api.login("    alice    smith    ", "password")
+        val loginResult = api.login("alice smith".addWhitespaceNoise(), "password")
 
         // then
         assertEquals(Credentials("Alice Smith", "password"), loginResult)
@@ -79,10 +79,10 @@ class LoginTest {
     @Test
     fun loginErrorShowsTrimmedName() {
         // given
-        val api = createTestApi()
+        val api = Tester.createEmpty()
 
         // when
-        val loginResult = Try { api.login("    alice    smith    ", "password") }
+        val loginResult = Try { api.login("alice smith".addWhitespaceNoise(), "password") }
 
         // then
         assertEquals(
@@ -93,19 +93,13 @@ class LoginTest {
     @Test
     fun loginTrimAndCollapseWhitespaceOnEmail() {
         // given
-        val api = createTestApi()
-        api.register("Alice", "alice smith@email.com", "password")
+        val api = Tester.createEmpty()
+        api.register("Alice", "alicesmith@email.com", "password")
 
         // when
-        val loginResult = api.login("  \t\r\n  alice  \t\r\n  smith@email.com  \t\r\n  ", "password")
+        val loginResult = api.login("alicesmith@email.com".addWhitespaceNoise(), "password")
 
         // then
         assertEquals(Credentials("Alice", "password"), loginResult)
-    }
-
-    private fun createTestApi(): Api {
-        val db = InMemoryDb()
-        val api = ApiBackedByDb(db)
-        return api
     }
 }

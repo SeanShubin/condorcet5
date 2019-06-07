@@ -104,7 +104,11 @@ class ApiBackedByDb(private val db: DbApi) : Api {
     }
 
     override fun setEndDate(credentials: Credentials, electionName: String, isoEndDate: String?): ElectionDetail {
-        TODO("not implemented")
+        assertCredentialsValid(credentials)
+        val election = db.findElectionByName(electionName)
+        val newElection = election.copy(end = isoEndDate)
+        db.updateElection(election)
+        return newElection.toApiElectionDetail()
     }
 
     override fun setSecretBallot(credentials: Credentials, electionName: String, secretBallot: Boolean): ElectionDetail {

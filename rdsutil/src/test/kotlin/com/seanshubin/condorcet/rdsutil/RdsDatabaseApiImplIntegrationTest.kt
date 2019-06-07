@@ -5,12 +5,12 @@ import com.amazonaws.services.rds.AmazonRDSAsyncClientBuilder
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
-import kotlin.test.Test
+import kotlin.test.Ignore
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class RdsDatabaseApiImplIntegrationTest {
-    @Test
+    @Ignore
     fun createDatabase() {
         // given
         val databaseName = "sean-test-mysql-db"

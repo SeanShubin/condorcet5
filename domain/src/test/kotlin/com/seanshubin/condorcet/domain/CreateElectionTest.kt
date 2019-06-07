@@ -2,22 +2,24 @@ package com.seanshubin.condorcet.domain
 
 import arrow.core.Failure
 import arrow.core.Try
-import com.seanshubin.condorcet.memory.api.InMemoryDb
-import org.junit.Test
+import com.seanshubin.condorcet.domain.Tester.addWhitespaceNoise
+import com.seanshubin.condorcet.domain.Tester.createWithUser
+import com.seanshubin.condorcet.domain.Tester.electionName
+import com.seanshubin.condorcet.domain.Tester.invalidCredentials
+import com.seanshubin.condorcet.domain.Tester.validCredentials
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class CreateElectionTest {
-    val credentials = Credentials("Alice", "password")
-    val invalidCredentials = Credentials("foo", "bar")
 
+class CreateElectionTest {
     @Test
     fun createElectionReturnedEqualsRetrieved() {
         // given
-        val api = createTestApi()
+        val api = createWithUser()
 
         // when
-        val returnedElection = api.createElection(credentials, "Election Name")
-        val retrievedElection = api.getElection(credentials, "Election Name")
+        val returnedElection = api.createElection(validCredentials, electionName)
+        val retrievedElection = api.getElection(validCredentials, electionName)
 
         // then
         assertEquals(returnedElection, retrievedElection)
@@ -26,14 +28,14 @@ class CreateElectionTest {
     @Test
     fun createElection() {
         // given
-        val api = createTestApi()
+        val api = createWithUser()
 
         // when
-        val election = api.createElection(credentials, "Election Name")
+        val election = api.createElection(validCredentials, electionName)
 
         // then
-        assertEquals(credentials.userName, election.ownerName)
-        assertEquals("Election Name", election.name)
+        assertEquals(validCredentials.userName, election.ownerName)
+        assertEquals(electionName, election.name)
         assertEquals(null, election.endIsoString)
         assertEquals(true, election.secretBallot)
         assertEquals(ElectionStatus.EDITING, election.status)
@@ -44,71 +46,64 @@ class CreateElectionTest {
     @Test
     fun authCreateElection() {
         // given
-        val api = createTestApi()
+        val api = createWithUser()
 
         // when
-        val result = Try { api.createElection(invalidCredentials, "Election Name") }
+        val result = Try { api.createElection(invalidCredentials, electionName) }
 
         // then
-        assertEquals("Invalid user/password combination for 'foo'", (result as Failure).exception.message)
+        assertEquals("Invalid user/password combination for 'Alice'", (result as Failure).exception.message)
     }
 
     @Test
     fun createElectionTrimsWhitespace() {
         // given
-        val api = createTestApi()
+        val api = createWithUser()
 
         // when
-        val election = api.createElection(credentials, "  Election   Name  ")
+        val election = api.createElection(validCredentials, electionName.addWhitespaceNoise())
 
         // then
-        assertEquals("Election Name", election.name)
+        assertEquals(electionName, election.name)
     }
 
     @Test
     fun noElectionsWithSameName() {
         // given
-        val api = createTestApi()
+        val api = createWithUser()
 
         // when
-        api.createElection(credentials, "Election Name")
-        val result = Try { api.createElection(credentials, "Election Name") }
+        api.createElection(validCredentials, electionName)
+        val result = Try { api.createElection(validCredentials, electionName) }
 
         // then
-        assertEquals("Election with name 'Election Name' already exists", (result as Failure).exception.message)
+        assertEquals("Election with name '$electionName' already exists", (result as Failure).exception.message)
     }
 
     @Test
     fun noElectionsWithSameNameAfterTrimmed() {
         // given
-        val api = createTestApi()
+        val api = createWithUser()
 
         // when
-        api.createElection(credentials, "Election Name")
-        val result = Try { api.createElection(credentials, "  Election  Name  ") }
+        api.createElection(validCredentials, electionName)
+        val result = Try { api.createElection(validCredentials, electionName.addWhitespaceNoise()) }
 
         // then
-        assertEquals("Election with name 'Election Name' already exists", (result as Failure).exception.message)
+        assertEquals("Election with name '$electionName' already exists", (result as Failure).exception.message)
     }
 
     @Test
     fun noElectionsWithSameNameWithDifferentCapitalization() {
         // given
-        val api = createTestApi()
+        val api = createWithUser()
 
         // when
-        api.createElection(credentials, "Election Name")
-        val result = Try { api.createElection(credentials, "election name") }
+        api.createElection(validCredentials, electionName)
+        val result = Try { api.createElection(validCredentials, electionName) }
 
         // then
-        assertEquals("Election with name 'election name' already exists", (result as Failure).exception.message)
-    }
-
-    private fun createTestApi(): Api {
-        val db = InMemoryDb()
-        val api = ApiBackedByDb(db)
-        api.register("ALice", "alice@email.com", "password")
-        return api
+        assertEquals("Election with name '$electionName' already exists", (result as Failure).exception.message)
     }
 
 }

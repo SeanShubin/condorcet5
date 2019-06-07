@@ -1,9 +1,15 @@
 package com.seanshubin.condorcet.domain
 
 interface Api {
+    // auth
     fun login(userNameOrUserEmail: String, userPassword: String): Credentials
     fun register(userName: String, userEmail: String, userPassword: String): Credentials
+
+    // election
     fun createElection(credentials: Credentials, electionName: String): ElectionDetail
+
+    fun setEndDate(credentials: Credentials, electionName: String, isoEndDate: String?): ElectionDetail
+    fun setSecretBallot(credentials: Credentials, electionName: String, secretBallot: Boolean): ElectionDetail
     fun copyElection(credentials: Credentials, newElectionName: String, electionToCopyName: String): ElectionDetail
     fun listElections(credentials: Credentials): List<ElectionSummary>
     fun getElection(credentials: Credentials, electionName: String): ElectionDetail
@@ -16,9 +22,9 @@ interface Api {
     fun listAllVoters(credentials: Credentials): List<String>
     fun updateEligibleVoters(credentials: Credentials, electionName: String, eligibleVoterNames: List<String>): List<String>
     fun updateEligibleVotersToAll(credentials: Credentials, electionName: String): List<String>
+
+    // ballot
     fun listBallots(credentials: Credentials, voterName: String): List<Ballot>
     fun getBallot(credentials: Credentials, electionName: String, voterName: String): Ballot
     fun castBallot(credentials: Credentials, electionName: String, voterName: String, rankings: List<Ranking>): Ballot
-    fun setEndDate(credentials: Credentials, electionName: String, isoEndDate: String?): ElectionDetail
-    fun setSecretBallot(credentials: Credentials, electionName: String, secretBallot: Boolean): ElectionDetail
 }
