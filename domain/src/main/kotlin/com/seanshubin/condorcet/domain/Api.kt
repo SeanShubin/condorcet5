@@ -9,9 +9,6 @@ interface Api {
     fun createElection(credentials: Credentials, electionName: String): ElectionDetail
     fun setEndDate(credentials: Credentials, electionName: String, isoEndDate: String?): ElectionDetail
     fun setSecretBallot(credentials: Credentials, electionName: String, secretBallot: Boolean): ElectionDetail
-    fun copyElection(credentials: Credentials, newElectionName: String, electionToCopyName: String): ElectionDetail
-    fun listElections(credentials: Credentials): List<ElectionSummary>
-    fun getElection(credentials: Credentials, electionName: String): ElectionDetail
     fun doneEditingElection(credentials: Credentials, electionName: String): ElectionDetail
     fun endElection(credentials: Credentials, electionName: String): ElectionDetail
     fun listCandidates(credentials: Credentials, electionName: String): List<String>
@@ -21,6 +18,9 @@ interface Api {
     fun listAllVoters(credentials: Credentials): List<String>
     fun updateEligibleVoters(credentials: Credentials, electionName: String, eligibleVoterNames: List<String>): List<String>
     fun updateEligibleVotersToAll(credentials: Credentials, electionName: String): List<String>
+    fun listElections(credentials: Credentials): List<ElectionSummary>
+    fun getElection(credentials: Credentials, electionName: String): ElectionDetail
+    fun copyElection(credentials: Credentials, newElectionName: String, electionToCopyName: String): ElectionDetail
 
     // ballot
     fun listBallots(credentials: Credentials, voterName: String): List<Ballot>

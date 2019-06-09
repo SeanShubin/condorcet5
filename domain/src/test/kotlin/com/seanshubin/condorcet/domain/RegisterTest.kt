@@ -6,19 +6,6 @@ import com.seanshubin.condorcet.domain.Tester.addWhitespaceNoise
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-/*
-reminder to test
-- name
-    - authentication
-    - authorization
-    - missing
-    - duplicate
-- email
-    - authentication
-    - authorization
-    - missing
-    - duplicate
- */
 class RegisterTest {
     @Test
     fun register() {
