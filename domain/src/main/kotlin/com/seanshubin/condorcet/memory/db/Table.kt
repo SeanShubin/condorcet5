@@ -6,6 +6,14 @@ interface Table<PkType, T : TableRow<PkType>> {
     fun update(value: T)
     fun remove(key: PkType)
 
+    fun find(p: (T) -> Boolean): T {
+        val matching = listWhere(p)
+        return when (matching.size) {
+            1 -> matching[0]
+            else -> throw RuntimeException("Expected exactly 1 match, got ${matching.size}")
+        }
+    }
+
     fun search(key: PkType): T? {
         val matching = listWhere { it.primaryKey == key }
         return when (matching.size) {

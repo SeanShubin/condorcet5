@@ -24,7 +24,8 @@ class ApiBackedByDb(private val db: DbApi) : Api {
         val trimmedUserEmail = trim(userEmail)
         assertUserNameDoesNotExist(trimmedUserName)
         assertUserEmailDoesNotExist(trimmedUserEmail)
-        val dbUser = db.createUser(trimmedUserName, trimmedUserEmail, userPassword)
+        db.createUser(trimmedUserName, trimmedUserEmail, userPassword)
+        val dbUser = db.findUserByName(trimmedUserName)
         return dbUser.toApiCredentials()
     }
 
@@ -40,6 +41,8 @@ class ApiBackedByDb(private val db: DbApi) : Api {
         // trim
         // credentials
         // is owner
+        // already done
+        // already past end time
         /*
         assertCredentialsValid(credentials)
         assertAllowedToEditElection(credentials, electionName)
@@ -50,7 +53,9 @@ class ApiBackedByDb(private val db: DbApi) : Api {
         return newElection.toApiElectionDetail()
 
          */
-        TODO("not implemented")
+        return withAllowedToEdit(credentials, electionName) { validatedElectionName ->
+            db.setElectionStatus(validatedElectionName, DbStatus.LIVE)
+        }
     }
 
     override fun endElection(credentials: Credentials, electionName: String): ElectionDetail {
@@ -122,24 +127,16 @@ class ApiBackedByDb(private val db: DbApi) : Api {
         TODO("not implemented")
     }
 
-    override fun setEndDate(credentials: Credentials, electionName: String, isoEndDate: String?): ElectionDetail {
-        assertCredentialsValid(credentials)
-        assertAllowedToEditElection(credentials, electionName)
-        assertValidIsoDateTimeOrNull(isoEndDate)
-        val election = db.findElectionByName(electionName)
-        val newElection = election.copy(end = isoEndDate)
-        db.updateElection(election)
-        return newElection.toApiElectionDetail()
-    }
+    override fun setEndDate(credentials: Credentials, electionName: String, isoEndDate: String?): ElectionDetail =
+            withAllowedToEdit(credentials, electionName) { validatedElectionName ->
+                assertValidIsoDateTimeOrNull(isoEndDate)
+                db.setElectionEndDate(validatedElectionName, isoEndDate)
+            }
 
-    override fun setSecretBallot(credentials: Credentials, electionName: String, secretBallot: Boolean): ElectionDetail {
-        assertCredentialsValid(credentials)
-        assertAllowedToEditElection(credentials, electionName)
-        val election = db.findElectionByName(electionName)
-        val newElection = election.copy(secret = secretBallot)
-        db.updateElection(election)
-        return newElection.toApiElectionDetail()
-    }
+    override fun setSecretBallot(credentials: Credentials, electionName: String, secretBallot: Boolean): ElectionDetail =
+            withAllowedToEdit(credentials, electionName) { validatedElectionName ->
+                db.setElectionSecretBallot(validatedElectionName, secretBallot)
+            }
 
     override fun tally(credentials: Credentials, electionName: String): Tally {
         TODO("not implemented")
@@ -189,30 +186,35 @@ class ApiBackedByDb(private val db: DbApi) : Api {
         DbStatus.COMPLETE -> ElectionStatus.COMPLETE
     }
 
-    private fun getElectionDetail(electionName: String): ElectionDetail {
-        TODO()
-    }
-
-    private fun createElection(electionDetail: ElectionDetail) {
-
-    }
-
     private fun assertValidIsoDateTimeOrNull(s: String?) {
         if (s != null) {
             assertValidIsoDateTime(s)
         }
-
     }
 
     private fun assertValidIsoDateTime(s: String) {
         try {
             Instant.parse(s)
         } catch (ex: DateTimeParseException) {
-            throw java.lang.RuntimeException("Unable to parse '$s' into an ISO date time")
+            throw RuntimeException("Unable to parse '$s' into an ISO date time")
         }
     }
 
     private fun trim(s: String): String = s.trim().replace(whitespaceBlock, " ")
+
+    private fun withAllowedToEdit(credentials: Credentials, electionName: String, f: (String) -> Unit): ElectionDetail {
+        assertCredentialsValid(credentials)
+        val election = getElection(credentials, trim(electionName))
+        if (election.ownerName == credentials.userName) {
+            f(election.name)
+            return db.findElectionByName(election.name).toApiElectionDetail()
+        } else {
+            throw RuntimeException(
+                    "User '${credentials.userName}' " +
+                            "is not allowed to edit election '${election.name}' " +
+                            "owned by user '${election.ownerName}'")
+        }
+    }
 
     companion object {
         private val whitespaceBlock = Regex("""\s+""")

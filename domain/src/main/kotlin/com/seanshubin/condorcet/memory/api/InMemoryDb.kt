@@ -13,15 +13,17 @@ class InMemoryDb : DbApi {
     private val rankingTable: Table<DbUserElectionCandidate, DbRanking> = InMemoryTable("ranking")
     private val tallyTable: Table<DbElectionCandidate, DbTally> = InMemoryTable("tally")
 
+    override fun findUserByName(userName: String): DbUser =
+            userTable.find { it.name.equals(userName, ignoreCase = true) }
+
     override fun searchUserByName(userName: String): DbUser? =
             userTable.searchOne { it.name.equals(userName, ignoreCase = true) }
 
     override fun searchUserByEmail(userEmail: String): DbUser? =
             userTable.searchOne { it.email.equals(userEmail, ignoreCase = true) }
 
-    override fun createUser(userName: String, userEmail: String, userPassword: String): DbUser {
+    override fun createUser(userName: String, userEmail: String, userPassword: String) {
         userTable.add(DbUser(userName, userEmail, userPassword))
-        return userTable.find(userName)
     }
 
     override fun searchElectionByName(electionName: String): DbElection? =
@@ -37,9 +39,22 @@ class InMemoryDb : DbApi {
         return electionTable.find(electionName)
     }
 
-    override fun updateElection(election: DbElection): DbElection {
-        electionTable.update(election)
-        return election
+    override fun setElectionEndDate(electionName: String, endDate: String?) {
+        val oldElection = electionTable.find(electionName)
+        val newElection = oldElection.copy(end = endDate)
+        electionTable.update(newElection)
+    }
+
+    override fun setElectionSecretBallot(electionName: String, secretBallot: Boolean) {
+        val oldElection = electionTable.find(electionName)
+        val newElection = oldElection.copy(secret = secretBallot)
+        electionTable.update(newElection)
+    }
+
+    override fun setElectionStatus(electionName: String, status: DbStatus) {
+        val oldElection = electionTable.find(electionName)
+        val newElection = oldElection.copy(status = status)
+        electionTable.update(newElection)
     }
 
     override fun listCandidateNames(electionName: String): List<String> =

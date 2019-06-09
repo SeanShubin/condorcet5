@@ -58,7 +58,7 @@ class DoneEditingElectionTest {
         val result = Try { api.doneEditingElection(invalidCredentials, electionName) }
 
         // then
-        assertEquals("foo", (result as Failure).exception.message)
+        assertEquals("Invalid user/password combination for '${invalidCredentials.userName}'", (result as Failure).exception.message)
     }
 
     @Test
@@ -70,7 +70,9 @@ class DoneEditingElectionTest {
         val result = Try { api.doneEditingElection(nonOwnerCredentials, electionName) }
 
         // then
-        assertEquals("foo", (result as Failure).exception.message)
+        assertEquals("User '${nonOwnerCredentials.userName}' " +
+                "is not allowed to edit election '$electionName' " +
+                "owned by user '${validCredentials.userName}'", (result as Failure).exception.message)
     }
 
     @Test
@@ -82,6 +84,8 @@ class DoneEditingElectionTest {
         val result = Try { api.doneEditingElection(validCredentials, "No election") }
 
         // then
-        assertEquals("foo", (result as Failure).exception.message)
+        assertEquals("election 'No election' not found", (result as Failure).exception.message)
     }
+
+    // todo: can not go live with no time
 }

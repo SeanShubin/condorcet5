@@ -2,6 +2,7 @@ package com.seanshubin.condorcet.domain
 
 import arrow.core.Failure
 import arrow.core.Try
+import com.seanshubin.condorcet.domain.Tester.addWhitespaceNoise
 import com.seanshubin.condorcet.domain.Tester.createWithElection
 import com.seanshubin.condorcet.domain.Tester.createWithUsers
 import com.seanshubin.condorcet.domain.Tester.electionName
@@ -32,6 +33,19 @@ class ElectionEndDateTest {
 
         // when
         val election = api.setEndDate(validCredentials, electionName, isoEndDate)
+
+        // then
+        assertEquals(isoEndDate, election.endIsoString)
+    }
+
+    @Test
+    fun setEndDateWithWhitespaceNoise() {
+        // given
+        val api = createWithElection()
+        val isoEndDate = "2019-06-07T16:05:41.325574Z"
+
+        // when
+        val election = api.setEndDate(validCredentials, electionName.addWhitespaceNoise(), isoEndDate)
 
         // then
         assertEquals(isoEndDate, election.endIsoString)
