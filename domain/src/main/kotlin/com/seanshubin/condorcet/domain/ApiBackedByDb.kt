@@ -38,13 +38,21 @@ class ApiBackedByDb(private val db: DbApi) : Api {
     }
 
     override fun doneEditingElection(credentials: Credentials, electionName: String): ElectionDetail {
-        return withAllowedToEdit(credentials, electionName) { validatedElectionName ->
-            db.setElectionStatus(validatedElectionName, DbStatus.LIVE)
+        return withAllowedToEdit(credentials, electionName) { election ->
+            db.setElectionStatus(election.name, DbStatus.LIVE)
         }
     }
 
     override fun endElection(credentials: Credentials, electionName: String): ElectionDetail {
-        TODO("not implemented")
+        return withAllowedToEdit(credentials, electionName) { election ->
+            when (election.status) {
+                DbStatus.EDITING -> throw RuntimeException(
+                        "Can not end election '${election.name}', it is not live")
+                DbStatus.LIVE -> db.setElectionStatus(election.name, DbStatus.COMPLETE)
+                DbStatus.COMPLETE -> throw RuntimeException(
+                        "Can not end election '${election.name}', it is already complete")
+            }
+        }
     }
 
     override fun listCandidates(credentials: Credentials, electionName: String): List<String> {
@@ -113,14 +121,14 @@ class ApiBackedByDb(private val db: DbApi) : Api {
     }
 
     override fun setEndDate(credentials: Credentials, electionName: String, isoEndDate: String?): ElectionDetail =
-            withAllowedToEdit(credentials, electionName) { validatedElectionName ->
+            withAllowedToEdit(credentials, electionName) { election ->
                 assertValidIsoDateTimeOrNull(isoEndDate)
-                db.setElectionEndDate(validatedElectionName, isoEndDate)
+                db.setElectionEndDate(election.name, isoEndDate)
             }
 
     override fun setSecretBallot(credentials: Credentials, electionName: String, secretBallot: Boolean): ElectionDetail =
-            withAllowedToEdit(credentials, electionName) { validatedElectionName ->
-                db.setElectionSecretBallot(validatedElectionName, secretBallot)
+            withAllowedToEdit(credentials, electionName) { election ->
+                db.setElectionSecretBallot(election.name, secretBallot)
             }
 
     override fun tally(credentials: Credentials, electionName: String): Tally {
@@ -187,17 +195,17 @@ class ApiBackedByDb(private val db: DbApi) : Api {
 
     private fun trim(s: String): String = s.trim().replace(whitespaceBlock, " ")
 
-    private fun withAllowedToEdit(credentials: Credentials, electionName: String, f: (String) -> Unit): ElectionDetail {
+    private fun withAllowedToEdit(credentials: Credentials, electionName: String, f: (DbElection) -> Unit): ElectionDetail {
         assertCredentialsValid(credentials)
-        val election = getElection(credentials, trim(electionName))
-        if (election.ownerName == credentials.userName) {
-            f(election.name)
+        val election = db.findElectionByName(trim(electionName))
+        if (election.owner == credentials.userName) {
+            f(election)
             return db.findElectionByName(election.name).toApiElectionDetail()
         } else {
             throw RuntimeException(
                     "User '${credentials.userName}' " +
                             "is not allowed to edit election '${election.name}' " +
-                            "owned by user '${election.ownerName}'")
+                            "owned by user '${election.owner}'")
         }
     }
 

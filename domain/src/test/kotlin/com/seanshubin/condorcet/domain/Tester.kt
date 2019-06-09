@@ -44,6 +44,12 @@ object Tester {
         return api
     }
 
+    fun createWithLiveElection(): Api {
+        val api = createWithElection()
+        api.doneEditingElection(validCredentials, electionName)
+        return api
+    }
+
     fun String.addWhitespaceNoise(): String = replace(whitespaceBlock, whitespaceNoiseBlock)
     fun String.invertCapitalization(): String = this.map {
         when {
