@@ -36,10 +36,6 @@ class ApiWrappedInDbTransaction(private val api: Api,
         api.endElection(credentials, electionName)
     }
 
-    override fun listCandidates(credentials: Credentials, electionName: String): List<String> = t.inTransaction {
-        api.listCandidates(credentials, electionName)
-    }
-
     override fun updateCandidateNames(credentials: Credentials,
                                       electionName: String,
                                       candidateNames: List<String>): ElectionDetail = t.inTransaction {
@@ -58,11 +54,13 @@ class ApiWrappedInDbTransaction(private val api: Api,
         api.listAllVoters(credentials)
     }
 
-    override fun updateEligibleVoters(credentials: Credentials, electionName: String, eligibleVoterNames: List<String>): List<String> = t.inTransaction {
+    override fun updateEligibleVoters(credentials: Credentials,
+                                      electionName: String,
+                                      eligibleVoterNames: List<String>): ElectionDetail = t.inTransaction {
         api.updateEligibleVoters(credentials, electionName, eligibleVoterNames)
     }
 
-    override fun updateEligibleVotersToAll(credentials: Credentials, electionName: String): List<String> = t.inTransaction {
+    override fun updateEligibleVotersToAll(credentials: Credentials, electionName: String): ElectionDetail = t.inTransaction {
         api.updateEligibleVotersToAll(credentials, electionName)
     }
 

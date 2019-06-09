@@ -71,6 +71,16 @@ class InMemoryDb : DbApi {
         candidateTable.addAll(candidateNames.map { DbCandidate(it, electionName) })
     }
 
+    override fun setVoters(electionName: String, voterNames: List<String>) {
+        voterTable.removeWhere { it.electionName == electionName }
+        voterTable.addAll(voterNames.map { DbVoter(it, electionName) })
+    }
+
+    override fun setVotersToAll(electionName: String) {
+        voterTable.removeWhere { it.electionName == electionName }
+        voterTable.addAll(userTable.listAll().map { DbVoter(it.name, electionName) })
+    }
+
     override fun <T> inTransaction(f: () -> T): T {
         throw UnsupportedOperationException("The in memory database does not support transactions")
     }

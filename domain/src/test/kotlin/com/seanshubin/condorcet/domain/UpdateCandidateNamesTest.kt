@@ -11,7 +11,7 @@ import com.seanshubin.condorcet.domain.Tester.validCredentials
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class ElectionCandidatesTest {
+class UpdateCandidateNamesTest {
     @Test
     fun setCandidates() {
         // given

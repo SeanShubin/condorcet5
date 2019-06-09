@@ -11,13 +11,15 @@ interface Api {
     fun setSecretBallot(credentials: Credentials, electionName: String, secretBallot: Boolean): ElectionDetail
     fun doneEditingElection(credentials: Credentials, electionName: String): ElectionDetail
     fun endElection(credentials: Credentials, electionName: String): ElectionDetail
-    fun listCandidates(credentials: Credentials, electionName: String): List<String>
     fun updateCandidateNames(credentials: Credentials, electionName: String, candidateNames: List<String>): ElectionDetail
     fun listEligibleVoters(credentials: Credentials, electionName: String): List<String>
     fun areAllVotersEligible(credentials: Credentials, electionName: String):Boolean
     fun listAllVoters(credentials: Credentials): List<String>
-    fun updateEligibleVoters(credentials: Credentials, electionName: String, eligibleVoterNames: List<String>): List<String>
-    fun updateEligibleVotersToAll(credentials: Credentials, electionName: String): List<String>
+    fun updateEligibleVoters(credentials: Credentials,
+                             electionName: String,
+                             eligibleVoterNames: List<String>): ElectionDetail
+
+    fun updateEligibleVotersToAll(credentials: Credentials, electionName: String): ElectionDetail
     fun listElections(credentials: Credentials): List<ElectionSummary>
     fun getElection(credentials: Credentials, electionName: String): ElectionDetail
     fun copyElection(credentials: Credentials, newElectionName: String, electionToCopyName: String): ElectionDetail

@@ -55,17 +55,11 @@ class ApiBackedByDb(private val db: DbApi) : Api {
         }
     }
 
-    override fun listCandidates(credentials: Credentials, electionName: String): List<String> {
-        TODO("not implemented")
-    }
-
-    override fun updateCandidateNames(credentials: Credentials, electionName: String, candidateNames: List<String>): ElectionDetail {
-        assertCredentialsValid(credentials)
-        assertAllowedToEditElection(credentials, electionName)
-        val cleanCandidates = candidateNames.map(::trim).distinctBy { it.toLowerCase() }
-        db.setCandidates(electionName, cleanCandidates)
-        return db.findElectionByName(electionName).toApiElectionDetail()
-    }
+    override fun updateCandidateNames(credentials: Credentials, electionName: String, candidateNames: List<String>): ElectionDetail =
+            withAllowedToEdit(credentials, electionName) { election ->
+                val cleanCandidates = candidateNames.map(::trim).distinctBy { it.toLowerCase() }
+                db.setCandidates(election.name, cleanCandidates)
+            }
 
     override fun listEligibleVoters(credentials: Credentials, electionName: String): List<String> {
         TODO("not implemented")
@@ -79,13 +73,18 @@ class ApiBackedByDb(private val db: DbApi) : Api {
         TODO("not implemented")
     }
 
-    override fun updateEligibleVoters(credentials: Credentials, electionName: String, eligibleVoterNames: List<String>): List<String> {
-        TODO("not implemented")
-    }
+    override fun updateEligibleVoters(credentials: Credentials,
+                                      electionName: String,
+                                      eligibleVoterNames: List<String>): ElectionDetail =
+            withAllowedToEdit(credentials, electionName) { election ->
+                val cleanVoters = eligibleVoterNames.map(::trim).distinctBy { it.toLowerCase() }
+                db.setVoters(election.name, cleanVoters)
+            }
 
-    override fun updateEligibleVotersToAll(credentials: Credentials, electionName: String): List<String> {
-        TODO("not implemented")
-    }
+    override fun updateEligibleVotersToAll(credentials: Credentials, electionName: String): ElectionDetail =
+            withAllowedToEdit(credentials, electionName) { election ->
+                db.setVotersToAll(election.name)
+            }
 
     override fun copyElection(credentials: Credentials, newElectionName: String, electionToCopyName: String): ElectionDetail {
 //        assertCredentialsValid(credentials)

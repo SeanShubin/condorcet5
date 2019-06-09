@@ -50,6 +50,16 @@ object Tester {
         return api
     }
 
+    fun createWithElectionAndSeveralUsers(): Api {
+        val api = createEmpty()
+        api.register("Alice", "alice@email.com", "password")
+        api.register("Bob", "bob@email.com", "password")
+        api.register("Carol", "carol@email.com", "password")
+        api.register("Dave", "dave@email.com", "password")
+        api.createElection(validCredentials, electionName)
+        return api
+    }
+
     fun String.addWhitespaceNoise(): String = replace(whitespaceBlock, whitespaceNoiseBlock)
     fun String.invertCapitalization(): String = this.map {
         when {

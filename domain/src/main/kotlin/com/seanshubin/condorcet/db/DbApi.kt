@@ -13,8 +13,10 @@ interface DbApi : TransactionFunction {
     // commands
     fun createUser(userName: String, userEmail: String, userPassword: String)
     fun createElection(userName: String, electionName: String): DbElection
-    fun setCandidates(electionName: String, candidateNames: List<String>)
     fun setElectionEndDate(electionName: String, endDate: String?)
     fun setElectionSecretBallot(electionName: String, secretBallot: Boolean)
     fun setElectionStatus(electionName: String, status: DbStatus)
+    fun setCandidates(electionName: String, candidateNames: List<String>)
+    fun setVoters(electionName: String, voterNames: List<String>)
+    fun setVotersToAll(electionName: String)
 }
