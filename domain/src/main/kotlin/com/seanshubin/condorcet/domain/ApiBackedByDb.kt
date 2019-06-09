@@ -38,21 +38,6 @@ class ApiBackedByDb(private val db: DbApi) : Api {
     }
 
     override fun doneEditingElection(credentials: Credentials, electionName: String): ElectionDetail {
-        // trim
-        // credentials
-        // is owner
-        // already done
-        // already past end time
-        /*
-        assertCredentialsValid(credentials)
-        assertAllowedToEditElection(credentials, electionName)
-        assertValidIsoDateTimeOrNull(isoEndDate)
-        val election = db.findElectionByName(electionName)
-        val newElection = election.copy(end = isoEndDate)
-        db.updateElection(election)
-        return newElection.toApiElectionDetail()
-
-         */
         return withAllowedToEdit(credentials, electionName) { validatedElectionName ->
             db.setElectionStatus(validatedElectionName, DbStatus.LIVE)
         }
