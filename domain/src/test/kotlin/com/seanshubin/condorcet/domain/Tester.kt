@@ -2,6 +2,22 @@ package com.seanshubin.condorcet.domain
 
 import com.seanshubin.condorcet.memory.api.InMemoryDb
 
+/*
+reminder to test
+- default
+- typical
+- null
+- whitespace in name
+    - create
+    - duplicate
+- capitalization
+    - duplicate
+- authentication
+- authorization
+- missing
+- duplicate
+ */
+
 object Tester {
     val validCredentials = Credentials("Alice", "password")
     val invalidCredentials = Credentials("Alice", "invalid-password")

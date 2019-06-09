@@ -36,28 +36,20 @@ class ApiBackedByDb(private val db: DbApi) : Api {
         return dbElection.toApiElectionDetail()
     }
 
-    override fun copyElection(credentials: Credentials, newElectionName: String, electionToCopyName: String): ElectionDetail {
-//        assertCredentialsValid(credentials)
-//        assertElectionNameDoesNotExist(newElectionName)
-//        val electionToCopy = getElectionDetail(electionToCopyName)
-//        val newElection = electionToCopy.copy(
-//                ownerName = credentials.userName,
-//                name = newElectionName,
-//                endIsoString = null,
-//                status = ElectionStatus.EDITING)
-//        createElection(newElection)
-//        return newElection
-        TODO("not implemented")
-    }
-
-    override fun listElections(credentials: Credentials): List<ElectionSummary> {
-        TODO("not implemented")
-    }
-
-    override fun getElection(credentials: Credentials, electionName: String): ElectionDetail =
-            db.findElectionByName(electionName).toApiElectionDetail()
-
     override fun doneEditingElection(credentials: Credentials, electionName: String): ElectionDetail {
+        // trim
+        // credentials
+        // is owner
+        /*
+        assertCredentialsValid(credentials)
+        assertAllowedToEditElection(credentials, electionName)
+        assertValidIsoDateTimeOrNull(isoEndDate)
+        val election = db.findElectionByName(electionName)
+        val newElection = election.copy(end = isoEndDate)
+        db.updateElection(election)
+        return newElection.toApiElectionDetail()
+
+         */
         TODO("not implemented")
     }
 
@@ -96,6 +88,27 @@ class ApiBackedByDb(private val db: DbApi) : Api {
     override fun updateEligibleVotersToAll(credentials: Credentials, electionName: String): List<String> {
         TODO("not implemented")
     }
+
+    override fun copyElection(credentials: Credentials, newElectionName: String, electionToCopyName: String): ElectionDetail {
+//        assertCredentialsValid(credentials)
+//        assertElectionNameDoesNotExist(newElectionName)
+//        val electionToCopy = getElectionDetail(electionToCopyName)
+//        val newElection = electionToCopy.copy(
+//                ownerName = credentials.userName,
+//                name = newElectionName,
+//                endIsoString = null,
+//                status = ElectionStatus.EDITING)
+//        createElection(newElection)
+//        return newElection
+        TODO("not implemented")
+    }
+
+    override fun listElections(credentials: Credentials): List<ElectionSummary> {
+        TODO("not implemented")
+    }
+
+    override fun getElection(credentials: Credentials, electionName: String): ElectionDetail =
+            db.findElectionByName(electionName).toApiElectionDetail()
 
     override fun listBallots(credentials: Credentials, voterName: String): List<Ballot> {
         TODO("not implemented")
