@@ -6,6 +6,8 @@ interface Table<PkType, T : TableRow<PkType>> {
     fun update(value: T)
     fun remove(key: PkType)
 
+    fun size(): Int = listAll().size
+
     fun find(p: (T) -> Boolean): T {
         val matching = listWhere(p)
         return when (matching.size) {

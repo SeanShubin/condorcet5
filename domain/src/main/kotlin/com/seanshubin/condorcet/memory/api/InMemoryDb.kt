@@ -81,6 +81,9 @@ class InMemoryDb : DbApi {
         voterTable.addAll(userTable.listAll().map { DbVoter(it.name, electionName) })
     }
 
+    override fun electionHasAllVoters(electionName: String): Boolean =
+            userTable.size() == listVoterNames(electionName).size
+
     override fun <T> inTransaction(f: () -> T): T {
         throw UnsupportedOperationException("The in memory database does not support transactions")
     }

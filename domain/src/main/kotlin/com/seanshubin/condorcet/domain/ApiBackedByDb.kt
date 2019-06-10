@@ -55,19 +55,18 @@ class ApiBackedByDb(private val db: DbApi) : Api {
         }
     }
 
-    override fun updateCandidateNames(credentials: Credentials, electionName: String, candidateNames: List<String>): ElectionDetail =
+    override fun updateCandidateNames(credentials: Credentials,
+                                      electionName: String,
+                                      candidateNames: List<String>): ElectionDetail =
             withAllowedToEdit(credentials, electionName) { election ->
                 val cleanCandidates = candidateNames.map(::trim).distinctBy { it.toLowerCase() }
                 db.setCandidates(election.name, cleanCandidates)
             }
 
-    override fun listEligibleVoters(credentials: Credentials, electionName: String): List<String> {
-        TODO("not implemented")
-    }
-
-    override fun areAllVotersEligible(credentials: Credentials, electionName: String): Boolean {
-        TODO("not implemented")
-    }
+    override fun areAllVotersEligible(credentials: Credentials, electionName: String): Boolean =
+            withValidCredentialsAndElection(credentials, electionName) { election ->
+                db.electionHasAllVoters(election.name)
+            }
 
     override fun listAllVoters(credentials: Credentials): List<String> {
         TODO("not implemented")
@@ -194,19 +193,32 @@ class ApiBackedByDb(private val db: DbApi) : Api {
 
     private fun trim(s: String): String = s.trim().replace(whitespaceBlock, " ")
 
-    private fun withAllowedToEdit(credentials: Credentials, electionName: String, f: (DbElection) -> Unit): ElectionDetail {
-        assertCredentialsValid(credentials)
-        val election = db.findElectionByName(trim(electionName))
-        if (election.owner == credentials.userName) {
-            f(election)
-            return db.findElectionByName(election.name).toApiElectionDetail()
-        } else {
-            throw RuntimeException(
-                    "User '${credentials.userName}' " +
-                            "is not allowed to edit election '${election.name}' " +
-                            "owned by user '${election.owner}'")
-        }
+    private fun <T> withValidCredentials(credentials: Credentials, f: () -> T): T {
+        val user = db.searchUserByName(credentials.userName) ?: authError(credentials)
+        if (user.password != credentials.userPassword) authError(credentials)
+        return f()
     }
+
+    private fun <T> withValidCredentialsAndElection(credentials: Credentials,
+                                                    electionName: String,
+                                                    f: (DbElection) -> T): T =
+            withValidCredentials(credentials) {
+                val election = db.findElectionByName(trim(electionName))
+                f(election)
+            }
+
+    private fun withAllowedToEdit(credentials: Credentials, electionName: String, f: (DbElection) -> Unit): ElectionDetail =
+            withValidCredentialsAndElection(credentials, electionName) { election ->
+                if (election.owner == credentials.userName) {
+                    f(election)
+                    db.findElectionByName(election.name).toApiElectionDetail()
+                } else {
+                    throw RuntimeException(
+                            "User '${credentials.userName}' " +
+                                    "is not allowed to edit election '${election.name}' " +
+                                    "owned by user '${election.owner}'")
+                }
+        }
 
     companion object {
         private val whitespaceBlock = Regex("""\s+""")

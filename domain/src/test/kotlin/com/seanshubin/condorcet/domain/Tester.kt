@@ -22,6 +22,7 @@ object Tester {
     val validCredentials = Credentials("Alice", "password")
     val invalidCredentials = Credentials("Alice", "invalid-password")
     val nonOwnerCredentials = Credentials("Bob", "password")
+    val allEligibleVoterNames = arrayOf("Alice", "Bob", "Carol", "Dave")
     val electionName = "New Election"
     val whitespaceBlock = Regex("""\s+""")
     val whitespaceNoiseBlock = " \r \n \t "
@@ -57,6 +58,12 @@ object Tester {
         api.register("Carol", "carol@email.com", "password")
         api.register("Dave", "dave@email.com", "password")
         api.createElection(validCredentials, electionName)
+        return api
+    }
+
+    fun createWithElectionAndEligibleVoters(vararg voterNames: String): Api {
+        val api = createWithElectionAndSeveralUsers()
+        api.updateEligibleVoters(validCredentials, electionName, voterNames.toList())
         return api
     }
 
