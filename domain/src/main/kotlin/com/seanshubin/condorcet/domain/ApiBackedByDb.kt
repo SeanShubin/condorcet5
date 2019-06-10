@@ -4,10 +4,12 @@ import com.seanshubin.condorcet.db.DbApi
 import com.seanshubin.condorcet.db.DbElection
 import com.seanshubin.condorcet.db.DbStatus
 import com.seanshubin.condorcet.db.DbUser
+import java.time.Clock
 import java.time.Instant
 import java.time.format.DateTimeParseException
 
-class ApiBackedByDb(private val db: DbApi) : Api {
+class ApiBackedByDb(private val db: DbApi,
+                    private val clock: Clock) : Api {
     override fun login(userNameOrUserEmail: String, userPassword: String): Credentials {
         val trimmedUserNameOrUserEmail = trim(userNameOrUserEmail)
         val dbUser =
@@ -39,7 +41,19 @@ class ApiBackedByDb(private val db: DbApi) : Api {
 
     override fun doneEditingElection(credentials: Credentials, electionName: String): ElectionDetail {
         return withAllowedToEdit(credentials, electionName) { election ->
-            db.setElectionStatus(election.name, DbStatus.LIVE)
+            val electionEnd = election.end
+            if (electionEnd == null) {
+                db.setElectionStatus(election.name, DbStatus.LIVE)
+            } else {
+                val electionEndInstant = Instant.parse(electionEnd)
+                val nowInstant = clock.instant()
+                if (electionEndInstant.isBefore(nowInstant)) {
+                    throw RuntimeException(
+                            "Unable to start election now ($nowInstant), " +
+                                    "its end date ($electionEndInstant) " +
+                                    "has already passed")
+                }
+            }
         }
     }
 
@@ -67,10 +81,6 @@ class ApiBackedByDb(private val db: DbApi) : Api {
             withValidCredentialsAndElection(credentials, electionName) { election ->
                 db.electionHasAllVoters(election.name)
             }
-
-    override fun listAllVoters(credentials: Credentials): List<String> {
-        TODO("not implemented")
-    }
 
     override fun updateEligibleVoters(credentials: Credentials,
                                       electionName: String,

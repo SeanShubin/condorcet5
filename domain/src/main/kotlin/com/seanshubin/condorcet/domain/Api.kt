@@ -13,7 +13,6 @@ interface Api {
     fun endElection(credentials: Credentials, electionName: String): ElectionDetail
     fun updateCandidateNames(credentials: Credentials, electionName: String, candidateNames: List<String>): ElectionDetail
     fun areAllVotersEligible(credentials: Credentials, electionName: String):Boolean
-    fun listAllVoters(credentials: Credentials): List<String>
     fun updateEligibleVoters(credentials: Credentials,
                              electionName: String,
                              eligibleVoterNames: List<String>): ElectionDetail

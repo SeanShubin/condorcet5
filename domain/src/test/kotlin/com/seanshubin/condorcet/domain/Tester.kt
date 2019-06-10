@@ -1,6 +1,7 @@
 package com.seanshubin.condorcet.domain
 
 import com.seanshubin.condorcet.memory.api.InMemoryDb
+import java.time.Instant
 
 /*
 reminder to test
@@ -26,9 +27,11 @@ object Tester {
     val electionName = "New Election"
     val whitespaceBlock = Regex("""\s+""")
     val whitespaceNoiseBlock = " \r \n \t "
+    val now = Instant.parse("2019-06-10T15:53:01.806Z")
+    val clock = StoppedClock(now)
     fun createEmpty(): Api {
         val db = InMemoryDb()
-        val api = ApiBackedByDb(db)
+        val api = ApiBackedByDb(db, clock)
         return api
     }
 

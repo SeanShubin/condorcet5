@@ -9,6 +9,8 @@ import com.seanshubin.condorcet.domain.Tester.electionName
 import com.seanshubin.condorcet.domain.Tester.invalidCredentials
 import com.seanshubin.condorcet.domain.Tester.nonOwnerCredentials
 import com.seanshubin.condorcet.domain.Tester.validCredentials
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -87,5 +89,18 @@ class DoneEditingElectionTest {
         assertEquals("election 'No election' not found", (result as Failure).exception.message)
     }
 
-    // todo: can not go live with no time
+    @Test
+    fun endDateIsBeforeNow() {
+        // given
+        val api = createWithElection()
+        val now = Instant.parse("2019-06-10T15:53:01.806Z")
+        val fiveMinutesAgo = now.minus(5, ChronoUnit.MINUTES)
+        api.setEndDate(validCredentials, electionName, fiveMinutesAgo.toString())
+
+        // when
+        val result = Try { api.doneEditingElection(validCredentials, electionName) }
+
+        // then
+        assertEquals("Unable to start election now (2019-06-10T15:53:01.806Z), its end date (2019-06-10T15:48:01.806Z) has already passed", (result as Failure).exception.message)
+    }
 }
