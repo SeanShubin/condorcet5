@@ -12,7 +12,6 @@ interface Api {
     fun doneEditingElection(credentials: Credentials, electionName: String): ElectionDetail
     fun endElection(credentials: Credentials, electionName: String): ElectionDetail
     fun updateCandidateNames(credentials: Credentials, electionName: String, candidateNames: List<String>): ElectionDetail
-    fun areAllVotersEligible(credentials: Credentials, electionName: String):Boolean
     fun updateEligibleVoters(credentials: Credentials,
                              electionName: String,
                              eligibleVoterNames: List<String>): ElectionDetail

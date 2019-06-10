@@ -42,10 +42,6 @@ class ApiWrappedInDbTransaction(private val api: Api,
         api.updateCandidateNames(credentials, electionName, candidateNames)
     }
 
-    override fun areAllVotersEligible(credentials: Credentials, electionName: String): Boolean = t.inTransaction {
-        api.areAllVotersEligible(credentials, electionName)
-    }
-
     override fun updateEligibleVoters(credentials: Credentials,
                                       electionName: String,
                                       eligibleVoterNames: List<String>): ElectionDetail = t.inTransaction {

@@ -77,11 +77,6 @@ class ApiBackedByDb(private val db: DbApi,
                 db.setCandidates(election.name, cleanCandidates)
             }
 
-    override fun areAllVotersEligible(credentials: Credentials, electionName: String): Boolean =
-            withValidCredentialsAndElection(credentials, electionName) { election ->
-                db.electionHasAllVoters(election.name)
-            }
-
     override fun updateEligibleVoters(credentials: Credentials,
                                       electionName: String,
                                       eligibleVoterNames: List<String>): ElectionDetail =
@@ -114,7 +109,9 @@ class ApiBackedByDb(private val db: DbApi,
     }
 
     override fun getElection(credentials: Credentials, electionName: String): ElectionDetail =
-            db.findElectionByName(electionName).toApiElectionDetail()
+            withValidCredentialsAndElection(credentials, electionName) { election ->
+                election.toApiElectionDetail()
+            }
 
     override fun listBallots(credentials: Credentials, voterName: String): List<Ballot> {
         TODO("not implemented")
@@ -178,7 +175,8 @@ class ApiBackedByDb(private val db: DbApi,
     private fun DbElection.toApiElectionDetail(): ElectionDetail {
         val candidateNames = db.listCandidateNames(name)
         val voterNames = db.listVoterNames(name)
-        return ElectionDetail(owner, name, end, secret, status.toApiStatus(), candidateNames, voterNames)
+        val isAllVoters = db.electionHasAllVoters(name)
+        return ElectionDetail(owner, name, end, secret, status.toApiStatus(), candidateNames, voterNames, isAllVoters)
     }
 
     private fun DbStatus.toApiStatus(): ElectionStatus = when (this) {
