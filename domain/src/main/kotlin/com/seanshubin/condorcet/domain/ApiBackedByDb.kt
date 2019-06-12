@@ -91,17 +91,14 @@ class ApiBackedByDb(private val db: DbApi,
             }
 
     override fun copyElection(credentials: Credentials, newElectionName: String, electionToCopyName: String): ElectionDetail {
-//        assertCredentialsValid(credentials)
-//        assertElectionNameDoesNotExist(newElectionName)
-//        val electionToCopy = getElectionDetail(electionToCopyName)
-//        val newElection = electionToCopy.copy(
-//                ownerName = credentials.userName,
-//                name = newElectionName,
-//                endIsoString = null,
-//                status = ElectionStatus.EDITING)
-//        createElection(newElection)
-//        return newElection
-        TODO("not implemented")
+        assertElectionNameDoesNotExist(newElectionName)
+        return withValidCredentialsAndElection(credentials, electionToCopyName) { election ->
+            db.createElection(credentials.userName, newElectionName)
+            db.setElectionSecretBallot(newElectionName, election.secret)
+            db.setCandidates(newElectionName, db.listCandidateNames(electionToCopyName))
+            db.setVoters(newElectionName, db.listVoterNames(electionToCopyName))
+            db.findElectionByName(newElectionName).toApiElectionDetail()
+        }
     }
 
     override fun listElections(credentials: Credentials): List<ElectionSummary> {
