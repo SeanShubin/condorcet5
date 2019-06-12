@@ -25,6 +25,8 @@ class EndElectionTest {
         assertEquals("Can not end election '$electionName', it is not live", (result as Failure).exception.message)
     }
 
+    // todo: can't end an election that has an end date
+
     @Test
     fun typical() {
         // given

@@ -6,11 +6,11 @@ import java.time.ZoneId
 
 class StoppedClock(val now: Instant) : Clock() {
     override fun withZone(zone: ZoneId?): Clock {
-        TODO("not implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun getZone(): ZoneId {
-        TODO("not implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun instant(): Instant = now

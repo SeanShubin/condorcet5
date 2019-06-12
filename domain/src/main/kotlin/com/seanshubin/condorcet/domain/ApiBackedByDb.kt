@@ -160,13 +160,6 @@ class ApiBackedByDb(private val db: DbApi,
         }
     }
 
-    private fun assertAllowedToEditElection(credentials: Credentials, electionName: String) {
-        val election = db.findElectionByName(electionName)
-        if (election.owner != credentials.userName) {
-            throw RuntimeException("User '${credentials.userName}' is not allowed to edit election '${election.name}' owned by user '${election.owner}'")
-        }
-    }
-
     private fun authError(credentials: Credentials): Nothing =
             throw RuntimeException("Invalid user/password combination for '${credentials.userName}'")
 
