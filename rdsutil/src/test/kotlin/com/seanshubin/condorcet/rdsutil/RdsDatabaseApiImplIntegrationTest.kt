@@ -2,27 +2,36 @@ package com.seanshubin.condorcet.rdsutil
 
 import com.amazonaws.services.rds.AmazonRDSAsync
 import com.amazonaws.services.rds.AmazonRDSAsyncClientBuilder
+import com.seanshubin.condorcet.util.DurationFormat
+import org.junit.Test
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
-import kotlin.test.Ignore
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class RdsDatabaseApiImplIntegrationTest {
-    @Ignore
+    @Test
     fun createDatabase() {
         // given
         val databaseName = "sean-test-mysql-db"
         val api: RdsDatabaseApi = createApi()
 
         // when-then
-        assertFalse(api.databaseExists(databaseName))
-        api.createDatabase(databaseName)
+//        assertFalse(api.databaseExists(databaseName))
+//        timing("api.createDatabase($databaseName)") {
+//            api.createDatabase(databaseName)
+//        }
         assertTrue(api.databaseExists(databaseName))
-        api.waitForDatabaseToBeAvailable(databaseName)
-        api.deleteDatabase(databaseName)
-        api.waitForDatabaseToGoAway(databaseName)
+        timing("api.waitForDatabaseToBeAvailable($databaseName)") {
+            api.waitForDatabaseToBeAvailable(databaseName)
+        }
+        timing("api.deleteDatabase($databaseName)") {
+            api.deleteDatabase(databaseName)
+        }
+        timing("api.waitForDatabaseToGoAway($databaseName)") {
+            api.waitForDatabaseToGoAway(databaseName)
+        }
         assertFalse(api.databaseExists(databaseName))
     }
 
@@ -36,5 +45,14 @@ class RdsDatabaseApiImplIntegrationTest {
                 AmazonRDSAsyncClientBuilder.standard().withCredentials(credentialsProvider).build()
         val api: RdsDatabaseApi = RdsDatabaseApiImpl(rdsClient)
         return api
+    }
+
+    fun timing(caption: String, f: () -> Unit) {
+        val start = System.currentTimeMillis()
+        f()
+        val end = System.currentTimeMillis()
+        val duration = end - start
+        val durationString = DurationFormat.milliseconds.format(duration)
+        println("$caption: $durationString")
     }
 }

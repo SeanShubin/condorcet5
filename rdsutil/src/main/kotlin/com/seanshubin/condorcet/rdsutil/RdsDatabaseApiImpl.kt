@@ -39,15 +39,18 @@ class RdsDatabaseApiImpl(private val rdsClient: AmazonRDSAsync) : RdsDatabaseApi
     }
 
     override fun waitForDatabaseToGoAway(instanceIdentifier: String) {
-        val howOftenToCheck = Duration.ofSeconds(5)
-        val howLongToWait = Duration.ofMinutes(4)
         retryDuration(howOftenToCheck, howLongToWait) {
             !databaseExists(instanceIdentifier)
         }
     }
 
     override fun waitForDatabaseToBeAvailable(instanceIdentifier: String) {
+        var x = 0
         waitForDbInstance(instanceIdentifier) { instance ->
+            x++
+            val status = instanceIdentifier
+            val endpoint = instance.endpoint
+            println("$x $status $endpoint")
             instance.dbInstanceStatus == "available"
         }
     }
@@ -64,8 +67,6 @@ class RdsDatabaseApiImpl(private val rdsClient: AmazonRDSAsync) : RdsDatabaseApi
 
     private fun waitForDbInstance(instanceIdentifier: String, p: (DBInstance) -> Boolean) {
         val instance = findInstanceByName(instanceIdentifier)
-        val howOftenToCheck = Duration.ofSeconds(5)
-        val howLongToWait = Duration.ofMinutes(5)
         retryDuration(howOftenToCheck, howLongToWait) {
             p(instance)
         }
@@ -76,4 +77,7 @@ class RdsDatabaseApiImpl(private val rdsClient: AmazonRDSAsync) : RdsDatabaseApi
         1 -> get(0)
         else -> throw RuntimeException("Exactly one $nameOfThingLookingFor expected, got $size")
     }
+
+    private val howOftenToCheck = Duration.ofSeconds(5)
+    private val howLongToWait = Duration.ofHours(1)
 }
