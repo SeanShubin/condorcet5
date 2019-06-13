@@ -2,14 +2,15 @@ package com.seanshubin.condorcet.rdsutil
 
 import com.amazonaws.services.rds.AmazonRDSAsync
 import com.amazonaws.services.rds.model.CreateDBInstanceRequest
+import com.amazonaws.services.rds.model.DBInstance
 import com.amazonaws.services.rds.model.DeleteDBInstanceRequest
 import com.amazonaws.services.rds.model.DescribeDBInstancesRequest
 import com.seanshubin.condorcet.util.retryDuration
 import java.time.Duration
 
 class RdsDatabaseApiImpl(private val rdsClient: AmazonRDSAsync) : RdsDatabaseApi {
-    override fun createDatabase(instanceIdentifier: String, masterUserPassword: String) {
-        val createDbInstanceRequest = CreateDBInstanceRequest().withMasterUserPassword(masterUserPassword).withDBInstanceIdentifier(instanceIdentifier).withEngine("mysql").withDBInstanceClass("db.t2.micro").withMasterUsername("sean").withAllocatedStorage(20)
+    override fun createDatabase(instanceIdentifier: String) {
+        val createDbInstanceRequest = CreateDBInstanceRequest().withDBInstanceIdentifier(instanceIdentifier).withEngine("mysql").withDBInstanceClass("db.t2.micro").withMasterUsername("masterusername").withMasterUserPassword("masteruserpassword").withAllocatedStorage(20).withDBName("dbname")
         rdsClient.createDBInstance(createDbInstanceRequest)
     }
 
@@ -43,5 +44,36 @@ class RdsDatabaseApiImpl(private val rdsClient: AmazonRDSAsync) : RdsDatabaseApi
         retryDuration(howOftenToCheck, howLongToWait) {
             !databaseExists(instanceIdentifier)
         }
+    }
+
+    override fun waitForDatabaseToBeAvailable(instanceIdentifier: String) {
+        waitForDbInstance(instanceIdentifier) { instance ->
+            instance.dbInstanceStatus == "available"
+        }
+    }
+
+    private fun findInstanceByName(instanceIdentifier: String): DBInstance {
+        val describeDbInstancesRequest = DescribeDBInstancesRequest()
+        val describeDbInstancesResponse = rdsClient.describeDBInstances(describeDbInstancesRequest)
+        val dbInstances = describeDbInstancesResponse.dbInstances
+        val identifierMatches = { instance: DBInstance -> instance.dbInstanceIdentifier == instanceIdentifier }
+        val dbInstance = dbInstances.filter(identifierMatches).exactlyOne("Database instance with id $instanceIdentifier")
+        return dbInstance
+
+    }
+
+    private fun waitForDbInstance(instanceIdentifier: String, p: (DBInstance) -> Boolean) {
+        val instance = findInstanceByName(instanceIdentifier)
+        val howOftenToCheck = Duration.ofSeconds(5)
+        val howLongToWait = Duration.ofMinutes(5)
+        retryDuration(howOftenToCheck, howLongToWait) {
+            p(instance)
+        }
+
+    }
+
+    private fun <T> List<T>.exactlyOne(nameOfThingLookingFor: String): T = when (size) {
+        1 -> get(0)
+        else -> throw RuntimeException("Exactly one $nameOfThingLookingFor expected, got $size")
     }
 }

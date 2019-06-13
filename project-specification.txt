@@ -33,6 +33,10 @@
         group    io.arrow-kt
         artifact arrow-core
     }
+    mysql-jdbc {
+        group mysql
+        artifact mysql-connector-java
+    }
   }
   global [ stdlib test ]
   modules {
@@ -40,7 +44,7 @@
     serverutil []
     rds        [domain rdsutil]
     domain     [arrow-core]
-    rdsutil    [aws-rds util]
+    rdsutil    [aws-rds mysql-jdbc util]
     util       [coroutines]
   }
   consoleEntryPoint {

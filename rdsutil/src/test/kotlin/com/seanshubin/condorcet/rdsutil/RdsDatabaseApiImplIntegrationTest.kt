@@ -18,8 +18,9 @@ class RdsDatabaseApiImplIntegrationTest {
 
         // when-then
         assertFalse(api.databaseExists(databaseName))
-        api.createDatabase(databaseName, "master-password")
+        api.createDatabase(databaseName)
         assertTrue(api.databaseExists(databaseName))
+        api.waitForDatabaseToBeAvailable(databaseName)
         api.deleteDatabase(databaseName)
         api.waitForDatabaseToGoAway(databaseName)
         assertFalse(api.databaseExists(databaseName))
