@@ -46,6 +46,7 @@
     domain     [arrow-core]
     rdsutil    [aws-rds mysql-jdbc util]
     util       [coroutines]
+    script     [rdsutil]
   }
   consoleEntryPoint {
     console com.seanshubin.condorcet.server.ServerApplication

@@ -9,12 +9,18 @@ import com.seanshubin.condorcet.util.retryDuration
 import java.time.Duration
 
 class RdsDatabaseApiImpl(private val rdsClient: AmazonRDSAsync) : RdsDatabaseApi {
-    override fun createDatabase(instanceIdentifier: String) {
-        val createDbInstanceRequest = CreateDBInstanceRequest().withDBInstanceIdentifier(instanceIdentifier).withEngine("mysql").withDBInstanceClass("db.t2.micro").withMasterUsername("masterusername").withMasterUserPassword("masteruserpassword").withAllocatedStorage(20).withDBName("dbname")
+    override fun createInstance(instanceIdentifier: String) {
+        val createDbInstanceRequest = CreateDBInstanceRequest()
+                .withDBInstanceIdentifier(instanceIdentifier)
+                .withEngine("mysql")
+                .withDBInstanceClass("db.t2.micro")
+                .withMasterUsername("masterusername")
+                .withMasterUserPassword("masteruserpassword")
+                .withAllocatedStorage(20).withDBName("dbname")
         rdsClient.createDBInstance(createDbInstanceRequest)
     }
 
-    override fun databaseExists(instanceIdentifier: String): Boolean {
+    override fun instanceExists(instanceIdentifier: String): Boolean {
         val describeDbInstancesRequest = DescribeDBInstancesRequest()
         val describeDbInstancesResponse = rdsClient.describeDBInstances(describeDbInstancesRequest)
         val dbInstances = describeDbInstancesResponse.dbInstances
@@ -33,27 +39,32 @@ class RdsDatabaseApiImpl(private val rdsClient: AmazonRDSAsync) : RdsDatabaseApi
         return dbInstances.any { dbInstance -> dbInstance.dbInstanceIdentifier == instanceIdentifier }
     }
 
-    override fun deleteDatabase(instanceIdentifier: String) {
+    override fun deleteInstance(instanceIdentifier: String) {
         val deleteDbInstanceRequest = DeleteDBInstanceRequest().withDBInstanceIdentifier(instanceIdentifier).withSkipFinalSnapshot(true)
         rdsClient.deleteDBInstanceAsync(deleteDbInstanceRequest).get()
     }
 
-    override fun waitForDatabaseToGoAway(instanceIdentifier: String) {
+    override fun waitForInstanceToGoAway(instanceIdentifier: String) {
         retryDuration(howOftenToCheck, howLongToWait) {
-            !databaseExists(instanceIdentifier)
+            !instanceExists(instanceIdentifier)
         }
     }
 
-    override fun waitForDatabaseToBeAvailable(instanceIdentifier: String) {
+    override fun waitForInstanceToBeAvailable(instanceIdentifier: String) {
         var x = 0
         waitForDbInstance(instanceIdentifier) { instance ->
             x++
-            val status = instanceIdentifier
+            val status = instance.dbInstanceStatus
             val endpoint = instance.endpoint
             println("$x $status $endpoint")
             instance.dbInstanceStatus == "available"
         }
     }
+
+    override fun instanceStatus(instanceIdentifier: String): String =
+            withDbInstance(instanceIdentifier) { instance ->
+                instance.dbInstanceStatus
+            }
 
     private fun findInstanceByName(instanceIdentifier: String): DBInstance {
         val describeDbInstancesRequest = DescribeDBInstancesRequest()
@@ -70,7 +81,11 @@ class RdsDatabaseApiImpl(private val rdsClient: AmazonRDSAsync) : RdsDatabaseApi
         retryDuration(howOftenToCheck, howLongToWait) {
             p(instance)
         }
+    }
 
+    private fun <T> withDbInstance(instanceIdentifier: String, f: (DBInstance) -> T): T {
+        val instance = findInstanceByName(instanceIdentifier)
+        return f(instance)
     }
 
     private fun <T> List<T>.exactlyOne(nameOfThingLookingFor: String): T = when (size) {

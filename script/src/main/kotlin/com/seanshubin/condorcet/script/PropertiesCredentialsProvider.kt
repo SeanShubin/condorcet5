@@ -1,4 +1,4 @@
-package com.seanshubin.condorcet.rdsutil
+package com.seanshubin.condorcet.script
 
 import com.amazonaws.auth.AWSCredentials
 import com.amazonaws.auth.AWSCredentialsProvider

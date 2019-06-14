@@ -38,7 +38,7 @@
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-rds</artifactId>
-                <version>1.11.570</version>
+                <version>1.11.572</version>
             </dependency>
             <dependency>
                 <groupId>io.arrow-kt</groupId>
@@ -59,6 +59,7 @@
         <module>domain</module>
         <module>rdsutil</module>
         <module>util</module>
+        <module>script</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
