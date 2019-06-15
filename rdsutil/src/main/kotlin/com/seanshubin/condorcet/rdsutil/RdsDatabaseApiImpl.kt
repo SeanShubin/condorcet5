@@ -5,18 +5,25 @@ import com.amazonaws.services.rds.model.CreateDBInstanceRequest
 import com.amazonaws.services.rds.model.DBInstance
 import com.amazonaws.services.rds.model.DeleteDBInstanceRequest
 import com.amazonaws.services.rds.model.DescribeDBInstancesRequest
+import com.seanshubin.condorcet.rdsutil.ResultSetUtil.columnNames
 import com.seanshubin.condorcet.util.retryDuration
+import java.sql.DriverManager
 import java.time.Duration
 
-class RdsDatabaseApiImpl(private val rdsClient: AmazonRDSAsync) : RdsDatabaseApi {
+class RdsDatabaseApiImpl(private val rdsClient: AmazonRDSAsync,
+                         private val user: String,
+                         private val password: String,
+                         private val dbName: String) : RdsDatabaseApi {
     override fun createInstance(instanceIdentifier: String) {
         val createDbInstanceRequest = CreateDBInstanceRequest()
                 .withDBInstanceIdentifier(instanceIdentifier)
                 .withEngine("mysql")
                 .withDBInstanceClass("db.t2.micro")
-                .withMasterUsername("masterusername")
-                .withMasterUserPassword("masteruserpassword")
-                .withAllocatedStorage(20).withDBName("dbname")
+                .withMasterUsername(user)
+                .withMasterUserPassword(password)
+                .withDBName(dbName)
+                .withAllocatedStorage(20)
+                .withVpcSecurityGroupIds("vpc-772e0710")
         rdsClient.createDBInstance(createDbInstanceRequest)
     }
 
@@ -66,7 +73,27 @@ class RdsDatabaseApiImpl(private val rdsClient: AmazonRDSAsync) : RdsDatabaseApi
                 instance.dbInstanceStatus
             }
 
-    private fun findInstanceByName(instanceIdentifier: String): DBInstance {
+    override fun createDatabase(instanceIdentifier: String, user: String, password: String, dbName: String) {
+        val instance = findInstanceByIdentifier(instanceIdentifier)
+        val endpoint = instance.endpoint.address
+        val url = "jdbc:mysql://$endpoint"
+        val connection = DriverManager.getConnection(url, user, password)
+        val statement = connection.prepareCall("create database $dbName")
+        statement.execute()
+    }
+
+    override fun listDatabases(instanceIdentifier: String): List<String> {
+        val instance = findInstanceByIdentifier(instanceIdentifier)
+        val endpoint = instance.endpoint.address
+        val url = "jdbc:mysql://$endpoint"
+        val connection = DriverManager.getConnection(url, user, password)
+        val statement = connection.prepareStatement("show databases")
+        val resultSet = statement.executeQuery()
+        println(resultSet.columnNames())
+        TODO()
+    }
+
+    private fun findInstanceByIdentifier(instanceIdentifier: String): DBInstance {
         val describeDbInstancesRequest = DescribeDBInstancesRequest()
         val describeDbInstancesResponse = rdsClient.describeDBInstances(describeDbInstancesRequest)
         val dbInstances = describeDbInstancesResponse.dbInstances
@@ -77,14 +104,14 @@ class RdsDatabaseApiImpl(private val rdsClient: AmazonRDSAsync) : RdsDatabaseApi
     }
 
     private fun waitForDbInstance(instanceIdentifier: String, p: (DBInstance) -> Boolean) {
-        val instance = findInstanceByName(instanceIdentifier)
+        val instance = findInstanceByIdentifier(instanceIdentifier)
         retryDuration(howOftenToCheck, howLongToWait) {
             p(instance)
         }
     }
 
     private fun <T> withDbInstance(instanceIdentifier: String, f: (DBInstance) -> T): T {
-        val instance = findInstanceByName(instanceIdentifier)
+        val instance = findInstanceByIdentifier(instanceIdentifier)
         return f(instance)
     }
 

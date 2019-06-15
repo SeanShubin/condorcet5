@@ -7,4 +7,6 @@ interface RdsDatabaseApi {
     fun deleteInstance(instanceIdentifier: String)
     fun waitForInstanceToGoAway(instanceIdentifier: String)
     fun waitForInstanceToBeAvailable(instanceIdentifier: String)
+    fun createDatabase(instanceIdentifier: String, user: String, password: String, dbName: String)
+    fun listDatabases(instanceIdentifier: String): List<String>
 }
