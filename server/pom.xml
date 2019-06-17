@@ -11,9 +11,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.seanshubin.condorcet</groupId>
-            <artifactId>condorcet-rds</artifactId>
-            <version>${project.version}</version>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-rds</artifactId>
         </dependency>
     </dependencies>
     <parent>

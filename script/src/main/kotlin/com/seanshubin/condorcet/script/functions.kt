@@ -37,6 +37,6 @@ fun createApi(): RdsDatabaseApi {
                     .standard()
                     .withRegion(awsRegion)
                     .withCredentials(credentialsProvider).build()
-    val api: RdsDatabaseApi = RdsDatabaseApiImpl(rdsClient, user, password, dbName)
+    val api: RdsDatabaseApi = RdsDatabaseApiImpl(rdsClient, dbUser, dbPassword, dbName)
     return api
 }

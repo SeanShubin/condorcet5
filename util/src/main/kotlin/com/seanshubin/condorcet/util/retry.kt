@@ -4,13 +4,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import java.time.Duration
 
-fun retryDuration(howOftenToCheck: Duration, howLongToWait: Duration, predicate: () -> Boolean) {
+fun retryDuration(howOftenToCheck: Duration,
+                  howLongToWait: Duration,
+                  predicate: (Int) -> Boolean) {
     val started = System.currentTimeMillis()
     var tries = 0
     runBlocking {
         while (true) {
-            val result = predicate()
             tries++
+            val result = predicate(tries)
             if (result) {
                 break
             } else {

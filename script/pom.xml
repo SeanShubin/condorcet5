@@ -10,6 +10,10 @@
             <artifactId>condorcet-rdsutil</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-cloudformation</artifactId>
+        </dependency>
     </dependencies>
     <parent>
         <groupId>com.seanshubin.condorcet</groupId>

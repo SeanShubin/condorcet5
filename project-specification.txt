@@ -25,9 +25,13 @@
       artifact kotlin-test-junit
       scope test
     }
-    aws-rds {
+    rds {
       group    com.amazonaws
       artifact aws-java-sdk-rds
+    }
+    cloudformation {
+      group    com.amazonaws
+      artifact aws-java-sdk-cloudformation
     }
     arrow-core {
         group    io.arrow-kt
@@ -44,9 +48,9 @@
     serverutil []
     rds        [domain rdsutil]
     domain     [arrow-core]
-    rdsutil    [aws-rds mysql-jdbc util]
+    rdsutil    [rds mysql-jdbc util]
     util       [coroutines]
-    script     [rdsutil]
+    script     [rdsutil cloudformation]
   }
   consoleEntryPoint {
     console com.seanshubin.condorcet.server.ServerApplication

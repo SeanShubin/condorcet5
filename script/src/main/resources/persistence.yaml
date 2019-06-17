@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Persistence layer
+Resources:
+  Persistence:
+    Type: "AWS::RDS::DBInstance"
+    Properties:
+      AllocatedStorage: 20
+      DBInstanceClass: db.t2.micro
+      DBName:
+        Ref: DBName
+      Engine: MySQL
+      MasterUserPassword:
+        Ref: DBPassword
+      MasterUsername:
+        Ref: DBUser
+      Tags:
+        - Key: Name
+          Value: "My SQL Database"
+  MySqlSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+        SecurityGroupIngress
+          - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+          - IpProtocol: tcp
+            FromPort: 22
+            ToPort: 22
+            CidrIp:
+              Ref: SSHLocation
+Parameters:
+  DBName:
+    Type: String
+  DBUser:
+    Type: String
+  DBPassword:
+    Type: String
