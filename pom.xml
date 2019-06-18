@@ -38,12 +38,12 @@
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-rds</artifactId>
-                <version>1.11.573</version>
+                <version>1.11.574</version>
             </dependency>
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-cloudformation</artifactId>
-                <version>1.11.573</version>
+                <version>1.11.574</version>
             </dependency>
             <dependency>
                 <groupId>io.arrow-kt</groupId>
@@ -65,6 +65,7 @@
         <module>rdsutil</module>
         <module>util</module>
         <module>script</module>
+        <module>dbutil</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
