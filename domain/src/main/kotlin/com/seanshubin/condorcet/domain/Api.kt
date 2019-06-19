@@ -2,8 +2,9 @@ package com.seanshubin.condorcet.domain
 
 interface Api {
     // auth
-    fun login(userNameOrUserEmail: String, userPassword: String): Credentials
-    fun register(userName: String, userEmail: String, userPassword: String): Credentials
+    fun login(nameOrEmail: String, password: String): Credentials
+
+    fun register(name: String, email: String, password: String): Credentials
 
     // election
     fun createElection(credentials: Credentials, electionName: String): ElectionDetail

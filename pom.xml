@@ -27,7 +27,7 @@
             <dependency>
                 <groupId>org.jetbrains.kotlinx</groupId>
                 <artifactId>kotlinx-coroutines-core</artifactId>
-                <version>1.2.1</version>
+                <version>1.2.2</version>
             </dependency>
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
@@ -38,12 +38,12 @@
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-rds</artifactId>
-                <version>1.11.574</version>
+                <version>1.11.575</version>
             </dependency>
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-cloudformation</artifactId>
-                <version>1.11.574</version>
+                <version>1.11.575</version>
             </dependency>
             <dependency>
                 <groupId>io.arrow-kt</groupId>
@@ -66,6 +66,7 @@
         <module>util</module>
         <module>script</module>
         <module>dbutil</module>
+        <module>crypto</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

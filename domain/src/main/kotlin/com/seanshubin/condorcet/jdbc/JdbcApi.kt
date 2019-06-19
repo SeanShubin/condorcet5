@@ -1,14 +1,51 @@
 package com.seanshubin.condorcet.jdbc
 
+import com.seanshubin.condorcet.crypto.PasswordUtil
+import com.seanshubin.condorcet.crypto.SaltAndHash
 import com.seanshubin.condorcet.domain.*
 
-class JdbcApi : Api {
-    override fun login(userNameOrUserEmail: String, userPassword: String): Credentials {
-        TODO("not implemented")
+class JdbcApi(private val passwordUtil: PasswordUtil,
+              private val dbExec: DbExec) : Api {
+    override fun login(nameOrEmail: String, password: String): Credentials {
+        val sql = "select name, salt, hash from user where name = ? or email = ?"
+        val resultSet = dbExec.query(sql, nameOrEmail, nameOrEmail)
+        if (resultSet.next()) {
+            val name = resultSet.getString("name")
+            val salt = resultSet.getString("salt")
+            val hash = resultSet.getString("hash")
+            if (resultSet.next()) {
+                throw RuntimeException("more than one entry matching '$nameOrEmail' found")
+            }
+            val saltAndHash = SaltAndHash(salt, hash)
+            return if (passwordUtil.validatePassword(password, saltAndHash)) {
+                Credentials(name, password)
+            } else {
+                throw RuntimeException("invalid password for '$nameOrEmail'")
+            }
+        } else {
+            throw RuntimeException("user or email '$nameOrEmail' not found")
+        }
     }
 
-    override fun register(userName: String, userEmail: String, userPassword: String): Credentials {
-        TODO("not implemented")
+    override fun register(name: String, email: String, password: String): Credentials {
+        val sql = "select name, email from user where name = ? or email = ?"
+        val resultSet = dbExec.query(sql, name, email)
+        if (resultSet.next()) {
+            val existingName = resultSet.getString("name")
+            val existingEmail = resultSet.getString("email")
+            if (name == existingName) {
+                throw RuntimeException("user named '$name' already exists")
+            }
+            if (email == existingEmail) {
+                throw RuntimeException("user with email '$email' already exists")
+            }
+            throw RuntimeException("user '$name' or email '$email' not found")
+        } else {
+            val sql = "insert into user (name, email, salt, hash) values (?, ?, ?, ?)"
+            val (salt, hash) = passwordUtil.createSaltAndHash(password)
+            dbExec.update(sql, name, email, salt, hash)
+            return Credentials(name, password)
+        }
     }
 
     override fun createElection(credentials: Credentials, electionName: String): ElectionDetail {

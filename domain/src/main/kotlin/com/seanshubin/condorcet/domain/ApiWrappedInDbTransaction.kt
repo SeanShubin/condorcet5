@@ -4,12 +4,12 @@ import com.seanshubin.condorcet.db.TransactionFunction
 
 class ApiWrappedInDbTransaction(private val api: Api,
                                 private val t: TransactionFunction) : Api {
-    override fun login(userNameOrUserEmail: String, userPassword: String): Credentials = t.inTransaction {
-        api.login(userNameOrUserEmail, userPassword)
+    override fun login(nameOrEmail: String, password: String): Credentials = t.inTransaction {
+        api.login(nameOrEmail, password)
     }
 
-    override fun register(userName: String, userEmail: String, userPassword: String): Credentials = t.inTransaction {
-        api.register(userName, userEmail, userPassword)
+    override fun register(name: String, email: String, password: String): Credentials = t.inTransaction {
+        api.register(name, email, password)
     }
 
     override fun createElection(credentials: Credentials, electionName: String): ElectionDetail = t.inTransaction {

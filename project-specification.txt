@@ -47,11 +47,12 @@
     server     [serverutil rds]
     serverutil []
     rds        [domain rdsutil]
-    domain     [arrow-core]
+    domain     [arrow-core crypto]
     rdsutil    [rds mysql-jdbc util]
     util       [coroutines]
     script     [rdsutil cloudformation]
     dbutil     [mysql-jdbc]
+    crypto     []
   }
   consoleEntryPoint {
     console com.seanshubin.condorcet.server.ServerApplication

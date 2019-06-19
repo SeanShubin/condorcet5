@@ -10,23 +10,23 @@ import java.time.format.DateTimeParseException
 
 class ApiBackedByDb(private val db: DbApi,
                     private val clock: Clock) : Api {
-    override fun login(userNameOrUserEmail: String, userPassword: String): Credentials {
-        val trimmedUserNameOrUserEmail = trim(userNameOrUserEmail)
+    override fun login(nameOrEmail: String, password: String): Credentials {
+        val trimmedUserNameOrUserEmail = trim(nameOrEmail)
         val dbUser =
                 db.searchUserByName(trimmedUserNameOrUserEmail) ?: db.searchUserByEmail(trimmedUserNameOrUserEmail)
                 ?: throw RuntimeException("User with name or email '$trimmedUserNameOrUserEmail' does not exist")
-        val givenCredentials = Credentials(dbUser.name, userPassword)
+        val givenCredentials = Credentials(dbUser.name, password)
         assertCredentialsValid(givenCredentials)
         val actualCredentials = dbUser.toApiCredentials()
         return actualCredentials
     }
 
-    override fun register(userName: String, userEmail: String, userPassword: String): Credentials {
-        val trimmedUserName = trim(userName)
-        val trimmedUserEmail = trim(userEmail)
+    override fun register(name: String, email: String, password: String): Credentials {
+        val trimmedUserName = trim(name)
+        val trimmedUserEmail = trim(email)
         assertUserNameDoesNotExist(trimmedUserName)
         assertUserEmailDoesNotExist(trimmedUserEmail)
-        db.createUser(trimmedUserName, trimmedUserEmail, userPassword)
+        db.createUser(trimmedUserName, trimmedUserEmail, password)
         val dbUser = db.findUserByName(trimmedUserName)
         return dbUser.toApiCredentials()
     }
