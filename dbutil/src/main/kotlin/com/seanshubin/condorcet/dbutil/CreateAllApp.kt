@@ -1,5 +1,5 @@
 package com.seanshubin.condorcet.dbutil
 
 fun main() {
-    Generator.createTables()
+    Generator.all()
 }

@@ -5,8 +5,9 @@ import com.seanshubin.condorcet.dbutil.FieldType.*
 object Schema {
     val userName = Field("name", STRING, unique = true)
     val userEmail = Field("email", STRING, unique = true)
-    val userPassword = Field("password", STRING)
-    val user = Table("user", userName, userEmail, userPassword)
+    val userSalt = Field("salt", STRING)
+    val userHash = Field("hash", STRING)
+    val user = Table("user", userName, userEmail, userSalt, userHash)
     val statusName = Field("name", STRING)
     val status = Table("status", statusName)
     val electionOwner = ForeignKey("owner", user)
