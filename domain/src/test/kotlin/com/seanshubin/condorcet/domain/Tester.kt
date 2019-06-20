@@ -1,5 +1,6 @@
 package com.seanshubin.condorcet.domain
 
+import com.seanshubin.condorcet.crypto.*
 import com.seanshubin.condorcet.memory.api.InMemoryDb
 import java.time.Instant
 
@@ -29,9 +30,12 @@ object Tester {
     val whitespaceNoiseBlock = " \r \n \t "
     val now = Instant.parse("2019-06-10T15:53:01.806Z")
     val clock = StoppedClock(now)
+    val oneWayHash: OneWayHash = Sha256Hash()
+    val uniqueIdGenerator: UniqueIdGenerator = Uuid4()
+    val passwordUtil = PasswordUtil(uniqueIdGenerator, oneWayHash)
     fun createEmpty(): Api {
         val db = InMemoryDb()
-        val api = ApiBackedByDb(db, clock)
+        val api = ApiBackedByDb(db, clock, passwordUtil)
         return api
     }
 

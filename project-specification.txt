@@ -41,13 +41,17 @@
         group mysql
         artifact mysql-connector-java
     }
+    jackson {
+        group com.fasterxml.jackson.module
+        artifact jackson-module-kotlin
+    }
   }
   global [ stdlib test ]
   modules {
     server     [serverutil rds]
     serverutil []
     rds        [domain rdsutil]
-    domain     [arrow-core crypto]
+    domain     [arrow-core crypto jackson]
     rdsutil    [rds mysql-jdbc util]
     util       [coroutines]
     script     [rdsutil cloudformation]

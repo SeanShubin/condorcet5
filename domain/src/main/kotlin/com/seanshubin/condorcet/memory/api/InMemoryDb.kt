@@ -22,8 +22,11 @@ class InMemoryDb : DbApi {
     override fun searchUserByEmail(userEmail: String): DbUser? =
             userTable.searchOne { it.email.equals(userEmail, ignoreCase = true) }
 
-    override fun createUser(userName: String, userEmail: String, userPassword: String) {
-        userTable.add(DbUser(userName, userEmail, userPassword))
+    override fun createUser(userName: String,
+                            userEmail: String,
+                            userSalt: String,
+                            userHash: String) {
+        userTable.add(DbUser(userName, userEmail, userSalt, userHash))
     }
 
     override fun searchElectionByName(electionName: String): DbElection? =

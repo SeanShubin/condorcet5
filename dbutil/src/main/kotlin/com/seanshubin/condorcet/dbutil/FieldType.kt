@@ -4,5 +4,6 @@ enum class FieldType(val sql: String) {
     STRING("varchar(255)"),
     DATE("datetime"),
     BOOLEAN("boolean"),
-    INT("int")
+    INT("int"),
+    TEXT("text")
 }
