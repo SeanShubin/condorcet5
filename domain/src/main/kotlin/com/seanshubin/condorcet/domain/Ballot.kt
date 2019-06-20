@@ -1,6 +1,7 @@
 package com.seanshubin.condorcet.domain
 
-data class Ballot(val ballotId:String,
+data class Ballot(val ballotId: String,
+                  val confirmation: String,
                   val electionName: String,
                   val voterName: String,
                   val whenCastIso: String?,

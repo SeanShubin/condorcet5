@@ -3,7 +3,6 @@ package com.seanshubin.condorcet.domain
 interface Api {
     // auth
     fun login(nameOrEmail: String, password: String): Credentials
-
     fun register(name: String, email: String, password: String): Credentials
 
     // election
@@ -16,7 +15,6 @@ interface Api {
     fun updateEligibleVoters(credentials: Credentials,
                              electionName: String,
                              eligibleVoterNames: List<String>): ElectionDetail
-
     fun updateEligibleVotersToAll(credentials: Credentials, electionName: String): ElectionDetail
     fun listElections(credentials: Credentials): List<ElectionSummary>
     fun getElection(credentials: Credentials, electionName: String): ElectionDetail
