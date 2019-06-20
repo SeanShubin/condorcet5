@@ -1,0 +1,122 @@
+candidates (name)
+    Alpha
+    Beta
+    Charlie
+    Delta
+    Echo
+voted (name)
+    aaron-stevens
+    aisha-nguyen
+    alisha-blackburn
+    bill-johns
+    celia-frost
+    christopher-kim
+    clint-bird
+    colette-cuevas
+    corinne-sutton
+    dewayne-fitzgerald
+    doris-morton
+    elvin-pham
+    erin-fletcher
+    garland-mcgrath
+    glenda-dougherty
+    gloria-myers
+    harris-figueroa
+    hillary-powers
+    ira-kerr
+    israel-hayes
+    janis-mcfarland
+    jasper-ali
+    jewell-pratt
+    julian-serrano
+    kara-castaneda
+    kim-bruce
+    lessie-collier
+    lilia-fleming
+    loren-mayer
+    loretta-duffy
+    lowell-pace
+    luciano-higgins
+    mattie-reyes
+    michael-montes
+    muriel-morris
+    oliver-richard
+    paul-oconnor
+    reinaldo-tate
+    rene-sanders
+    robin-mora
+    rosario-potts
+    sallie-medina
+    sammy-english
+    theron-russo
+    waldo-cervantes
+did-not-vote (name)
+    fern-henry
+    jorge-barron
+    maryellen-le
+    truman-mueller
+    willa-tate
+ballots (confirmation { rank candidate })
+    0018eb77-72ac-48b1-9cc1-bdcc23e041ae 1 Alpha   2 Charlie 3 Beta  4 Echo    5 Delta
+    0f941a22-b8e8-44fe-a27b-dd432321377f 1 Charlie 2 Alpha   3 Echo  4 Beta    5 Delta
+    10bf7fa5-4923-40d4-a560-974c21b98d31 1 Echo    2 Beta    3 Alpha 4 Delta   5 Charlie
+    117e5b60-884d-4076-ad2e-72552e4e4e6f 1 Delta   2 Charlie 3 Echo  4 Beta    5 Alpha
+    1d9d685f-4095-4bfe-8090-d571f810840b 1 Delta   2 Charlie 3 Echo  4 Beta    5 Alpha
+    363d6119-9658-4acf-a294-43491f88b93c 1 Beta    2 Echo    3 Delta 4 Alpha   5 Charlie
+    371a331d-9797-4436-8539-b7ee60690950 1 Alpha   2 Charlie 3 Beta  4 Echo    5 Delta
+    393cf982-08b7-470f-9eac-255430ba4c28 1 Beta    2 Echo    3 Delta 4 Alpha   5 Charlie
+    4a214f0a-cd05-4305-a07c-91d0c6cac380 1 Delta   2 Charlie 3 Echo  4 Beta    5 Alpha
+    4bdcf791-9cb2-43ad-b804-a0c8953657dc 1 Beta    2 Echo    3 Delta 4 Alpha   5 Charlie
+    4d47f25a-cc23-4841-89fb-810114e37de9 1 Alpha   2 Delta   3 Echo  4 Charlie 5 Beta
+    5873cbe7-7b4b-44eb-9ee2-fad40483cee9 1 Beta    2 Echo    3 Delta 4 Alpha   5 Charlie
+    5c444be5-1029-45ba-9fcb-9d615bf2fd8f 1 Alpha   2 Charlie 3 Beta  4 Echo    5 Delta
+    5f487278-107e-457d-9a35-94deaa1dc147 1 Beta    2 Echo    3 Delta 4 Alpha   5 Charlie
+    6177335b-5c16-469b-99f8-99936fae4500 1 Alpha   2 Delta   3 Echo  4 Charlie 5 Beta
+    65c311e8-6c31-4297-b139-7e5278ef217a 1 Charlie 2 Alpha   3 Beta  4 Echo    5 Delta
+    6686e647-e02f-45f9-944b-e7412ae35115 1 Beta    2 Echo    3 Delta 4 Alpha   5 Charlie
+    6db0dd05-092f-4a72-8f55-a13abd836e76 1 Charlie 2 Beta    3 Alpha 4 Delta   5 Echo
+    7a608dc4-f98d-47e0-8d88-54d0fb9ae4f4 1 Charlie 2 Alpha   3 Echo  4 Beta    5 Delta
+    82387a93-127d-4bc4-9524-80b33650c5ff 1 Echo    2 Beta    3 Alpha 4 Delta   5 Charlie
+    83cd82c1-1147-48c3-ae72-068e60af76a5 1 Delta   2 Charlie 3 Echo  4 Beta    5 Alpha
+    8809fa90-247f-4639-ac5d-dfec6752f48c 1 Charlie 2 Alpha   3 Echo  4 Beta    5 Delta
+    99828833-f54c-4ab3-b76c-69f463d9469c 1 Beta    2 Echo    3 Delta 4 Alpha   5 Charlie
+    99dab56e-9608-44db-9607-cb377093c631 1 Delta   2 Charlie 3 Echo  4 Beta    5 Alpha
+    9cf12ebd-da3e-4b80-8232-b76abc092c2d 1 Charlie 2 Alpha   3 Echo  4 Beta    5 Delta
+    9f74ab6c-bbae-4827-a2bc-c57b1b7df68a 1 Alpha   2 Charlie 3 Beta  4 Echo    5 Delta
+    ab643a39-0a0e-4eaf-a2f9-784eb09a74e3 1 Echo    2 Beta    3 Alpha 4 Delta   5 Charlie
+    b020a08f-2393-4697-acfe-a68196e3b54d 1 Echo    2 Beta    3 Alpha 4 Delta   5 Charlie
+    b2b4d161-4caa-4214-ad1e-1f8300fb3461 1 Charlie 2 Alpha   3 Echo  4 Beta    5 Delta
+    b73781b4-4278-4c90-a1c3-ab5d9885ffac 1 Alpha   2 Delta   3 Echo  4 Charlie 5 Beta
+    bab0bd5e-5f5e-454e-b671-c2fcc826b816 1 Echo    2 Beta    3 Alpha 4 Delta   5 Charlie
+    bd69a627-58c6-4023-b703-31fa81170685 1 Echo    2 Beta    3 Alpha 4 Delta   5 Charlie
+    c7f58cc4-11cc-4ad4-b324-7c37d4c9a858 1 Alpha   2 Delta   3 Echo  4 Charlie 5 Beta
+    cc5fe76b-45a1-4e51-a1f3-ef45f3462ba0 1 Alpha   2 Delta   3 Echo  4 Charlie 5 Beta
+    d566ed23-4651-430d-bb56-03429d93041c 1 Beta    2 Echo    3 Delta 4 Alpha   5 Charlie
+    db6840cd-6caf-45fc-986c-6fe5a4ea3fa5 1 Echo    2 Beta    3 Alpha 4 Delta   5 Charlie
+    dc021cbf-736d-45a9-936b-cdcfe3b9efde 1 Charlie 2 Beta    3 Alpha 4 Delta   5 Echo
+    dddb7d4e-6e25-4efe-aecb-0b357a05d93e 1 Charlie 2 Alpha   3 Beta  4 Echo    5 Delta
+    e4c97840-e0cb-4caa-8c90-69661d6a2510 1 Charlie 2 Alpha   3 Beta  4 Echo    5 Delta
+    e7e3421d-a4ff-4319-ab17-48431f6796cf 1 Delta   2 Charlie 3 Echo  4 Beta    5 Alpha
+    ebd8181c-9964-497d-a635-9e542cc9a1dd 1 Echo    2 Beta    3 Alpha 4 Delta   5 Charlie
+    edb81659-e965-420d-84b5-04293e94ff90 1 Charlie 2 Alpha   3 Echo  4 Beta    5 Delta
+    eef6352a-1053-4650-96f1-277c000e8de8 1 Alpha   2 Charlie 3 Beta  4 Echo    5 Delta
+    f1c0f9a8-d2fe-4e92-ac31-3f31f1a85031 1 Charlie 2 Alpha   3 Echo  4 Beta    5 Delta
+    ff1e5518-8342-4077-bb13-b04a46e5909f 1 Delta   2 Charlie 3 Echo  4 Beta    5 Alpha
+preference-matrix
+     0 20 26 30 22
+    25  0 16 33 18
+    19 29  0 17 24
+    15 12 28  0 14
+    23 27 21 31  0
+strongest-path-matrix (for schulze method)
+     0 28 28 30 24
+    25  0 28 33 24
+    25 29  0 29 24
+    25 28 28  0 24
+    25 28 28 31  0
+tally (place { candidate })
+    1st Echo
+    2nd Alpha
+    3rd Charlie
+    4th Beta
+    5th Delta

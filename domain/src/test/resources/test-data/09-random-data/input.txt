@@ -1,0 +1,43 @@
+candidates (name)
+    carmela-graves
+    elias-ramirez
+    mervin-shea
+    heath-schroeder
+    marquis-reese
+eligible-to-vote (name)
+    avery-zamora
+    saul-patel
+    les-ramsey
+    tracie-lucas
+    sasha-wells
+    julianne-meyer
+    aurora-clarke
+    darius-townsend
+    laura-cook
+    ken-fox
+    cara-howell
+    alex-spencer
+    carey-oneill
+    tanya-gibbs
+    mara-benton
+    joni-myers
+    gertrude-arnold
+    will-snyder
+    cory-walters
+    carey-bryan
+ballots (name confirmation { rank candidate })
+    aurora-clarke   fafed6e8-9d20-4b49-be51-550c9c051f3c 4 heath-schroeder 2 marquis-reese   1 carmela-graves  3 elias-ramirez
+    tracie-lucas    1a68bfa5-1cdb-490b-96a0-ce2e4c3a2874 1 elias-ramirez   3 mervin-shea     4 heath-schroeder 2 marquis-reese
+    les-ramsey      ee9da4ef-296e-4b0a-92cf-70804c51ec3f 1 marquis-reese   3 elias-ramirez   2 carmela-graves  4 mervin-shea
+    darius-townsend 7618e06c-8938-4ede-873f-f5d8dbc41199 2 mervin-shea     4 marquis-reese   3 heath-schroeder 1 carmela-graves
+    tanya-gibbs     47f359a7-22bd-40c8-a07d-9f9d9f8c0224 3 mervin-shea     2 heath-schroeder 1 elias-ramirez   4 carmela-graves
+    cory-walters    bff09127-2a9a-42ab-89dd-5828c9aba73b 3 marquis-reese   1 elias-ramirez   2 heath-schroeder 4 carmela-graves
+    julianne-meyer  db072bbc-e09a-417e-9cf8-e2c634196bc8 3 elias-ramirez   2 mervin-shea     4 carmela-graves  1 marquis-reese
+    carey-oneill    0c6da704-ae4d-436b-b49b-e503deed9f3b 1 elias-ramirez   3 marquis-reese   2 carmela-graves  4 heath-schroeder
+    avery-zamora    46ee4e29-ef12-4d4e-91f3-19d4eb87d59f 4 marquis-reese   2 elias-ramirez   3 heath-schroeder 1 mervin-shea
+    carey-bryan     607a541a-369d-4380-933a-7d9d2f978730 4 carmela-graves  2 heath-schroeder 1 elias-ramirez   3 mervin-shea
+    saul-patel      9d1196e4-d134-4399-8689-2f1157da8561 3 marquis-reese   4 heath-schroeder 1 elias-ramirez   2 mervin-shea
+    mara-benton     a783c133-161d-4525-af58-f9d22094783c 2 carmela-graves  1 marquis-reese   4 mervin-shea     3 heath-schroeder
+    gertrude-arnold 1e80fe00-01b6-426f-9edb-dfc9995d531f 2 marquis-reese   4 mervin-shea     3 carmela-graves  1 elias-ramirez
+    sasha-wells     7b397064-4f1e-4f9e-b0bb-36bb88dbc4a6 4 heath-schroeder 3 mervin-shea     2 carmela-graves  1 elias-ramirez
+    ken-fox         39a05654-5881-4493-978f-b9b547f831f5 4 carmela-graves  3 marquis-reese   1 elias-ramirez   2 mervin-shea

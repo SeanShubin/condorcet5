@@ -1,0 +1,31 @@
+candidates (name)
+    rock
+    paper
+    scissors
+eligible-to-vote (name)
+    forest-foster
+    daren-mcfarland
+    delmer-hodge
+    romeo-cooper
+    wilmer-medina
+    dwayne-conrad
+    lamar-duke
+    mario-valdez
+    josefa-fritz
+    bethany-alexander
+    dolores-black
+    eric-cervantes
+    dianna-frank
+    denise-jenkins
+    amy-villa
+ballots (name confirmation { rank candidate })
+    daren-mcfarland e0d0282b-0076-44cc-92e5-749b4f700519 1 paper    2 rock     3 scissors
+    denise-jenkins  f3ae3ed0-a577-470c-91c1-fa31538fa3ad 1 rock     2 scissors 3 paper
+    dwayne-conrad   027fe41e-8fe7-4ab6-8ebc-9320f667f2dd 1 scissors 2 paper    3 rock
+    mario-valdez    a2af7895-06cd-4fa8-a365-926bc71774ac 1 scissors 2 paper    3 rock
+    delmer-hodge    1e583380-18be-4400-a8e8-1bf09b07efde 1 rock     2 scissors 3 paper
+    romeo-cooper    de625b3a-bbf7-4ed7-b3ff-fdfd5d82d06a 1 paper    2 rock     3 scissors
+    dianna-frank    94a4019f-44a7-4507-9ec4-2ad0c7bd095d 1 paper    2 rock     3 scissors
+    lamar-duke      7b5d411b-6d3c-40de-bf99-9bb14b7c7696 1 rock     2 scissors 3 paper
+    josefa-fritz    f4783128-9e82-4140-b59b-118fa1d54b1e 1 scissors 2 paper    3 rock
+    eric-cervantes  694e9191-57bc-463a-8f47-1b983fcb1b13 1 rock     2 scissors 3 paper

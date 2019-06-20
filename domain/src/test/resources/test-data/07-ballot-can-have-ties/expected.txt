@@ -1,0 +1,31 @@
+candidates (name)
+    brady-pena
+    francisco-daugherty
+    john-estrada
+    willie-carney
+voted (name)
+    angelia-wilcox
+    bryon-bartlett
+    lawrence-long
+    weston-freeman
+    zachary-jimenez
+did-not-vote (name)
+ballots (confirmation { rank candidate })
+    2b86f214-c7f6-4bc4-ba96-6b0936441617 1 john-estrada        2 willie-carney       3 francisco-daugherty 4 brady-pena
+    2ffa5166-0838-43a5-b9b9-2998c824e644 1 john-estrada        2 willie-carney       2 francisco-daugherty 3 brady-pena
+    6a28619a-b3bb-4da0-a5bf-6eccbf786e09 1 brady-pena          2 john-estrada        3 willie-carney       4 francisco-daugherty
+    7b54e6cb-9f4a-4386-b691-5e0d4e7233df 1 francisco-daugherty 2 brady-pena          3 john-estrada        4 willie-carney
+    db3ca988-53db-4678-9ca0-a5c88c677ba1 1 willie-carney       2 francisco-daugherty 3 brady-pena          4 john-estrada
+preference-matrix
+    0 1 3 2
+    4 0 2 1
+    2 3 0 4
+    3 3 1 0
+strongest-path-matrix (for schulze method)
+    0 3 3 3
+    4 0 3 3
+    3 3 0 4
+    3 3 3 0
+tally (place { candidate })
+    1st francisco-daugherty john-estrada
+    3rd brady-pena          willie-carney

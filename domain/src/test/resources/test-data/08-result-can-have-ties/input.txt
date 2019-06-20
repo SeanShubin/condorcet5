@@ -1,0 +1,17 @@
+candidates (name)
+    dona-choi
+    ivan-becker
+    russell-frank
+    max-hale
+    mohammed-mayo
+eligible-to-vote (name)
+    ben-buckley
+    elva-miller
+    hilda-dalton
+    miles-finley
+    wilda-webster
+ballots (name confirmation { rank candidate })
+    hilda-dalton  466eacb9-7ce9-471a-91a7-8c4c85289993 3 mohammed-mayo 2 dona-choi     1 max-hale    4 ivan-becker
+    wilda-webster c6f221c3-8090-4624-9f26-e12384b1b815 4 mohammed-mayo 1 russell-frank 2 dona-choi   3 max-hale
+    miles-finley  132c4bbe-bfab-47af-a5b9-0de5504eebfa 2 russell-frank 4 ivan-becker   3 max-hale    1 mohammed-mayo
+    ben-buckley   a4172882-10da-40b4-820e-3824466eb1e3 1 russell-frank 4 mohammed-mayo 3 ivan-becker 2 max-hale

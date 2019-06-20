@@ -1,0 +1,17 @@
+candidates (name)
+    willie-carney
+    john-estrada
+    francisco-daugherty
+    brady-pena
+eligible-to-vote (name)
+    zachary-jimenez
+    weston-freeman
+    angelia-wilcox
+    bryon-bartlett
+    lawrence-long
+ballots (name confirmation { rank candidate })
+    bryon-bartlett  2b86f214-c7f6-4bc4-ba96-6b0936441617 1 john-estrada        2 willie-carney       3 francisco-daugherty 4 brady-pena
+    angelia-wilcox  db3ca988-53db-4678-9ca0-a5c88c677ba1 1 willie-carney       2 francisco-daugherty 3 brady-pena          4 john-estrada
+    weston-freeman  7b54e6cb-9f4a-4386-b691-5e0d4e7233df 1 francisco-daugherty 2 brady-pena          3 john-estrada        4 willie-carney
+    lawrence-long   6a28619a-b3bb-4da0-a5bf-6eccbf786e09 1 brady-pena          2 john-estrada        3 willie-carney       4 francisco-daugherty
+    zachary-jimenez 2ffa5166-0838-43a5-b9b9-2998c824e644 1 john-estrada        2 willie-carney       2 francisco-daugherty 3 brady-pena

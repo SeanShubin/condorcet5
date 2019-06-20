@@ -1,0 +1,62 @@
+candidates (name)
+    carmela-graves
+    elias-ramirez
+    heath-schroeder
+    marquis-reese
+    mervin-shea
+voted (name)
+    aurora-clarke
+    avery-zamora
+    carey-bryan
+    carey-oneill
+    cory-walters
+    darius-townsend
+    gertrude-arnold
+    julianne-meyer
+    ken-fox
+    les-ramsey
+    mara-benton
+    sasha-wells
+    saul-patel
+    tanya-gibbs
+    tracie-lucas
+did-not-vote (name)
+    alex-spencer
+    cara-howell
+    joni-myers
+    laura-cook
+    will-snyder
+ballots (confirmation { rank candidate })
+    0c6da704-ae4d-436b-b49b-e503deed9f3b 1 elias-ramirez   3 marquis-reese   2 carmela-graves  4 heath-schroeder
+    1a68bfa5-1cdb-490b-96a0-ce2e4c3a2874 1 elias-ramirez   3 mervin-shea     4 heath-schroeder 2 marquis-reese
+    1e80fe00-01b6-426f-9edb-dfc9995d531f 2 marquis-reese   4 mervin-shea     3 carmela-graves  1 elias-ramirez
+    39a05654-5881-4493-978f-b9b547f831f5 4 carmela-graves  3 marquis-reese   1 elias-ramirez   2 mervin-shea
+    46ee4e29-ef12-4d4e-91f3-19d4eb87d59f 4 marquis-reese   2 elias-ramirez   3 heath-schroeder 1 mervin-shea
+    47f359a7-22bd-40c8-a07d-9f9d9f8c0224 3 mervin-shea     2 heath-schroeder 1 elias-ramirez   4 carmela-graves
+    607a541a-369d-4380-933a-7d9d2f978730 4 carmela-graves  2 heath-schroeder 1 elias-ramirez   3 mervin-shea
+    7618e06c-8938-4ede-873f-f5d8dbc41199 2 mervin-shea     4 marquis-reese   3 heath-schroeder 1 carmela-graves
+    7b397064-4f1e-4f9e-b0bb-36bb88dbc4a6 4 heath-schroeder 3 mervin-shea     2 carmela-graves  1 elias-ramirez
+    9d1196e4-d134-4399-8689-2f1157da8561 3 marquis-reese   4 heath-schroeder 1 elias-ramirez   2 mervin-shea
+    a783c133-161d-4525-af58-f9d22094783c 2 carmela-graves  1 marquis-reese   4 mervin-shea     3 heath-schroeder
+    bff09127-2a9a-42ab-89dd-5828c9aba73b 3 marquis-reese   1 elias-ramirez   2 heath-schroeder 4 carmela-graves
+    db072bbc-e09a-417e-9cf8-e2c634196bc8 3 elias-ramirez   2 mervin-shea     4 carmela-graves  1 marquis-reese
+    ee9da4ef-296e-4b0a-92cf-70804c51ec3f 1 marquis-reese   3 elias-ramirez   2 carmela-graves  4 mervin-shea
+    fafed6e8-9d20-4b49-be51-550c9c051f3c 4 heath-schroeder 2 marquis-reese   1 carmela-graves  3 elias-ramirez
+preference-matrix
+     0 4  9  6  8
+    11 0 13 10 11
+     6 2  0  6  6
+     9 5  9  0  8
+     7 4  9  7  0
+strongest-path-matrix (for schulze method)
+     0 5  9  7  8
+    11 0 13 10 11
+     6 5  0  6  6
+     9 5  9  0  8
+     7 5  9  7  0
+tally (place { candidate })
+    1st elias-ramirez
+    2nd marquis-reese
+    3rd carmela-graves
+    4th mervin-shea
+    5th heath-schroeder

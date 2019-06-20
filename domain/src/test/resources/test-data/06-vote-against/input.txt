@@ -1,0 +1,15 @@
+candidates (name)
+    Vanilla
+    Chocolate
+    Coconut
+    <no-candidate>
+eligible-to-vote (name)
+    Alice
+    Bob
+    Carol
+    Dave
+    Eve
+ballots (name confirmation { rank candidate })
+    Alice dd8b2569-dcc6-4abc-8aff-5bd18ba557b2 1 Vanilla 2 Chocolate 3 <no-candidate> 4 Coconut
+    Carol 9b42ab31-ec3f-4174-a3a6-859c3d6df92c 1 Chocolate 2 Vanilla 3 <no-candidate> 4 Coconut
+    Eve   4f7ddf30-879a-4bb3-9cd7-84723a4f926b 1 Coconut 2 Vanilla 3 Chocolate

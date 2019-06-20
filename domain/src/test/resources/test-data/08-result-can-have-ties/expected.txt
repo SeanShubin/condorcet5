@@ -1,0 +1,35 @@
+candidates (name)
+    dona-choi
+    ivan-becker
+    max-hale
+    mohammed-mayo
+    russell-frank
+voted (name)
+    ben-buckley
+    hilda-dalton
+    miles-finley
+    wilda-webster
+did-not-vote (name)
+    elva-miller
+ballots (confirmation { rank candidate })
+    132c4bbe-bfab-47af-a5b9-0de5504eebfa 2 russell-frank 4 ivan-becker   3 max-hale    1 mohammed-mayo
+    466eacb9-7ce9-471a-91a7-8c4c85289993 3 mohammed-mayo 2 dona-choi     1 max-hale    4 ivan-becker
+    a4172882-10da-40b4-820e-3824466eb1e3 1 russell-frank 4 mohammed-mayo 3 ivan-becker 2 max-hale
+    c6f221c3-8090-4624-9f26-e12384b1b815 4 mohammed-mayo 1 russell-frank 2 dona-choi   3 max-hale
+preference-matrix
+    0 2 1 2 1
+    2 0 0 1 1
+    3 4 0 3 1
+    2 3 1 0 2
+    3 3 3 2 0
+strongest-path-matrix (for schulze method)
+    0 2 2 2 2
+    2 0 2 2 2
+    3 4 0 3 2
+    2 3 2 0 2
+    3 3 3 3 0
+tally (place { candidate })
+    1st russell-frank
+    2nd max-hale
+    3rd dona-choi     mohammed-mayo
+    5th ivan-becker

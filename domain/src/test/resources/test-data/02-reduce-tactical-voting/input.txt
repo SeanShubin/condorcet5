@@ -1,0 +1,25 @@
+candidates (name)
+    Preferred
+    Spoiler
+    Unpopular
+eligible-to-vote (name)
+    Alice
+    Bob
+    Carol
+    Dave
+    Eve
+    Frank
+    Grace
+    Heidi
+    Ivy
+    Judy
+ballots (name confirmation { rank candidate })
+    Alice dfb27db8-df47-4069-a584-4066558f6ec6 1 Preferred 2 Unpopular 3 Spoiler
+    Bob   b97c34da-0a8c-46b3-92e1-027999a45d36 1 Preferred 2 Unpopular 3 Spoiler
+    Carol c24f0fa4-3739-40e0-830c-75376e7eeb77 1 Preferred 2 Unpopular 3 Spoiler
+    Dave  c3ef1ff2-61f8-48ce-8776-d69eb2e3d7f5 1 Unpopular 2 Preferred 3 Spoiler
+    Eve   f827392d-a0ab-4f2d-abb2-a850dd0d4239 1 Unpopular 2 Preferred 3 Spoiler
+    Frank e0a7dd5f-dd0e-4635-bb7c-9e25af2bc2ec 1 Unpopular 2 Preferred 3 Spoiler
+    Grace 6561cc4e-f939-48d7-9771-2f15298622ab 1 Unpopular 2 Preferred 3 Spoiler
+    Heidi e1413f5e-d155-4568-a78c-6630f13897fd 1 Spoiler   2 Preferred 3 Unpopular
+    Ivy   8bcc9a02-1a41-4724-ba36-b733a416d190 1 Spoiler   2 Preferred 3 Unpopular

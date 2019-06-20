@@ -1,0 +1,33 @@
+candidates (name)
+    satisfactory
+    only-liked-by-two
+    a-only-liked-by-one
+    b-only-liked-by-one
+    c-only-liked-by-one
+    d-only-liked-by-one
+    e-only-liked-by-one
+    f-only-liked-by-one
+    g-only-liked-by-one
+    h-only-liked-by-one
+eligible-to-vote (name)
+    christian-herring
+    tony-yates
+    melisa-townsend
+    carey-pena
+    shari-buckley
+    lizzie-cooper
+    cody-trevino
+    lucy-byrd
+    brooks-warner
+    sung-best
+ballots (name confirmation { rank candidate })
+    carey-pena        b78caec0-2c0a-4c39-a9d8-64d50e30a1cc  1 only-liked-by-two   2 satisfactory
+    tony-yates        cdd03711-e842-4d03-ab72-ee4baf39c8a7  1 only-liked-by-two   2 satisfactory
+    lucy-byrd         a36d3efc-2ebe-46e5-9bdb-c55cdb42bc2b  1 a-only-liked-by-one 2 satisfactory
+    lizzie-cooper     f604512b-af8c-466a-b1b4-5b5f29d0158e  1 b-only-liked-by-one 2 satisfactory
+    christian-herring 8e0b5d9b-9eff-419e-95a7-7eb264722ff1  1 c-only-liked-by-one 2 satisfactory
+    melisa-townsend   008ba37e-4d4d-48cd-b9cf-02b93d7e5f90  1 d-only-liked-by-one 2 satisfactory
+    brooks-warner     324e8632-8aa2-4542-a656-eef3ed6b2987  1 e-only-liked-by-one 2 satisfactory
+    shari-buckley     5fa28ea6-f2c7-47c2-bb79-1e9c940b4f3c  1 f-only-liked-by-one 2 satisfactory
+    cody-trevino      7946fde3-16c1-4a3c-9b1a-35b1458c407b  1 g-only-liked-by-one 2 satisfactory
+    sung-best         2e249883-b9ef-4aa2-a22b-2e515f2a3583  1 h-only-liked-by-one 2 satisfactory
