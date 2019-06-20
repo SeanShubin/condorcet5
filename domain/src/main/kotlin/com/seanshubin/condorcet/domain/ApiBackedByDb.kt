@@ -1,15 +1,17 @@
 package com.seanshubin.condorcet.domain
 
+import com.seanshubin.condorcet.crypto.PasswordUtil
+import com.seanshubin.condorcet.crypto.SaltAndHash
 import com.seanshubin.condorcet.db.DbApi
 import com.seanshubin.condorcet.db.DbElection
 import com.seanshubin.condorcet.db.DbStatus
-import com.seanshubin.condorcet.db.DbUser
 import java.time.Clock
 import java.time.Instant
 import java.time.format.DateTimeParseException
 
 class ApiBackedByDb(private val db: DbApi,
-                    private val clock: Clock) : Api {
+                    private val clock: Clock,
+                    private val passwordUtil: PasswordUtil) : Api {
     override fun login(nameOrEmail: String, password: String): Credentials {
         val trimmedUserNameOrUserEmail = trim(nameOrEmail)
         val dbUser =
@@ -17,7 +19,7 @@ class ApiBackedByDb(private val db: DbApi,
                 ?: throw RuntimeException("User with name or email '$trimmedUserNameOrUserEmail' does not exist")
         val givenCredentials = Credentials(dbUser.name, password)
         assertCredentialsValid(givenCredentials)
-        val actualCredentials = dbUser.toApiCredentials()
+        val actualCredentials = Credentials(dbUser.name, password)
         return actualCredentials
     }
 
@@ -26,9 +28,10 @@ class ApiBackedByDb(private val db: DbApi,
         val trimmedUserEmail = trim(email)
         assertUserNameDoesNotExist(trimmedUserName)
         assertUserEmailDoesNotExist(trimmedUserEmail)
-        db.createUser(trimmedUserName, trimmedUserEmail, password)
+        val (salt, hash) = passwordUtil.createSaltAndHash(password)
+        db.createUser(trimmedUserName, trimmedUserEmail, salt, hash)
         val dbUser = db.findUserByName(trimmedUserName)
-        return dbUser.toApiCredentials()
+        return Credentials(dbUser.name, password)
     }
 
     override fun createElection(credentials: Credentials, electionName: String): ElectionDetail {
@@ -147,7 +150,8 @@ class ApiBackedByDb(private val db: DbApi,
 
     private fun assertCredentialsValid(credentials: Credentials) {
         val user = db.searchUserByName(credentials.userName) ?: authError(credentials)
-        if (user.password != credentials.userPassword) authError(credentials)
+        val saltAndHash = SaltAndHash(user.salt, user.hash)
+        if (passwordUtil.validatePassword(credentials.userPassword, saltAndHash)) authError(credentials)
     }
 
     private fun assertElectionNameDoesNotExist(electionName: String) {
@@ -159,8 +163,6 @@ class ApiBackedByDb(private val db: DbApi,
 
     private fun authError(credentials: Credentials): Nothing =
             throw RuntimeException("Invalid user/password combination for '${credentials.userName}'")
-
-    private fun DbUser.toApiCredentials(): Credentials = Credentials(userName = name, userPassword = password)
 
     private fun DbElection.toApiElectionDetail(): ElectionDetail {
         val candidateNames = db.listCandidateNames(name)
@@ -193,7 +195,7 @@ class ApiBackedByDb(private val db: DbApi,
 
     private fun <T> withValidCredentials(credentials: Credentials, f: () -> T): T {
         val user = db.searchUserByName(credentials.userName) ?: authError(credentials)
-        if (user.password != credentials.userPassword) authError(credentials)
+        assertCredentialsValid(credentials)
         return f()
     }
 

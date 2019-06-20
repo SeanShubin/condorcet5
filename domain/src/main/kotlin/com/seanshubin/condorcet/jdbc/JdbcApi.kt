@@ -1,110 +1,96 @@
 package com.seanshubin.condorcet.jdbc
 
-import com.seanshubin.condorcet.crypto.PasswordUtil
-import com.seanshubin.condorcet.crypto.SaltAndHash
-import com.seanshubin.condorcet.domain.*
+import com.seanshubin.condorcet.db.DbApi
+import com.seanshubin.condorcet.db.DbElection
+import com.seanshubin.condorcet.db.DbStatus
+import com.seanshubin.condorcet.db.DbUser
+import java.sql.ResultSet
 
-class JdbcApi(private val passwordUtil: PasswordUtil,
-              private val dbExec: DbExec) : Api {
-    override fun login(nameOrEmail: String, password: String): Credentials {
-        val sql = "select name, salt, hash from user where name = ? or email = ?"
-        val resultSet = dbExec.query(sql, nameOrEmail, nameOrEmail)
-        if (resultSet.next()) {
-            val name = resultSet.getString("name")
-            val salt = resultSet.getString("salt")
-            val hash = resultSet.getString("hash")
-            if (resultSet.next()) {
-                throw RuntimeException("more than one entry matching '$nameOrEmail' found")
-            }
-            val saltAndHash = SaltAndHash(salt, hash)
-            return if (passwordUtil.validatePassword(password, saltAndHash)) {
-                Credentials(name, password)
-            } else {
-                throw RuntimeException("invalid password for '$nameOrEmail'")
-            }
-        } else {
-            throw RuntimeException("user or email '$nameOrEmail' not found")
-        }
-    }
+class JdbcApi : DbApi {
+    override fun findUserByName(userName: String): DbUser = queryExactlyOneRow(
+            ::createUser,
+            "select name, email, salt, hash from user where name = ?",
+            userName)
 
-    override fun register(name: String, email: String, password: String): Credentials {
-        val sql = "select name, email from user where name = ? or email = ?"
-        val resultSet = dbExec.query(sql, name, email)
-        if (resultSet.next()) {
-            val existingName = resultSet.getString("name")
-            val existingEmail = resultSet.getString("email")
-            if (name == existingName) {
-                throw RuntimeException("user named '$name' already exists")
-            }
-            if (email == existingEmail) {
-                throw RuntimeException("user with email '$email' already exists")
-            }
-            throw RuntimeException("user '$name' or email '$email' not found")
-        } else {
-            val sql = "insert into user (name, email, salt, hash) values (?, ?, ?, ?)"
-            val (salt, hash) = passwordUtil.createSaltAndHash(password)
-            dbExec.update(sql, name, email, salt, hash)
-            return Credentials(name, password)
-        }
-    }
+    override fun searchUserByName(userName: String): DbUser? = queryZeroOrOneRow(
+            ::createUser,
+            "select name, email, salt, hash from user where name = ?",
+            userName)
 
-    override fun createElection(credentials: Credentials, electionName: String): ElectionDetail {
+    override fun searchUserByEmail(userEmail: String): DbUser? = queryZeroOrOneRow(
+            ::createUser,
+            "select name, email, salt, hash from user where email = ?",
+            userEmail)
+
+    override fun findElectionByName(electionName: String): DbElection {
         TODO("not implemented")
     }
 
-    override fun setEndDate(credentials: Credentials, electionName: String, isoEndDate: String?): ElectionDetail {
+    override fun searchElectionByName(electionName: String): DbElection? {
         TODO("not implemented")
     }
 
-    override fun setSecretBallot(credentials: Credentials, electionName: String, secretBallot: Boolean): ElectionDetail {
+    override fun listCandidateNames(electionName: String): List<String> {
         TODO("not implemented")
     }
 
-    override fun doneEditingElection(credentials: Credentials, electionName: String): ElectionDetail {
+    override fun listVoterNames(electionName: String): List<String> {
         TODO("not implemented")
     }
 
-    override fun endElection(credentials: Credentials, electionName: String): ElectionDetail {
+    override fun electionHasAllVoters(electionName: String): Boolean {
         TODO("not implemented")
     }
 
-    override fun updateCandidateNames(credentials: Credentials, electionName: String, candidateNames: List<String>): ElectionDetail {
+    override fun createUser(userName: String, userEmail: String, userSalt: String, userHash: String) {
         TODO("not implemented")
     }
 
-    override fun updateEligibleVoters(credentials: Credentials, electionName: String, eligibleVoterNames: List<String>): ElectionDetail {
+    override fun createElection(userName: String, electionName: String): DbElection {
         TODO("not implemented")
     }
 
-    override fun updateEligibleVotersToAll(credentials: Credentials, electionName: String): ElectionDetail {
+    override fun setElectionEndDate(electionName: String, endDate: String?) {
         TODO("not implemented")
     }
 
-    override fun listElections(credentials: Credentials): List<ElectionSummary> {
+    override fun setElectionSecretBallot(electionName: String, secretBallot: Boolean) {
         TODO("not implemented")
     }
 
-    override fun getElection(credentials: Credentials, electionName: String): ElectionDetail {
+    override fun setElectionStatus(electionName: String, status: DbStatus) {
         TODO("not implemented")
     }
 
-    override fun copyElection(credentials: Credentials, newElectionName: String, electionToCopyName: String): ElectionDetail {
+    override fun setCandidates(electionName: String, candidateNames: List<String>) {
         TODO("not implemented")
     }
 
-    override fun listBallots(credentials: Credentials, voterName: String): List<Ballot> {
+    override fun setVoters(electionName: String, voterNames: List<String>) {
         TODO("not implemented")
     }
 
-    override fun getBallot(credentials: Credentials, electionName: String, voterName: String): Ballot {
+    override fun setVotersToAll(electionName: String) {
         TODO("not implemented")
     }
 
-    override fun castBallot(credentials: Credentials, electionName: String, voterName: String, rankings: List<Ranking>): Ballot {
+    override fun <T> inTransaction(f: () -> T): T {
         TODO("not implemented")
     }
 
-    override fun tally(credentials: Credentials, electionName: String): Tally {
+    private fun createUser(resultSet: ResultSet): DbUser {
+        val name = resultSet.getString("name")
+        val email = resultSet.getString("email")
+        val salt = resultSet.getString("salt")
+        val hash = resultSet.getString("hash")
+        return DbUser(name, email, salt, hash)
+    }
+
+    private fun <T> queryExactlyOneRow(createFunction: (ResultSet) -> T, sql: String, vararg paremeters: Any?): T {
+        TODO("not implemented")
+    }
+
+    private fun <T> queryZeroOrOneRow(createFunction: (ResultSet) -> T, sql: String, vararg paremeters: Any?): T? {
         TODO("not implemented")
     }
 }

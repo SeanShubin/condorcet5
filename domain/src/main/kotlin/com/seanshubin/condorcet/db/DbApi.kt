@@ -12,7 +12,7 @@ interface DbApi : TransactionFunction {
     fun electionHasAllVoters(electionName: String): Boolean
 
     // commands
-    fun createUser(userName: String, userEmail: String, userPassword: String)
+    fun createUser(userName: String, userEmail: String, userSalt: String, userHash: String)
     fun createElection(userName: String, electionName: String): DbElection
     fun setElectionEndDate(electionName: String, endDate: String?)
     fun setElectionSecretBallot(electionName: String, secretBallot: Boolean)
