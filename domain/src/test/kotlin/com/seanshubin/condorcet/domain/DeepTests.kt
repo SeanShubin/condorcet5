@@ -1,7 +1,7 @@
 package com.seanshubin.condorcet.domain
 
 import com.seanshubin.condorcet.crypto.*
-import com.seanshubin.condorcet.memory.api.InMemoryDb
+import com.seanshubin.condorcet.domain.memory.api.InMemoryDb
 import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals

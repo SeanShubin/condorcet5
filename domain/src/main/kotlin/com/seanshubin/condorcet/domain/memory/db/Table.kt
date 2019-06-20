@@ -1,4 +1,4 @@
-package com.seanshubin.condorcet.memory.db
+package com.seanshubin.condorcet.domain.memory.db
 
 interface Table<PkType, T : TableRow<PkType>> {
     fun listAll(): List<T>

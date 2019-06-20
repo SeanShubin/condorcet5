@@ -1,6 +1,6 @@
 package com.seanshubin.condorcet.domain
 
-import com.seanshubin.condorcet.db.TransactionFunction
+import com.seanshubin.condorcet.domain.db.TransactionFunction
 
 class ApiWrappedInDbTransaction(private val api: Api,
                                 private val t: TransactionFunction) : Api {

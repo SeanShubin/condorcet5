@@ -1,9 +1,9 @@
-package com.seanshubin.condorcet.jdbc
+package com.seanshubin.condorcet.domain.jdbc
 
-import com.seanshubin.condorcet.db.DbApi
-import com.seanshubin.condorcet.db.DbElection
-import com.seanshubin.condorcet.db.DbStatus
-import com.seanshubin.condorcet.db.DbUser
+import com.seanshubin.condorcet.domain.db.DbApi
+import com.seanshubin.condorcet.domain.db.DbElection
+import com.seanshubin.condorcet.domain.db.DbStatus
+import com.seanshubin.condorcet.domain.db.DbUser
 import java.sql.ResultSet
 
 class JdbcApi : DbApi {

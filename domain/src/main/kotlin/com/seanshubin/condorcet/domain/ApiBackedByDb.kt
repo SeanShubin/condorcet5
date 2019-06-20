@@ -2,9 +2,9 @@ package com.seanshubin.condorcet.domain
 
 import com.seanshubin.condorcet.crypto.PasswordUtil
 import com.seanshubin.condorcet.crypto.SaltAndHash
-import com.seanshubin.condorcet.db.DbApi
-import com.seanshubin.condorcet.db.DbElection
-import com.seanshubin.condorcet.db.DbStatus
+import com.seanshubin.condorcet.domain.db.DbApi
+import com.seanshubin.condorcet.domain.db.DbElection
+import com.seanshubin.condorcet.domain.db.DbStatus
 import java.time.Clock
 import java.time.Instant
 import java.time.format.DateTimeParseException

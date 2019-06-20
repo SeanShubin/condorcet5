@@ -1,6 +1,6 @@
-package com.seanshubin.condorcet.db
+package com.seanshubin.condorcet.domain.db
 
-import com.seanshubin.condorcet.memory.db.TableRow
+import com.seanshubin.condorcet.domain.memory.db.TableRow
 
 data class DbCandidate(val name: String,
                        val electionName: String) : TableRow<DbCandidate> {

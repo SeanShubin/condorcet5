@@ -1,4 +1,4 @@
-package com.seanshubin.condorcet.db
+package com.seanshubin.condorcet.domain.db
 
 interface DbApi : TransactionFunction {
     // queries

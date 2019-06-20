@@ -1,4 +1,4 @@
-package com.seanshubin.condorcet.jdbc
+package com.seanshubin.condorcet.domain.jdbc
 
 import java.sql.ResultSet
 

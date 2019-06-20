@@ -1,9 +1,9 @@
-package com.seanshubin.condorcet.event
+package com.seanshubin.condorcet.domain.event
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.seanshubin.condorcet.db.DbStatus
+import com.seanshubin.condorcet.domain.db.DbStatus
 
 interface Event {
     companion object {

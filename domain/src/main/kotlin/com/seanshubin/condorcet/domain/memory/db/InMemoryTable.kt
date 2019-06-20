@@ -1,4 +1,4 @@
-package com.seanshubin.condorcet.memory.db
+package com.seanshubin.condorcet.domain.memory.db
 
 class InMemoryTable<PkType, T : TableRow<PkType>>(private val name: String) : Table<PkType, T> {
     private val rows = mutableListOf<T>()

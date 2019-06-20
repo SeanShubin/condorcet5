@@ -1,8 +1,8 @@
-package com.seanshubin.condorcet.memory.api
+package com.seanshubin.condorcet.domain.memory.api
 
-import com.seanshubin.condorcet.db.*
-import com.seanshubin.condorcet.memory.db.InMemoryTable
-import com.seanshubin.condorcet.memory.db.Table
+import com.seanshubin.condorcet.domain.db.*
+import com.seanshubin.condorcet.domain.memory.db.InMemoryTable
+import com.seanshubin.condorcet.domain.memory.db.Table
 
 class InMemoryDb : DbApi {
     private val userTable: Table<String, DbUser> = InMemoryTable("user")
