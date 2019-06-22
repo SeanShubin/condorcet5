@@ -1,4 +1,4 @@
-package com.seanshubin.condorcet.domain.table
+package com.seanshubin.condorcet.table.formatter
 
 object ListUtil {
     fun <T> List<List<T>>.transpose(): List<List<T>> {

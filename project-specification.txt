@@ -55,8 +55,9 @@
     rdsutil    [rds mysql-jdbc util]
     util       [coroutines]
     script     [rdsutil cloudformation]
-    dbutil     [mysql-jdbc]
+    dbutil     [mysql-jdbc table-formatter util]
     crypto     []
+    table-formatter []
   }
   consoleEntryPoint {
     console com.seanshubin.condorcet.server.ServerApplication

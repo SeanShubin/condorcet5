@@ -1,7 +1,7 @@
-package com.seanshubin.condorcet.domain.table
+package com.seanshubin.condorcet.table.formatter
 
 object StringUtil {
-    fun String.escape(): String = this.flatMap(::escapeCharToIterable).joinToString("")
+    fun String.escape(): String = this.flatMap(StringUtil::escapeCharToIterable).joinToString("")
     fun String.unescape(): String {
         val sb = StringBuilder()
         var index = 0

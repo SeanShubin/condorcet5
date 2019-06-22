@@ -6,6 +6,16 @@
     <artifactId>condorcet-dbutil</artifactId>
     <dependencies>
         <dependency>
+            <groupId>com.seanshubin.condorcet</groupId>
+            <artifactId>condorcet-table-formatter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.seanshubin.condorcet</groupId>
+            <artifactId>condorcet-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
         </dependency>

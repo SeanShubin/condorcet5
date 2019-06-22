@@ -6,7 +6,7 @@ data class Field(val name: String,
                  val unique: Boolean = false) : Column {
     override fun toSql(): List<String> {
         val parts = mutableListOf<String>()
-        parts.add(name)
+        parts.add(handleKeyword(name))
         parts.add(type.sql)
         if (!allowNull) {
             parts.add("not null")
@@ -17,5 +17,12 @@ data class Field(val name: String,
         return listOf(parts.joinToString(" ") + ",")
     }
 
-    override fun sqlName(): String = name
+    private fun handleKeyword(s: String): String =
+            if (MysqlConstants.reservedWords.contains(s.toLowerCase())) {
+                """`$s`"""
+            } else {
+                s
+            }
+
+    override fun sqlName(): String = handleKeyword(name)
 }

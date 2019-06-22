@@ -1,4 +1,4 @@
-package com.seanshubin.condorcet.domain.table
+package com.seanshubin.condorcet.table.formatter
 
 class DurationFormat(private val scales: List<Scale>, val padded: Boolean) {
     fun parse(s: String): Long {

@@ -1,9 +1,9 @@
-package com.seanshubin.condorcet.domain.table
+package com.seanshubin.condorcet.table.formatter
 
-import com.seanshubin.condorcet.domain.table.ListUtil.transpose
-import com.seanshubin.condorcet.domain.table.TableFormatter.Companion.escapeString
-import com.seanshubin.condorcet.domain.table.TableFormatter.Justify.Left
-import com.seanshubin.condorcet.domain.table.TableFormatter.Justify.Right
+import com.seanshubin.condorcet.table.formatter.ListUtil.transpose
+import com.seanshubin.condorcet.table.formatter.TableFormatter.Companion.escapeString
+import com.seanshubin.condorcet.table.formatter.TableFormatter.Justify.Left
+import com.seanshubin.condorcet.table.formatter.TableFormatter.Justify.Right
 
 data class RowStyleTableFormatter(
         private val cellToString: (Any?) -> String,

@@ -1,7 +1,7 @@
-package com.seanshubin.condorcet.domain.table
+package com.seanshubin.condorcet.table.formatter
 
-import com.seanshubin.condorcet.domain.table.StringUtil.escape
-import com.seanshubin.condorcet.domain.table.StringUtil.truncate
+import com.seanshubin.condorcet.table.formatter.StringUtil.escape
+import com.seanshubin.condorcet.table.formatter.StringUtil.truncate
 
 interface TableFormatter {
     interface Justify {

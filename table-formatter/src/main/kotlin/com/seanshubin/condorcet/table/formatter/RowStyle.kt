@@ -1,4 +1,4 @@
-package com.seanshubin.condorcet.domain.table
+package com.seanshubin.condorcet.table.formatter
 
 data class RowStyle(
         val left: String,

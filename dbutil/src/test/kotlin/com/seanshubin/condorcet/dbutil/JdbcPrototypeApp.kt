@@ -1,5 +1,6 @@
 package com.seanshubin.condorcet.dbutil
 
+import com.seanshubin.condorcet.table.formatter.RowStyleTableFormatter
 import java.sql.DriverManager
 import java.sql.ResultSet
 
@@ -41,13 +42,15 @@ object ResultSetUtil {
 }
 
 fun main() {
-    val url = "jdbc:mysql://prototyping.ctcon7m490yd.us-west-1.rds.amazonaws.com/prototype"
-    val user = "masteruser"
-    val password = "masterpassword"
+    val url = "jdbc:mysql://prototype.cmph7klf3qhg.us-west-1.rds.amazonaws.com/prototype"
+    val user = "prototype"
+    val password = "prototype"
     val connection = DriverManager.getConnection(url, user, password)
     val sqlQuery = "select * from user"
     val statement = connection.prepareStatement(sqlQuery)
     val resultSet = statement.executeQuery()
     val table = ResultSetUtil.toTable(resultSet)
-    println(table)
+    val tableFormatter = RowStyleTableFormatter.boxDrawing
+    val lines = tableFormatter.format(table)
+    lines.forEach(::println)
 }
