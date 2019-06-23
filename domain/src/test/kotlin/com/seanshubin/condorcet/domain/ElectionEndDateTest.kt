@@ -9,6 +9,7 @@ import com.seanshubin.condorcet.domain.Tester.electionName
 import com.seanshubin.condorcet.domain.Tester.invalidCredentials
 import com.seanshubin.condorcet.domain.Tester.nonOwnerCredentials
 import com.seanshubin.condorcet.domain.Tester.validCredentials
+import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -22,57 +23,57 @@ class ElectionEndDateTest {
         val election = api.createElection(validCredentials, electionName)
 
         // then
-        assertEquals(null, election.endIsoString)
+        assertEquals(null, election.end)
     }
 
     @Test
     fun setEndDate() {
         // given
         val api = createWithElection()
-        val isoEndDate = "2019-06-07T16:05:41.325574Z"
+        val end = Instant.parse("2019-06-07T16:05:41.325574Z")
 
         // when
-        val election = api.setEndDate(validCredentials, electionName, isoEndDate)
+        val election = api.setEndDate(validCredentials, electionName, end)
 
         // then
-        assertEquals(isoEndDate, election.endIsoString)
+        assertEquals(end, election.end)
     }
 
     @Test
     fun setEndDateWithWhitespaceNoise() {
         // given
         val api = createWithElection()
-        val isoEndDate = "2019-06-07T16:05:41.325574Z"
+        val end = Instant.parse("2019-06-07T16:05:41.325574Z")
 
         // when
-        val election = api.setEndDate(validCredentials, electionName.addWhitespaceNoise(), isoEndDate)
+        val election = api.setEndDate(validCredentials, electionName.addWhitespaceNoise(), end)
 
         // then
-        assertEquals(isoEndDate, election.endIsoString)
+        assertEquals(end, election.end)
     }
 
     @Test
     fun setEndDateToNull() {
         // given
         val api = createWithElection()
-        val isoEndDate = "2019-06-07T16:05:41.325574Z"
+        val end = Instant.parse("2019-06-07T16:05:41.325574Z")
 
         // when
-        api.setEndDate(validCredentials, electionName, isoEndDate)
+        api.setEndDate(validCredentials, electionName, end)
         val election = api.setEndDate(validCredentials, electionName, null)
 
         // then
-        assertEquals(null, election.endIsoString)
+        assertEquals(null, election.end)
     }
 
     @Test
     fun setEndDateAuthentication() {
         // given
         val api = createWithElection()
-        val isoEndDate = "2019-06-07T16:05:41.325574Z"
+        val end = Instant.parse("2019-06-07T16:05:41.325574Z")
 
         // when
-        val result = Try { api.setEndDate(invalidCredentials, electionName, isoEndDate) }
+        val result = Try { api.setEndDate(invalidCredentials, electionName, end) }
 
         // then
         assertEquals("Invalid user/password combination for 'Alice'", (result as Failure).exception.message)
@@ -82,10 +83,10 @@ class ElectionEndDateTest {
     fun setEndDateAuthorization() {
         // given
         val api = createWithElection()
-        val isoEndDate = "2019-06-07T16:05:41.325574Z"
+        val end = Instant.parse("2019-06-07T16:05:41.325574Z")
 
         // when
-        val result = Try { api.setEndDate(nonOwnerCredentials, electionName, isoEndDate) }
+        val result = Try { api.setEndDate(nonOwnerCredentials, electionName, end) }
 
         // then
         assertEquals("User 'Bob' is not allowed to edit election 'New Election' owned by user 'Alice'", (result as Failure).exception.message)
@@ -95,10 +96,10 @@ class ElectionEndDateTest {
     fun validateEndDateIsIso() {
         // given
         val api = createWithElection()
-        val isoEndDate = "not iso date"
+        val end = Instant.parse("not iso date")
 
         // when
-        val result = Try { api.setEndDate(validCredentials, electionName, isoEndDate) }
+        val result = Try { api.setEndDate(validCredentials, electionName, end) }
 
         // then
         assertEquals("Unable to parse 'not iso date' into an ISO date time", (result as Failure).exception.message)
@@ -108,10 +109,10 @@ class ElectionEndDateTest {
     fun validateEndDateMissingElection() {
         // given
         val api = createWithElection()
-        val isoEndDate = "2019-06-07T16:05:41.325574Z"
+        val end = Instant.parse("2019-06-07T16:05:41.325574Z")
 
         // when
-        val result = Try { api.setEndDate(validCredentials, "No Election", isoEndDate) }
+        val result = Try { api.setEndDate(validCredentials, "No Election", end) }
 
         // then
         assertEquals("election 'No Election' not found", (result as Failure).exception.message)

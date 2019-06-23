@@ -10,11 +10,13 @@ import com.seanshubin.condorcet.domain.db.DbStatus
 import java.time.Clock
 import java.time.Instant
 import java.time.format.DateTimeParseException
+import java.util.*
 
 class ApiBackedByDb(private val db: DbApi,
                     private val clock: Clock,
                     private val passwordUtil: PasswordUtil,
-                    private val uniqueIdGenerator: UniqueIdGenerator) : Api {
+                    private val uniqueIdGenerator: UniqueIdGenerator,
+                    private val random: Random) : Api {
     override fun login(nameOrEmail: String, password: String): Credentials {
         val trimmedUserNameOrUserEmail = trim(nameOrEmail)
         val dbUser =
@@ -52,12 +54,11 @@ class ApiBackedByDb(private val db: DbApi,
             if (electionEnd == null) {
                 db.setElectionStatus(election.name, DbStatus.LIVE)
             } else {
-                val electionEndInstant = Instant.parse(electionEnd)
-                val nowInstant = clock.instant()
-                if (electionEndInstant.isBefore(nowInstant)) {
+                val now = clock.instant()
+                if (electionEnd.isBefore(now)) {
                     throw RuntimeException(
-                            "Unable to start election now ($nowInstant), " +
-                                    "its end date ($electionEndInstant) " +
+                            "Unable to start election now ($now), " +
+                                    "its end date ($electionEnd) " +
                                     "has already passed")
                 }
             }
@@ -126,22 +127,21 @@ class ApiBackedByDb(private val db: DbApi,
     }
 
     override fun castBallot(credentials: Credentials, electionName: String, voterName: String, rankings: Map<String, Int>): Ballot =
-            withAllowedToVote(credentials, electionName) {
+            withAllowedToVote(credentials, electionName) { election ->
                 val ballot = db.searchBallot(electionName, credentials.userName)
-                val now = clock.instant().toString()
+                val now = clock.instant()
                 if (ballot == null) {
                     val confirmation = uniqueIdGenerator.uniqueId()
                     db.createBallot(electionName, credentials.userName, confirmation, now, rankings)
                 } else {
                     db.updateBallot(electionName, credentials.userName, now, rankings)
                 }
-                db.findBallot(electionName, credentials.userName).toApiBallot()
+                db.findBallot(electionName, credentials.userName).toApiBallot(election)
             }
 
-    override fun setEndDate(credentials: Credentials, electionName: String, isoEndDate: String?): ElectionDetail =
+    override fun setEndDate(credentials: Credentials, electionName: String, endDate: Instant?): ElectionDetail =
             withAllowedToEdit(credentials, electionName) { election ->
-                assertValidIsoDateTimeOrNull(isoEndDate)
-                db.setElectionEndDate(election.name, isoEndDate)
+                db.setElectionEndDate(election.name, endDate)
             }
 
     override fun setSecretBallot(credentials: Credentials, electionName: String, secretBallot: Boolean): ElectionDetail =
@@ -184,9 +184,34 @@ class ApiBackedByDb(private val db: DbApi,
         return ElectionDetail(owner, name, end, secret, status.toApiStatus(), candidateNames, voterNames, isAllVoters)
     }
 
-    private fun DbBallot.toApiBallot(): Ballot {
-        TODO()
+    private fun DbBallot.toApiBallot(dbElection: DbElection): Ballot {
+        val isActive = dbElection.status == DbStatus.LIVE
+        val dbRankings = db.listRankings(election, user)
+        val candidates = db.listCandidateNames(election)
+        fun lookupRanking(candidate: String): Int? {
+            val dbRanking = dbRankings.find { it.candidateName == candidate }
+            return dbRanking?.rank
+        }
+
+        val rankings = candidates.map {
+            Ranking(lookupRanking(it), it)
+        }.unbiasedSort()
+        return Ballot(
+                user,
+                election,
+                confirmation,
+                whenCast,
+                isActive,
+                rankings)
     }
+
+    private fun List<Ranking>.unbiasedSort(): List<Ranking> {
+        val (nullRank, notNullRank) = partition { it.rank == null }
+        val firstPartOfList = notNullRank.sortedBy { it.rank }
+        val secondPartOfList = nullRank.shuffled(random)
+        return firstPartOfList + secondPartOfList
+    }
+
 
     private fun DbStatus.toApiStatus(): ElectionStatus = when (this) {
         DbStatus.EDITING -> ElectionStatus.EDITING
@@ -241,7 +266,7 @@ class ApiBackedByDb(private val db: DbApi,
 
     private fun <T> withAllowedToVote(credentials: Credentials,
                                       electionName: String,
-                                      f: () -> T): T =
+                                      f: (DbElection) -> T): T =
             withValidCredentialsAndElection(credentials, electionName) { election ->
                 if (election.status != DbStatus.LIVE) {
                     throw RuntimeException("Election $electionName is not live")
@@ -250,7 +275,7 @@ class ApiBackedByDb(private val db: DbApi,
                 if (!voters.contains(credentials.userName)) {
                     throw RuntimeException("User ${credentials.userName} is not allowed to vote in election ${election.name}")
                 }
-                f()
+                f(election)
             }
 
     companion object {

@@ -1,8 +1,10 @@
 package com.seanshubin.condorcet.domain.jdbc
 
 import com.seanshubin.condorcet.domain.db.*
+import java.sql.Date
 import java.sql.PreparedStatement
 import java.sql.ResultSet
+import java.time.Instant
 
 class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStatement) : DbApi {
     private val sqlLookupElectionId = "(select id from election where name = ?)"
@@ -10,22 +12,22 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
     private val sqlLookupStatusId = "(select id from status where name = ?)"
 
 
-    override fun findUserByName(userName: String): DbUser = queryExactlyOneRow(
+    override fun findUserByName(user: String): DbUser = queryExactlyOneRow(
             ::createUser,
             "select name, email, salt, hash from user where name = ?",
-            userName)
+            user)
 
-    override fun searchUserByName(userName: String): DbUser? = queryZeroOrOneRow(
+    override fun searchUserByName(user: String): DbUser? = queryZeroOrOneRow(
             ::createUser,
             "select name, email, salt, hash from user where name = ?",
-            userName)
+            user)
 
-    override fun searchUserByEmail(userEmail: String): DbUser? = queryZeroOrOneRow(
+    override fun searchUserByEmail(email: String): DbUser? = queryZeroOrOneRow(
             ::createUser,
             "select name, email, salt, hash from user where email = ?",
-            userEmail)
+            email)
 
-    override fun findElectionByName(electionName: String): DbElection = queryExactlyOneRow(
+    override fun findElectionByName(name: String): DbElection = queryExactlyOneRow(
             ::createElection,
             """select 
               |  user.name as owner,
@@ -40,23 +42,23 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
               |  on election.status_id = status.id
               |where
               |  election.name = ?""".trimMargin(),
-            electionName
+            name
     )
 
-    override fun searchElectionByName(electionName: String): DbElection? = queryZeroOrOneRow(
+    override fun searchElectionByName(name: String): DbElection? = queryZeroOrOneRow(
             ::createElection,
             "select owner_id, name, end, secret, status_id from election where name = ?",
-            electionName)
+            name)
 
-    override fun listCandidateNames(electionName: String): List<String> = query(
+    override fun listCandidateNames(election: String): List<String> = query(
             ::createCandidate,
             """select name
               |from candidate
               |where election_id = (select id from election where name = ?)
             """.trimMargin(),
-            electionName)
+            election)
 
-    override fun listVoterNames(electionName: String): List<String> = query(
+    override fun listVoterNames(election: String): List<String> = query(
             ::createCandidate,
             """select
               |  user.name
@@ -65,10 +67,10 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
               |  on voter.user_id = user.id
               |where election_id = (select id from election where name = ?)
             """.trimMargin(),
-            electionName)
+            election)
 
-    override fun electionHasAllVoters(electionName: String): Boolean {
-        val electionVoterCount = electionVoterCount(electionName)
+    override fun electionHasAllVoters(name: String): Boolean {
+        val electionVoterCount = electionVoterCount(name)
         val allVoterCount = allVoterCount()
         return electionVoterCount == allVoterCount
     }
@@ -85,7 +87,7 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
                 owner, name, null, false, DbStatus.EDITING.name)
     }
 
-    override fun setElectionEndDate(electionName: String, endDate: String?) {
+    override fun setElectionEndDate(electionName: String, endDate: Instant?) {
         TODO("not implemented")
     }
 
@@ -109,8 +111,8 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
         voterNames.forEach { addVoterToElection(electionId, it) }
     }
 
-    override fun searchBallot(electionName: String, userName: String): DbBallot? = queryZeroOrOneRow(
-            ::createBallot,
+    override fun searchBallot(election: String, user: String): DbBallot? = queryZeroOrOneRow(
+            ::createDbBallot,
             """select
                 |  user.name as user,
                 |  election.name as election,
@@ -124,19 +126,33 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
                 |where
                 |  user.name = ? and
                 |  election.name = ?""".trimMargin(),
-            userName, electionName
+            user, election
     )
 
-    override fun findBallot(electionName: String, userName: String): DbBallot {
+    override fun findBallot(election: String, user: String): DbBallot = queryExactlyOneRow(
+            ::createDbBallot,
+            """select
+                |  user.name as user,
+                |  election.name as election,
+                |  confirmation,
+                |  when_cast
+                |from ballot
+                |  inner join user
+                |  on ballot.user_id = user.id
+                |  inner join election
+                |  on ballot.election_id = election.id
+                |where
+                |  election_id = $sqlLookupElectionId and 
+                |  user_id = $sqlLookupUserId""".trimMargin(),
+            election, user
+    )
+
+    override fun listTally(election: String): List<DbTally> {
         TODO("not implemented")
     }
 
-    override fun listTally(electionName: String): List<DbTally> {
-        TODO("not implemented")
-    }
-
-    override fun createBallot(electionName: String, userName: String, confirmation: String, whenCast: String, rankings: Map<String, Int>) {
-        createBallot(electionName, userName, confirmation, whenCast)
+    override fun createBallot(electionName: String, userName: String, confirmation: String, whenCast: Instant, rankings: Map<String, Int>) {
+        createDbBallot(electionName, userName, confirmation, whenCast)
         val ballotId = queryBallotId(electionName, userName)
         fun createRanking(ranking: Pair<String, Int>) {
             val (candidateName, rank) = ranking
@@ -146,7 +162,7 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
         rankings.toList().sortedBy { it.second }.forEach(::createRanking)
     }
 
-    override fun updateBallot(electionName: String, userName: String, whenCast: String, rankings: Map<String, Int>) {
+    override fun updateBallot(electionName: String, userName: String, whenCast: Instant, rankings: Map<String, Int>) {
         TODO("not implemented")
     }
 
@@ -157,6 +173,27 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
     override fun setVotersToAll(electionName: String) {
         TODO("not implemented")
     }
+
+    override fun listRankings(election: String, user: String): List<DbRanking> =
+            query(::createRanking,
+                    """select 
+                    |  candidate.name candidate,
+                    |  ranking.rank rank
+                    |from
+                    |  ranking
+                    |  inner join candidate
+                    |  on ranking.candidate_id = candidate.id
+                    |  inner join ballot
+                    |  on ranking.ballot_id = ballot.id
+                    |  inner join user
+                    |  on ballot.user_id = user.id
+                    |  inner join election
+                    |  on ballot.election_id = election.id
+                    |where
+                    |  election.name = ? and
+                    |  user.name = ?
+                """.trimMargin(),
+                    election, user)
 
     private fun queryCandidateId(electionName: String, candidateName: String): Int =
             queryInt(
@@ -178,12 +215,11 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
     }
 
     private fun queryBallotId(electionName: String, userName: String): Int = queryInt(
-            "select id from ballot where election = ? and user = ?",
+            "select id from ballot where election_id = $sqlLookupElectionId and user_id = $sqlLookupUserId",
             electionName, userName
     )
 
-
-    private fun createBallot(electionName: String, userName: String, confirmation: String, whenCast: String) {
+    private fun createDbBallot(electionName: String, userName: String, confirmation: String, whenCast: Instant) {
         update(
                 "insert into ballot (election_id, user_id, confirmation, when_cast) values ($sqlLookupElectionId, $sqlLookupUserId, ?, ?)",
                 electionName, userName, confirmation, whenCast
@@ -225,18 +261,22 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
     private fun createElection(resultSet: ResultSet): DbElection {
         val owner = resultSet.getString("owner")
         val name = resultSet.getString("name")
-        val end = resultSet.getString("end")
+        val end = resultSet.getDate("end")?.toInstant()
         val secret = resultSet.getBoolean("secret")
         val status = resultSet.getString("status")
         return DbElection(owner, name, end, secret, enumValueOf(status.toUpperCase()))
     }
 
-    private fun createBallot(resultSet: ResultSet): DbBallot {
+    private fun createDbBallot(resultSet: ResultSet): DbBallot {
         val user = resultSet.getString("user")
         val election = resultSet.getString("election")
         val confirmation = resultSet.getString("confirmation")
-        val whenCast = resultSet.getString("when_cast")
+        val whenCast = Instant.ofEpochMilli(resultSet.getDate("when_cast").time)
         return DbBallot(user, election, confirmation, whenCast)
+    }
+
+    private fun createRanking(resultSet: ResultSet): DbRanking {
+        TODO()
     }
 
     private fun createCandidate(resultSet: ResultSet): String = resultSet.getString("name")
@@ -290,19 +330,29 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
     }
 
     private fun update(sql: String, vararg parameters: Any?): Int {
-        val statement = prepareStatement(sql)
-        parameters.toList().forEachIndexed { index, any ->
-            statement.setObject(index + 1, any)
-        }
+        val statement = prepareStatementWithParameters(sql, parameters)
         return executeUpdate(sql, statement, parameters)
     }
 
     private fun queryResultSet(sql: String, vararg parameters: Any?): ResultSet {
+        val statement = prepareStatementWithParameters(sql, parameters)
+        return executeQuery(sql, statement, parameters)
+    }
+
+    private fun prepareStatementWithParameters(sql: String, parameters: Array<out Any?>): PreparedStatement {
         val statement = prepareStatement(sql)
         parameters.toList().forEachIndexed { index, any ->
-            statement.setObject(index + 1, any)
+            if (any == null) {
+                statement.setObject(index + 1, null)
+            } else when (any) {
+                is String -> statement.setString(index + 1, any)
+                is Boolean -> statement.setBoolean(index + 1, any)
+                is Int -> statement.setInt(index + 1, any)
+                is Instant -> statement.setDate(index + 1, Date(any.toEpochMilli()))
+                else -> throw UnsupportedOperationException("Unsupported type ${any.javaClass.simpleName}")
+            }
         }
-        return executeQuery(sql, statement, parameters)
+        return statement
     }
 
     private fun executeQuery(sql: String, statement: PreparedStatement, parameters: Array<out Any?>): ResultSet {

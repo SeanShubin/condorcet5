@@ -4,6 +4,7 @@ import arrow.core.Failure
 import arrow.core.Try
 import com.seanshubin.condorcet.domain.Tester.createEmpty
 import org.junit.Test
+import java.time.Instant
 import kotlin.test.assertEquals
 
 class CopyElectionTest {
@@ -19,7 +20,7 @@ class CopyElectionTest {
         api.register("Dave", "dave@email.com", "password")
         api.createElection(aliceCredentials, "Ice Cream")
         api.updateCandidateNames(aliceCredentials, "Ice Cream", listOf("Chocolate", "Vanilla", "Strawberry"))
-        api.setEndDate(aliceCredentials, "Ice Cream", "2019-06-11T22:57:26.497Z")
+        api.setEndDate(aliceCredentials, "Ice Cream", Instant.parse("2019-06-11T22:57:26.497Z"))
         api.setSecretBallot(aliceCredentials, "Ice Cream", secretBallot = false)
         api.updateEligibleVoters(aliceCredentials, "Ice Cream", listOf("Alice", "Carol"))
         api.doneEditingElection(aliceCredentials, "Ice Cream")
@@ -27,7 +28,7 @@ class CopyElectionTest {
         val expected = ElectionDetail(
                 ownerName = "Bob",
                 name = "Copied Election",
-                endIsoString = null,
+                end = null,
                 secretBallot = false,
                 status = ElectionStatus.EDITING,
                 candidateNames = listOf("Chocolate", "Vanilla", "Strawberry"),

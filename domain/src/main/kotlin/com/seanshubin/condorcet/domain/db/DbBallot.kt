@@ -1,11 +1,12 @@
 package com.seanshubin.condorcet.domain.db
 
 import com.seanshubin.condorcet.domain.memory.db.TableRow
+import java.time.Instant
 
-data class DbBallot(val voterName: String,
-                    val electionName: String,
+data class DbBallot(val user: String,
+                    val election: String,
                     val confirmation: String,
-                    val whenCast: String?) : TableRow<DbVoter> {
-    override val primaryKey: DbVoter get() = DbVoter(voterName, electionName)
-    override val cells: List<Any?> = listOf(voterName, electionName, whenCast)
+                    val whenCast: Instant) : TableRow<DbVoter> {
+    override val primaryKey: DbVoter get() = DbVoter(user, election)
+    override val cells: List<Any?> = listOf(user, election, whenCast)
 }

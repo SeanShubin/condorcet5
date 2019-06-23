@@ -3,6 +3,7 @@ package com.seanshubin.condorcet.domain.memory.api
 import com.seanshubin.condorcet.domain.db.*
 import com.seanshubin.condorcet.domain.memory.db.InMemoryTable
 import com.seanshubin.condorcet.domain.memory.db.Table
+import java.time.Instant
 
 class InMemoryDb : DbApi {
     private val userTable: Table<String, DbUser> = InMemoryTable("user")
@@ -13,14 +14,14 @@ class InMemoryDb : DbApi {
     private val rankingTable: Table<DbUserElectionCandidate, DbRanking> = InMemoryTable("ranking")
     private val tallyTable: Table<DbElectionCandidate, DbTally> = InMemoryTable("tally")
 
-    override fun findUserByName(userName: String): DbUser =
-            userTable.find { it.name.equals(userName, ignoreCase = true) }
+    override fun findUserByName(user: String): DbUser =
+            userTable.find { it.name.equals(user, ignoreCase = true) }
 
-    override fun searchUserByName(userName: String): DbUser? =
-            userTable.searchOne { it.name.equals(userName, ignoreCase = true) }
+    override fun searchUserByName(user: String): DbUser? =
+            userTable.searchOne { it.name.equals(user, ignoreCase = true) }
 
-    override fun searchUserByEmail(userEmail: String): DbUser? =
-            userTable.searchOne { it.email.equals(userEmail, ignoreCase = true) }
+    override fun searchUserByEmail(email: String): DbUser? =
+            userTable.searchOne { it.email.equals(email, ignoreCase = true) }
 
     override fun createUser(name: String,
                             email: String,
@@ -29,8 +30,8 @@ class InMemoryDb : DbApi {
         userTable.add(DbUser(name, email, salt, hash))
     }
 
-    override fun searchElectionByName(electionName: String): DbElection? =
-            electionTable.searchOne { it.name.equals(electionName, ignoreCase = true) }
+    override fun searchElectionByName(name: String): DbElection? =
+            electionTable.searchOne { it.name.equals(name, ignoreCase = true) }
 
     override fun createElection(owner: String, name: String) {
         electionTable.add(DbElection(
@@ -41,7 +42,7 @@ class InMemoryDb : DbApi {
                 status = DbStatus.EDITING))
     }
 
-    override fun setElectionEndDate(electionName: String, endDate: String?) {
+    override fun setElectionEndDate(electionName: String, endDate: Instant?) {
         val oldElection = electionTable.find(electionName)
         val newElection = oldElection.copy(end = endDate)
         electionTable.update(newElection)
@@ -59,14 +60,14 @@ class InMemoryDb : DbApi {
         electionTable.update(newElection)
     }
 
-    override fun listCandidateNames(electionName: String): List<String> =
-            candidateTable.listWhere { it.electionName == electionName }.map { it.name }
+    override fun listCandidateNames(election: String): List<String> =
+            candidateTable.listWhere { it.electionName == election }.map { it.name }
 
-    override fun listVoterNames(electionName: String): List<String> =
-            voterTable.listWhere { it.electionName == electionName }.map { it.userName }
+    override fun listVoterNames(election: String): List<String> =
+            voterTable.listWhere { it.electionName == election }.map { it.userName }
 
-    override fun findElectionByName(electionName: String): DbElection =
-            electionTable.find(electionName)
+    override fun findElectionByName(name: String): DbElection =
+            electionTable.find(name)
 
     override fun setCandidates(electionName: String, candidateNames: List<String>) {
         candidateTable.removeWhere { it.electionName == electionName }
@@ -83,22 +84,22 @@ class InMemoryDb : DbApi {
         voterTable.addAll(userTable.listAll().map { DbVoter(it.name, electionName) })
     }
 
-    override fun electionHasAllVoters(electionName: String): Boolean =
-            userTable.size() == listVoterNames(electionName).size
+    override fun electionHasAllVoters(name: String): Boolean =
+            userTable.size() == listVoterNames(name).size
 
-    override fun searchBallot(electionName: String, userName: String): DbBallot? {
+    override fun searchBallot(election: String, user: String): DbBallot? {
         TODO("not implemented")
     }
 
-    override fun listTally(electionName: String): List<DbTally> {
+    override fun listTally(election: String): List<DbTally> {
         TODO("not implemented")
     }
 
-    override fun createBallot(electionName: String, userName: String, confirmation: String, whenCast: String, rankings: Map<String, Int>) {
+    override fun createBallot(electionName: String, userName: String, confirmation: String, whenCast: Instant, rankings: Map<String, Int>) {
         TODO("not implemented")
     }
 
-    override fun updateBallot(electionName: String, userName: String, whenCast: String, rankings: Map<String, Int>) {
+    override fun updateBallot(electionName: String, userName: String, whenCast: Instant, rankings: Map<String, Int>) {
         TODO("not implemented")
     }
 
@@ -106,7 +107,11 @@ class InMemoryDb : DbApi {
         TODO("not implemented")
     }
 
-    override fun findBallot(electionName: String, userName: String): DbBallot {
+    override fun findBallot(election: String, user: String): DbBallot {
+        TODO("not implemented")
+    }
+
+    override fun listRankings(election: String, user: String): List<DbRanking> {
         TODO("not implemented")
     }
 }

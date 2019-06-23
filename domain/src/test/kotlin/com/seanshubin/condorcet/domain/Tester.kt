@@ -3,6 +3,7 @@ package com.seanshubin.condorcet.domain
 import com.seanshubin.condorcet.crypto.*
 import com.seanshubin.condorcet.domain.memory.api.InMemoryDb
 import java.time.Instant
+import java.util.*
 
 /*
 reminder to test
@@ -33,9 +34,11 @@ object Tester {
     val oneWayHash: OneWayHash = Sha256Hash()
     val uniqueIdGenerator: UniqueIdGenerator = Uuid4()
     val passwordUtil = PasswordUtil(uniqueIdGenerator, oneWayHash)
+    val seed = 12345L
+    val random = Random(seed)
     fun createEmpty(): Api {
         val db = InMemoryDb()
-        val api = ApiBackedByDb(db, clock, passwordUtil, uniqueIdGenerator)
+        val api = ApiBackedByDb(db, clock, passwordUtil, uniqueIdGenerator, random)
         return api
     }
 

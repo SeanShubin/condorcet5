@@ -36,7 +36,7 @@ class CreateElectionTest {
         // then
         assertEquals(validCredentials.userName, election.ownerName)
         assertEquals(electionName, election.name)
-        assertEquals(null, election.endIsoString)
+        assertEquals(null, election.end)
         assertEquals(true, election.secretBallot)
         assertEquals(ElectionStatus.EDITING, election.status)
         assertEquals(emptyList(), election.candidateNames)

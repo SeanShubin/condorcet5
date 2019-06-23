@@ -53,7 +53,8 @@ class LoggingPreparedStatement(
     }
 
     override fun setDate(parameterIndex: Int, x: Date?) {
-        throw UnsupportedOperationException("not implemented")
+        emitLine("setDate($parameterIndex, $x)")
+        preparedStatement.setDate(parameterIndex, x)
     }
 
     override fun setDate(parameterIndex: Int, x: Date?, cal: Calendar?) {
@@ -209,7 +210,8 @@ class LoggingPreparedStatement(
     }
 
     override fun setInt(parameterIndex: Int, x: Int) {
-        throw UnsupportedOperationException("not implemented")
+        emitLine("setInt($parameterIndex, $x)")
+        preparedStatement.setInt(parameterIndex, x)
     }
 
     override fun getGeneratedKeys(): ResultSet {
@@ -282,7 +284,8 @@ class LoggingPreparedStatement(
     }
 
     override fun setString(parameterIndex: Int, x: String?) {
-        throw UnsupportedOperationException("not implemented")
+        emitLine("setString($parameterIndex, $x)")
+        preparedStatement.setString(parameterIndex, x)
     }
 
     override fun setAsciiStream(parameterIndex: Int, x: InputStream?, length: Int) {
@@ -402,7 +405,8 @@ class LoggingPreparedStatement(
     }
 
     override fun setBoolean(parameterIndex: Int, x: Boolean) {
-        throw UnsupportedOperationException("not implemented")
+        emitLine("setBoolean($parameterIndex, $x)")
+        preparedStatement.setBoolean(parameterIndex, x)
     }
 
     override fun getMoreResults(): Boolean {

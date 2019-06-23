@@ -1,24 +1,28 @@
 package com.seanshubin.condorcet.domain.db
 
+import java.time.Instant
+
 interface DbApi {
     // queries
-    fun findUserByName(userName: String): DbUser
-    fun searchUserByName(userName: String): DbUser?
-    fun searchUserByEmail(userEmail: String): DbUser?
-    fun findElectionByName(electionName: String): DbElection
-    fun searchElectionByName(electionName: String): DbElection?
-    fun listCandidateNames(electionName: String): List<String>
-    fun listVoterNames(electionName: String): List<String>
-    fun electionHasAllVoters(electionName: String): Boolean
-    fun searchBallot(electionName: String, userName: String): DbBallot?
-    fun findBallot(electionName: String, userName: String): DbBallot
-    fun listTally(electionName: String): List<DbTally>
+    fun findUserByName(user: String): DbUser
+
+    fun searchUserByName(user: String): DbUser?
+    fun searchUserByEmail(email: String): DbUser?
+    fun findElectionByName(name: String): DbElection
+    fun searchElectionByName(name: String): DbElection?
+    fun listCandidateNames(election: String): List<String>
+    fun listVoterNames(election: String): List<String>
+    fun electionHasAllVoters(name: String): Boolean
+    fun searchBallot(election: String, user: String): DbBallot?
+    fun findBallot(election: String, user: String): DbBallot
+    fun listTally(election: String): List<DbTally>
+    fun listRankings(election: String, user: String): List<DbRanking>
 
     // commands
     fun createUser(name: String, email: String, salt: String, hash: String)
 
     fun createElection(owner: String, name: String)
-    fun setElectionEndDate(electionName: String, endDate: String?)
+    fun setElectionEndDate(electionName: String, endDate: Instant?)
     fun setElectionSecretBallot(electionName: String, secretBallot: Boolean)
     fun setElectionStatus(electionName: String, status: DbStatus)
     fun setCandidates(electionName: String, candidateNames: List<String>)
@@ -27,12 +31,12 @@ interface DbApi {
     fun createBallot(electionName: String,
                      userName: String,
                      confirmation: String,
-                     whenCast: String,
+                     whenCast: Instant,
                      rankings: Map<String, Int>)
 
     fun updateBallot(electionName: String,
                      userName: String,
-                     whenCast: String,
+                     whenCast: Instant,
                      rankings: Map<String, Int>)
 
     fun setTally(electionName: String, rankings: Map<String, Int>)

@@ -1,5 +1,7 @@
 package com.seanshubin.condorcet.domain
 
+import java.time.Instant
+
 interface Api {
     // auth
     fun login(nameOrEmail: String, password: String): Credentials
@@ -7,7 +9,8 @@ interface Api {
 
     // election
     fun createElection(credentials: Credentials, electionName: String): ElectionDetail
-    fun setEndDate(credentials: Credentials, electionName: String, isoEndDate: String?): ElectionDetail
+
+    fun setEndDate(credentials: Credentials, electionName: String, endDate: Instant?): ElectionDetail
     fun setSecretBallot(credentials: Credentials, electionName: String, secretBallot: Boolean): ElectionDetail
     fun doneEditingElection(credentials: Credentials, electionName: String): ElectionDetail
     fun endElection(credentials: Credentials, electionName: String): ElectionDetail

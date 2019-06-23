@@ -95,7 +95,7 @@ class DoneEditingElectionTest {
         val api = createWithElection()
         val now = Instant.parse("2019-06-10T15:53:01.806Z")
         val fiveMinutesAgo = now.minus(5, ChronoUnit.MINUTES)
-        api.setEndDate(validCredentials, electionName, fiveMinutesAgo.toString())
+        api.setEndDate(validCredentials, electionName, fiveMinutesAgo)
 
         // when
         val result = Try { api.doneEditingElection(validCredentials, electionName) }

@@ -1,9 +1,11 @@
 package com.seanshubin.condorcet.domain
 
-data class Ballot(val ballotId: String,
-                  val confirmation: String,
-                  val electionName: String,
-                  val voterName: String,
-                  val whenCastIso: String?,
-                  val isActive: Boolean,
-                  val rankings: List<Ranking>)
+import java.time.Instant
+
+data class Ballot(
+        val user: String,
+        val election: String,
+        val confirmation: String,
+        val whenCast: Instant,
+        val isActive: Boolean,
+        val rankings: List<Ranking>)

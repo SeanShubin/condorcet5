@@ -7,6 +7,7 @@ import com.seanshubin.condorcet.domain.jdbc.PrepareStatementApi
 import java.sql.DriverManager
 import java.sql.PreparedStatement
 import java.time.Clock
+import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -86,6 +87,8 @@ class DeepTests {
                 LoggingPreparedStatement(sql, connection.prepareStatement(sql), emitLine)
 
         val db = PrepareStatementApi(::prepareStatement)
-        val api = ApiBackedByDb(db, clock, passwordUtil, uniqueIdGenerator)
+        val seed = 12345L
+        val random = Random(seed)
+        val api = ApiBackedByDb(db, clock, passwordUtil, uniqueIdGenerator, random)
     }
 }

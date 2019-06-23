@@ -1,6 +1,7 @@
 package com.seanshubin.condorcet.domain
 
 import com.seanshubin.condorcet.domain.db.TransactionFunction
+import java.time.Instant
 
 class ApiWrappedInDbTransaction(private val api: Api,
                                 private val t: TransactionFunction) : Api {
@@ -64,8 +65,8 @@ class ApiWrappedInDbTransaction(private val api: Api,
         api.castBallot(credentials, electionName, voterName, rankings)
     }
 
-    override fun setEndDate(credentials: Credentials, electionName: String, isoEndDate: String?): ElectionDetail = t.inTransaction {
-        api.setEndDate(credentials, electionName, isoEndDate)
+    override fun setEndDate(credentials: Credentials, electionName: String, endDate: Instant?): ElectionDetail = t.inTransaction {
+        api.setEndDate(credentials, electionName, endDate)
     }
 
     override fun setSecretBallot(credentials: Credentials, electionName: String, secretBallot: Boolean): ElectionDetail = t.inTransaction {
