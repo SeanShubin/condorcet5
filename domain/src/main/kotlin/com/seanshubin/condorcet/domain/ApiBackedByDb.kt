@@ -3,13 +3,11 @@ package com.seanshubin.condorcet.domain
 import com.seanshubin.condorcet.crypto.PasswordUtil
 import com.seanshubin.condorcet.crypto.SaltAndHash
 import com.seanshubin.condorcet.crypto.UniqueIdGenerator
-import com.seanshubin.condorcet.domain.db.DbApi
-import com.seanshubin.condorcet.domain.db.DbBallot
-import com.seanshubin.condorcet.domain.db.DbElection
-import com.seanshubin.condorcet.domain.db.DbStatus
+import com.seanshubin.condorcet.domain.Place.Companion.toPlaceName
+import com.seanshubin.condorcet.domain.Ranking.Companion.unbiasedSort
+import com.seanshubin.condorcet.domain.db.*
 import java.time.Clock
 import java.time.Instant
-import java.time.format.DateTimeParseException
 import java.util.*
 
 class ApiBackedByDb(private val db: DbApi,
@@ -149,8 +147,21 @@ class ApiBackedByDb(private val db: DbApi,
                 db.setElectionSecretBallot(election.name, secretBallot)
             }
 
-    override fun tally(credentials: Credentials, electionName: String): Tally {
-        TODO("not implemented")
+    override fun tally(credentials: Credentials, electionName: String): Tally =
+            withValidCredentialsAndElection(credentials, electionName) { election ->
+                if (election.status != DbStatus.COMPLETE) {
+                    throw RuntimeException("Can not tally election $electionName, its status is ${election.status}")
+                }
+                val originalDbTally = db.listTally(electionName)
+                if (originalDbTally.isEmpty()) {
+                    updateElectionTally(electionName)
+                }
+                val dbTally = db.listTally(electionName)
+                dbTally.toApiTally(electionName)
+            }
+
+    private fun updateElectionTally(electionName: String) {
+        TODO()
     }
 
     private fun assertUserNameDoesNotExist(userName: String) {
@@ -192,10 +203,9 @@ class ApiBackedByDb(private val db: DbApi,
             val dbRanking = dbRankings.find { it.candidateName == candidate }
             return dbRanking?.rank
         }
-
         val rankings = candidates.map {
             Ranking(lookupRanking(it), it)
-        }.unbiasedSort()
+        }.unbiasedSort(random)
         return Ballot(
                 user,
                 election,
@@ -205,38 +215,26 @@ class ApiBackedByDb(private val db: DbApi,
                 rankings)
     }
 
-    private fun List<Ranking>.unbiasedSort(): List<Ranking> {
-        val (nullRank, notNullRank) = partition { it.rank == null }
-        val firstPartOfList = notNullRank.sortedBy { it.rank }
-        val secondPartOfList = nullRank.shuffled(random)
-        return firstPartOfList + secondPartOfList
-    }
-
-
     private fun DbStatus.toApiStatus(): ElectionStatus = when (this) {
         DbStatus.EDITING -> ElectionStatus.EDITING
         DbStatus.LIVE -> ElectionStatus.LIVE
         DbStatus.COMPLETE -> ElectionStatus.COMPLETE
     }
 
-    private fun assertValidIsoDateTimeOrNull(s: String?) {
-        if (s != null) {
-            assertValidIsoDateTime(s)
+    private fun List<DbTally>.toApiTally(electionName: String): Tally {
+        val grouped: Map<Int, List<DbTally>> = this.groupBy { it.rank }
+        val keys = grouped.keys.sorted()
+        val places = mutableListOf<Place>()
+        keys.forEach { key ->
+            places.add(Place(key.toPlaceName(), grouped.getValue(key).map { it.candidateName }.sorted()))
         }
-    }
-
-    private fun assertValidIsoDateTime(s: String) {
-        try {
-            Instant.parse(s)
-        } catch (ex: DateTimeParseException) {
-            throw RuntimeException("Unable to parse '$s' into an ISO date time")
-        }
+        return Tally(electionName, places)
     }
 
     private fun trim(s: String): String = s.trim().replace(whitespaceBlock, " ")
 
     private fun <T> withValidCredentials(credentials: Credentials, f: () -> T): T {
-        val user = db.searchUserByName(credentials.userName) ?: authError(credentials)
+        db.searchUserByName(credentials.userName) ?: authError(credentials)
         assertCredentialsValid(credentials)
         return f()
     }

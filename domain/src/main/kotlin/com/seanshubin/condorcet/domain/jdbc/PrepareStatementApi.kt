@@ -147,9 +147,22 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
             election, user
     )
 
-    override fun listTally(election: String): List<DbTally> {
-        TODO("not implemented")
-    }
+    override fun listTally(election: String): List<DbTally> = query(
+            ::createDbTally,
+            """select
+                |  election.name,
+                |  candidate.name,
+                |  rank
+                |from
+                |  tally
+                |  inner join election
+                |  on tally.election_id = election.id
+                |  inner join candidate
+                |  on tally.candidate_id = candidate.id
+                |where
+                |  election.name = ?""".trimMargin(),
+            election
+    )
 
     override fun createBallot(electionName: String, userName: String, confirmation: String, whenCast: Instant, rankings: Map<String, Int>) {
         createDbBallot(electionName, userName, confirmation, whenCast)
@@ -177,6 +190,8 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
     override fun listRankings(election: String, user: String): List<DbRanking> =
             query(::createRanking,
                     """select 
+                    |  user.name voter,
+                    |  election.name election,
                     |  candidate.name candidate,
                     |  ranking.rank rank
                     |from
@@ -275,8 +290,19 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
         return DbBallot(user, election, confirmation, whenCast)
     }
 
+    private fun createDbTally(resultSet: ResultSet): DbTally {
+        val election = resultSet.getString("election")
+        val candidate = resultSet.getString("candidate")
+        val rank = resultSet.getInt("rank")
+        return DbTally(election, candidate, rank)
+    }
+
     private fun createRanking(resultSet: ResultSet): DbRanking {
-        TODO()
+        val voter = resultSet.getString("voter")
+        val election = resultSet.getString("election")
+        val candidate = resultSet.getString("candidate")
+        val rank = resultSet.getInt("rank")
+        return DbRanking(voter, election, candidate, rank)
     }
 
     private fun createCandidate(resultSet: ResultSet): String = resultSet.getString("name")

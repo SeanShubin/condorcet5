@@ -8,7 +8,7 @@ import java.util.*
 /*
 reminder to test
 - default
-- typical
+- seed1
 - null
 - whitespace in name
     - create
