@@ -2,7 +2,9 @@ package com.seanshubin.condorcet.domain
 
 import com.seanshubin.condorcet.crypto.PasswordUtil
 import com.seanshubin.condorcet.crypto.SaltAndHash
+import com.seanshubin.condorcet.crypto.UniqueIdGenerator
 import com.seanshubin.condorcet.domain.db.DbApi
+import com.seanshubin.condorcet.domain.db.DbBallot
 import com.seanshubin.condorcet.domain.db.DbElection
 import com.seanshubin.condorcet.domain.db.DbStatus
 import java.time.Clock
@@ -11,7 +13,8 @@ import java.time.format.DateTimeParseException
 
 class ApiBackedByDb(private val db: DbApi,
                     private val clock: Clock,
-                    private val passwordUtil: PasswordUtil) : Api {
+                    private val passwordUtil: PasswordUtil,
+                    private val uniqueIdGenerator: UniqueIdGenerator) : Api {
     override fun login(nameOrEmail: String, password: String): Credentials {
         val trimmedUserNameOrUserEmail = trim(nameOrEmail)
         val dbUser =
@@ -38,7 +41,8 @@ class ApiBackedByDb(private val db: DbApi,
         val trimmedElectionName = trim(electionName)
         assertCredentialsValid(credentials)
         assertElectionNameDoesNotExist(trimmedElectionName)
-        val dbElection = db.createElection(credentials.userName, trimmedElectionName)
+        db.createElection(credentials.userName, trimmedElectionName)
+        val dbElection = db.findElectionByName(trimmedElectionName)
         return dbElection.toApiElectionDetail()
     }
 
@@ -121,9 +125,18 @@ class ApiBackedByDb(private val db: DbApi,
         TODO("not implemented")
     }
 
-    override fun castBallot(credentials: Credentials, electionName: String, voterName: String, rankings: List<Ranking>): Ballot {
-        TODO("not implemented")
-    }
+    override fun castBallot(credentials: Credentials, electionName: String, voterName: String, rankings: Map<String, Int>): Ballot =
+            withAllowedToVote(credentials, electionName) {
+                val ballot = db.searchBallot(electionName, credentials.userName)
+                val now = clock.instant().toString()
+                if (ballot == null) {
+                    val confirmation = uniqueIdGenerator.uniqueId()
+                    db.createBallot(electionName, credentials.userName, confirmation, now, rankings)
+                } else {
+                    db.updateBallot(electionName, credentials.userName, now, rankings)
+                }
+                db.findBallot(electionName, credentials.userName).toApiBallot()
+            }
 
     override fun setEndDate(credentials: Credentials, electionName: String, isoEndDate: String?): ElectionDetail =
             withAllowedToEdit(credentials, electionName) { election ->
@@ -151,7 +164,7 @@ class ApiBackedByDb(private val db: DbApi,
     private fun assertCredentialsValid(credentials: Credentials) {
         val user = db.searchUserByName(credentials.userName) ?: authError(credentials)
         val saltAndHash = SaltAndHash(user.salt, user.hash)
-        if (passwordUtil.validatePassword(credentials.userPassword, saltAndHash)) authError(credentials)
+        if (!passwordUtil.validatePassword(credentials.userPassword, saltAndHash)) authError(credentials)
     }
 
     private fun assertElectionNameDoesNotExist(electionName: String) {
@@ -169,6 +182,10 @@ class ApiBackedByDb(private val db: DbApi,
         val voterNames = db.listVoterNames(name)
         val isAllVoters = db.electionHasAllVoters(name)
         return ElectionDetail(owner, name, end, secret, status.toApiStatus(), candidateNames, voterNames, isAllVoters)
+    }
+
+    private fun DbBallot.toApiBallot(): Ballot {
+        TODO()
     }
 
     private fun DbStatus.toApiStatus(): ElectionStatus = when (this) {
@@ -207,7 +224,9 @@ class ApiBackedByDb(private val db: DbApi,
                 f(election)
             }
 
-    private fun withAllowedToEdit(credentials: Credentials, electionName: String, f: (DbElection) -> Unit): ElectionDetail =
+    private fun withAllowedToEdit(credentials: Credentials,
+                                  electionName: String,
+                                  f: (DbElection) -> Unit): ElectionDetail =
             withValidCredentialsAndElection(credentials, electionName) { election ->
                 if (election.owner == credentials.userName) {
                     f(election)
@@ -218,7 +237,21 @@ class ApiBackedByDb(private val db: DbApi,
                                     "is not allowed to edit election '${election.name}' " +
                                     "owned by user '${election.owner}'")
                 }
-        }
+            }
+
+    private fun <T> withAllowedToVote(credentials: Credentials,
+                                      electionName: String,
+                                      f: () -> T): T =
+            withValidCredentialsAndElection(credentials, electionName) { election ->
+                if (election.status != DbStatus.LIVE) {
+                    throw RuntimeException("Election $electionName is not live")
+                }
+                val voters = db.listVoterNames(election.name)
+                if (!voters.contains(credentials.userName)) {
+                    throw RuntimeException("User ${credentials.userName} is not allowed to vote in election ${election.name}")
+                }
+                f()
+            }
 
     companion object {
         private val whitespaceBlock = Regex("""\s+""")

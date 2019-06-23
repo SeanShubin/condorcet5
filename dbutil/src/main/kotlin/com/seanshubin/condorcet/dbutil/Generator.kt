@@ -11,13 +11,15 @@ object Generator {
         Schema.tables.flatMap { it.toSql() }.forEach(::println)
     }
 
-    fun sampleData() {
+    fun createStatus() {
         val statusValues = listOf("editing", "live", "complete")
         fun insertStatus(status: String): String =
                 "insert into status (name) values ('$status');"
-
         val statusSql = statusValues.map(::insertStatus)
+        statusSql.forEach(::println)
+    }
 
+    fun sampleData() {
         val users = listOf("alice", "bob", "carol", "dave")
         fun insertUser(user: String): String =
                 "insert into user (name, email, salt, hash) values ('$user', '$user@email.com', 'salt', 'hash');".trimMargin()
@@ -56,7 +58,7 @@ object Generator {
                 createElection(scienceFictionId, "Science Fiction", carolId, editingId, listOf("Babylon 5", "Star Trek", "Blake''s 7", "Firefly"), listOf(aliceId, bobId, carolId, daveId)) +
                 createElection(fantasyId, "Fantasy", daveId, liveId, listOf("Marvel Cinematic Universe", "Lord of the Rings", "Harry Potter"), listOf(aliceId, bobId, carolId, daveId))
 
-        val sql = statusSql + usersSql + electionsSql
+        val sql = usersSql + electionsSql
 
         sql.forEach(::println)
     }
@@ -64,6 +66,7 @@ object Generator {
     fun all() {
         dropTables()
         createTables()
+        createStatus()
         sampleData()
     }
 }

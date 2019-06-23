@@ -35,7 +35,7 @@ object Tester {
     val passwordUtil = PasswordUtil(uniqueIdGenerator, oneWayHash)
     fun createEmpty(): Api {
         val db = InMemoryDb()
-        val api = ApiBackedByDb(db, clock, passwordUtil)
+        val api = ApiBackedByDb(db, clock, passwordUtil, uniqueIdGenerator)
         return api
     }
 

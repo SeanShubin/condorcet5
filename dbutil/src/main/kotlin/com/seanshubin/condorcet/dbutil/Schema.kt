@@ -37,10 +37,10 @@ object Schema {
     val ballotUser = ForeignKey("user", user)
     val ballotElection = ForeignKey("election", election)
     val ballotConfirmation = Field("confirmation", STRING)
-    val whenCast = Field("when_cast", DATE)
+    val ballotWhenCast = Field("when_cast", DATE)
     val ballot = Table(
             "ballot",
-            columns = listOf(ballotUser, ballotElection, ballotConfirmation, whenCast),
+            columns = listOf(ballotUser, ballotElection, ballotConfirmation, ballotWhenCast),
             unique = listOf(ballotUser, ballotElection))
     val rankingBallot = ForeignKey("ballot", ballot)
     val rankingCandidate = ForeignKey("candidate", candidate)

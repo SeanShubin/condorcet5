@@ -1,4 +1,4 @@
-package com.seanshubin.condorcet.domain
+package com.seanshubin.condorcet.domain.jdbc
 
 import java.io.InputStream
 import java.io.Reader
@@ -8,7 +8,14 @@ import java.sql.*
 import java.sql.Date
 import java.util.*
 
-abstract class PreparedStatementNotImplemented : PreparedStatement {
+class LoggingPreparedStatement(
+        private val sql: String,
+        private val preparedStatement: PreparedStatement,
+        private val emitLine: (String) -> Unit) : PreparedStatement {
+    init {
+        emitLine("sql: $sql")
+    }
+
     override fun setRef(parameterIndex: Int, x: Ref?) {
         throw UnsupportedOperationException("not implemented")
     }
@@ -70,7 +77,10 @@ abstract class PreparedStatementNotImplemented : PreparedStatement {
     }
 
     override fun setObject(parameterIndex: Int, x: Any?) {
-        throw UnsupportedOperationException("not implemented")
+        emitLine("sql: $sql")
+        val className = x?.javaClass?.simpleName ?: "null"
+        emitLine("parameter[$parameterIndex] = ($className)$x")
+        preparedStatement.setObject(parameterIndex, x)
     }
 
     override fun setObject(parameterIndex: Int, x: Any?, targetSqlType: Int, scaleOrLength: Int) {
@@ -106,10 +116,11 @@ abstract class PreparedStatementNotImplemented : PreparedStatement {
     }
 
     override fun executeQuery(): ResultSet {
-        throw UnsupportedOperationException("not implemented")
+        emitLine("executeQuery: $sql")
+        return preparedStatement.executeQuery()
     }
 
-    override fun executeQuery(sql: String): ResultSet {
+    override fun executeQuery(sql: String?): ResultSet {
         throw UnsupportedOperationException("not implemented")
     }
 
@@ -226,7 +237,8 @@ abstract class PreparedStatementNotImplemented : PreparedStatement {
     }
 
     override fun executeUpdate(): Int {
-        throw UnsupportedOperationException("not implemented")
+        emitLine("executeUpdate: $sql")
+        return preparedStatement.executeUpdate()
     }
 
     override fun executeUpdate(sql: String?): Int {

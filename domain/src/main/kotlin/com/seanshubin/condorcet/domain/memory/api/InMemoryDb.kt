@@ -22,24 +22,23 @@ class InMemoryDb : DbApi {
     override fun searchUserByEmail(userEmail: String): DbUser? =
             userTable.searchOne { it.email.equals(userEmail, ignoreCase = true) }
 
-    override fun createUser(userName: String,
-                            userEmail: String,
-                            userSalt: String,
-                            userHash: String) {
-        userTable.add(DbUser(userName, userEmail, userSalt, userHash))
+    override fun createUser(name: String,
+                            email: String,
+                            salt: String,
+                            hash: String) {
+        userTable.add(DbUser(name, email, salt, hash))
     }
 
     override fun searchElectionByName(electionName: String): DbElection? =
             electionTable.searchOne { it.name.equals(electionName, ignoreCase = true) }
 
-    override fun createElection(userName: String, electionName: String): DbElection {
+    override fun createElection(owner: String, name: String) {
         electionTable.add(DbElection(
-                owner = userName,
-                name = electionName,
+                owner = owner,
+                name = name,
                 end = null,
                 secret = true,
                 status = DbStatus.EDITING))
-        return electionTable.find(electionName)
     }
 
     override fun setElectionEndDate(electionName: String, endDate: String?) {
@@ -87,7 +86,27 @@ class InMemoryDb : DbApi {
     override fun electionHasAllVoters(electionName: String): Boolean =
             userTable.size() == listVoterNames(electionName).size
 
-    override fun <T> inTransaction(f: () -> T): T {
-        throw UnsupportedOperationException("The in memory database does not support transactions")
+    override fun searchBallot(electionName: String, userName: String): DbBallot? {
+        TODO("not implemented")
+    }
+
+    override fun listTally(electionName: String): List<DbTally> {
+        TODO("not implemented")
+    }
+
+    override fun createBallot(electionName: String, userName: String, confirmation: String, whenCast: String, rankings: Map<String, Int>) {
+        TODO("not implemented")
+    }
+
+    override fun updateBallot(electionName: String, userName: String, whenCast: String, rankings: Map<String, Int>) {
+        TODO("not implemented")
+    }
+
+    override fun setTally(electionName: String, rankings: Map<String, Int>) {
+        TODO("not implemented")
+    }
+
+    override fun findBallot(electionName: String, userName: String): DbBallot {
+        TODO("not implemented")
     }
 }

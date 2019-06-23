@@ -23,7 +23,7 @@ interface Api {
     // ballot
     fun listBallots(credentials: Credentials, voterName: String): List<Ballot>
     fun getBallot(credentials: Credentials, electionName: String, voterName: String): Ballot
-    fun castBallot(credentials: Credentials, electionName: String, voterName: String, rankings: List<Ranking>): Ballot
+    fun castBallot(credentials: Credentials, electionName: String, voterName: String, rankings: Map<String, Int>): Ballot
 
     // tally
     fun tally(credentials: Credentials, electionName: String): Tally

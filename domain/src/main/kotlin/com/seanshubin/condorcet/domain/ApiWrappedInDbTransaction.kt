@@ -60,7 +60,7 @@ class ApiWrappedInDbTransaction(private val api: Api,
         api.getBallot(credentials, electionName, voterName)
     }
 
-    override fun castBallot(credentials: Credentials, electionName: String, voterName: String, rankings: List<Ranking>): Ballot = t.inTransaction {
+    override fun castBallot(credentials: Credentials, electionName: String, voterName: String, rankings: Map<String, Int>): Ballot = t.inTransaction {
         api.castBallot(credentials, electionName, voterName, rankings)
     }
 
@@ -75,4 +75,5 @@ class ApiWrappedInDbTransaction(private val api: Api,
     override fun tally(credentials: Credentials, electionName: String): Tally = t.inTransaction {
         api.tally(credentials, electionName)
     }
+
 }
