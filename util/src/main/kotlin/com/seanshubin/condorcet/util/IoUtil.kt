@@ -26,7 +26,7 @@ object IoUtil {
         return outputStream.toByteArray()
     }
 
-    fun Reader.toString(): String {
+    fun Reader.consumeToString(): String {
         val writer = StringWriter()
         writer.consume(this)
         return writer.buffer.toString()

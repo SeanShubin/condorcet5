@@ -7,7 +7,7 @@
     <dependencies>
         <dependency>
             <groupId>com.seanshubin.condorcet</groupId>
-            <artifactId>condorcet-crypto</artifactId>
+            <artifactId>condorcet-domain-db</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -16,16 +16,18 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.seanshubin.condorcet</groupId>
+            <artifactId>condorcet-crypto</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.seanshubin.condorcet</groupId>
+            <artifactId>condorcet-table-formatter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.arrow-kt</groupId>
             <artifactId>arrow-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-kotlin</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
         </dependency>
     </dependencies>
     <parent>

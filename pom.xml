@@ -63,17 +63,18 @@
         </dependencies>
     </dependencyManagement>
     <modules>
-        <module>server</module>
-        <module>serverutil</module>
-        <module>rds</module>
-        <module>domain</module>
-        <module>rdsutil</module>
-        <module>util</module>
-        <module>script</module>
-        <module>dbutil</module>
-        <module>crypto</module>
         <module>algorithm</module>
+        <module>crypto</module>
         <module>table-formatter</module>
+        <module>util-db</module>
+        <module>util-rds</module>
+        <module>util-server</module>
+        <module>util</module>
+        <module>server</module>
+        <module>domain-rds</module>
+        <module>domain</module>
+        <module>domain-db</module>
+        <module>prototype</module>
         <module>detangler</module>
     </modules>
     <properties>

@@ -1,9 +1,8 @@
 package com.seanshubin.condorcet.domain
 
 import com.seanshubin.condorcet.crypto.*
-import com.seanshubin.condorcet.domain.jdbc.ConnectionDbFunctions
-import com.seanshubin.condorcet.domain.jdbc.LoggingPreparedStatement
-import com.seanshubin.condorcet.domain.jdbc.PrepareStatementApi
+import com.seanshubin.condorcet.util.db.jdbc.ConnectionDbFunctions
+import com.seanshubin.condorcet.util.db.jdbc.LoggingPreparedStatement
 import java.sql.DriverManager
 import java.sql.PreparedStatement
 import java.time.Clock

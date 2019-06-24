@@ -1,6 +1,6 @@
 package com.seanshubin.condorcet.domain
 
-import com.seanshubin.condorcet.domain.db.TransactionFunction
+import com.seanshubin.condorcet.util.db.TransactionFunction
 import java.time.Instant
 
 class ApiWrappedInDbTransaction(private val api: Api,

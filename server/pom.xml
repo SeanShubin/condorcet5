@@ -7,12 +7,13 @@
     <dependencies>
         <dependency>
             <groupId>com.seanshubin.condorcet</groupId>
-            <artifactId>condorcet-serverutil</artifactId>
+            <artifactId>condorcet-util-server</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-rds</artifactId>
+            <groupId>com.seanshubin.condorcet</groupId>
+            <artifactId>condorcet-domain-rds</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <parent>

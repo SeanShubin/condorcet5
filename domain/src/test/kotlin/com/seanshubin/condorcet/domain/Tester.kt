@@ -1,7 +1,7 @@
 package com.seanshubin.condorcet.domain
 
 import com.seanshubin.condorcet.crypto.*
-import com.seanshubin.condorcet.domain.memory.api.InMemoryDb
+import com.seanshubin.condorcet.domain.db.InMemoryDb
 import java.time.Instant
 import java.util.*
 

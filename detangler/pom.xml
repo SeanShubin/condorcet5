@@ -7,37 +7,7 @@
     <dependencies>
         <dependency>
             <groupId>com.seanshubin.condorcet</groupId>
-            <artifactId>condorcet-server</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.seanshubin.condorcet</groupId>
-            <artifactId>condorcet-serverutil</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.seanshubin.condorcet</groupId>
-            <artifactId>condorcet-domain</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.seanshubin.condorcet</groupId>
-            <artifactId>condorcet-rdsutil</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.seanshubin.condorcet</groupId>
-            <artifactId>condorcet-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.seanshubin.condorcet</groupId>
-            <artifactId>condorcet-script</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.seanshubin.condorcet</groupId>
-            <artifactId>condorcet-dbutil</artifactId>
+            <artifactId>condorcet-algorithm</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -47,17 +17,53 @@
         </dependency>
         <dependency>
             <groupId>com.seanshubin.condorcet</groupId>
-            <artifactId>condorcet-algorithm</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.seanshubin.condorcet</groupId>
             <artifactId>condorcet-table-formatter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-rds</artifactId>
+            <groupId>com.seanshubin.condorcet</groupId>
+            <artifactId>condorcet-util-db</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.seanshubin.condorcet</groupId>
+            <artifactId>condorcet-util-rds</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.seanshubin.condorcet</groupId>
+            <artifactId>condorcet-util-server</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.seanshubin.condorcet</groupId>
+            <artifactId>condorcet-server</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.seanshubin.condorcet</groupId>
+            <artifactId>condorcet-domain-rds</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.seanshubin.condorcet</groupId>
+            <artifactId>condorcet-domain</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.seanshubin.condorcet</groupId>
+            <artifactId>condorcet-domain-db</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.seanshubin.condorcet</groupId>
+            <artifactId>condorcet-prototype</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.seanshubin.condorcet</groupId>
+            <artifactId>condorcet-util</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <parent>
