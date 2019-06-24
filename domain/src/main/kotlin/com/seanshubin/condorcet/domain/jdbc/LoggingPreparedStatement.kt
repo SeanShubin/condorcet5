@@ -1,5 +1,6 @@
 package com.seanshubin.condorcet.domain.jdbc
 
+import com.mysql.cj.jdbc.ClientPreparedStatement
 import java.io.InputStream
 import java.io.Reader
 import java.math.BigDecimal
@@ -12,10 +13,6 @@ class LoggingPreparedStatement(
         private val sql: String,
         private val preparedStatement: PreparedStatement,
         private val emitLine: (String) -> Unit) : PreparedStatement {
-    init {
-        emitLine("sql: $sql")
-    }
-
     override fun setRef(parameterIndex: Int, x: Ref?) {
         throw UnsupportedOperationException("not implemented")
     }
@@ -53,7 +50,6 @@ class LoggingPreparedStatement(
     }
 
     override fun setDate(parameterIndex: Int, x: Date?) {
-        emitLine("setDate($parameterIndex, $x)")
         preparedStatement.setDate(parameterIndex, x)
     }
 
@@ -78,9 +74,6 @@ class LoggingPreparedStatement(
     }
 
     override fun setObject(parameterIndex: Int, x: Any?) {
-        emitLine("sql: $sql")
-        val className = x?.javaClass?.simpleName ?: "null"
-        emitLine("parameter[$parameterIndex] = ($className)$x")
         preparedStatement.setObject(parameterIndex, x)
     }
 
@@ -117,7 +110,7 @@ class LoggingPreparedStatement(
     }
 
     override fun executeQuery(): ResultSet {
-        emitLine("executeQuery: $sql")
+        emitLine(preparedStatement.asSql())
         return preparedStatement.executeQuery()
     }
 
@@ -210,7 +203,6 @@ class LoggingPreparedStatement(
     }
 
     override fun setInt(parameterIndex: Int, x: Int) {
-        emitLine("setInt($parameterIndex, $x)")
         preparedStatement.setInt(parameterIndex, x)
     }
 
@@ -239,7 +231,7 @@ class LoggingPreparedStatement(
     }
 
     override fun executeUpdate(): Int {
-        emitLine("executeUpdate: $sql")
+        emitLine(preparedStatement.asSql())
         return preparedStatement.executeUpdate()
     }
 
@@ -284,7 +276,6 @@ class LoggingPreparedStatement(
     }
 
     override fun setString(parameterIndex: Int, x: String?) {
-        emitLine("setString($parameterIndex, $x)")
         preparedStatement.setString(parameterIndex, x)
     }
 
@@ -405,7 +396,6 @@ class LoggingPreparedStatement(
     }
 
     override fun setBoolean(parameterIndex: Int, x: Boolean) {
-        emitLine("setBoolean($parameterIndex, $x)")
         preparedStatement.setBoolean(parameterIndex, x)
     }
 
@@ -420,4 +410,7 @@ class LoggingPreparedStatement(
     override fun setByte(parameterIndex: Int, x: Byte) {
         throw UnsupportedOperationException("not implemented")
     }
+
+    private fun PreparedStatement.asSql(): String =
+            (this as ClientPreparedStatement).asSql() + ";"
 }

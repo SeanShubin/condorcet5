@@ -51,12 +51,13 @@
     server     [serverutil rds]
     serverutil []
     rds        [domain rdsutil]
-    domain     [arrow-core crypto jackson mysql-jdbc]
+    domain     [arrow-core crypto jackson mysql-jdbc algorithm]
     rdsutil    [rds mysql-jdbc util]
     util       [coroutines]
     script     [rdsutil cloudformation]
     dbutil     [mysql-jdbc table-formatter util]
     crypto     []
+    algorithm  []
     table-formatter []
   }
   consoleEntryPoint {
