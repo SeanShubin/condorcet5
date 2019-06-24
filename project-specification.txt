@@ -48,20 +48,23 @@
   }
   global [ stdlib test ]
   modules {
-    server     [serverutil rds]
-    serverutil []
-    rds        [domain rdsutil]
-    domain     [arrow-core crypto jackson mysql-jdbc algorithm]
-    rdsutil    [rds mysql-jdbc util]
-    util       [coroutines]
-    script     [rdsutil cloudformation]
-    dbutil     [mysql-jdbc table-formatter util]
-    crypto     []
-    algorithm  []
+    server          [serverutil rds]
+    serverutil      []
+    rds             [domain rdsutil]
+    domain          [arrow-core crypto jackson mysql-jdbc algorithm]
+    rdsutil         [rds mysql-jdbc util]
+    util            [coroutines]
+    script          [rdsutil cloudformation]
+    dbutil          [mysql-jdbc table-formatter util]
+    crypto          []
+    algorithm       []
     table-formatter []
+    detangler       [server serverutil rds domain rdsutil util script dbutil crypto algorithm table-formatter]
   }
+  detangler [detangler]
   consoleEntryPoint {
     console com.seanshubin.condorcet.server.ServerApplication
+    detangler com.seanshubin.condorcet.detangler.EntryPoint
   }
   javaVersion 12
   deployableToMavenCentral true

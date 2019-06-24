@@ -74,6 +74,7 @@
         <module>crypto</module>
         <module>algorithm</module>
         <module>table-formatter</module>
+        <module>detangler</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
