@@ -72,7 +72,10 @@ class DeepTests {
     }
 
     class Tester {
-        val url = "jdbc:mysql://prototype.cmph7klf3qhg.us-west-1.rds.amazonaws.com/prototype"
+        val scheme = "jdbc:mysql"
+        val host = "prototype.cmph7klf3qhg.us-west-1.rds.amazonaws.com"
+        val database = "prototype"
+        val url = "$scheme://$host/$database"
         val user = "prototype"
         val password = "prototype"
         val connection = DriverManager.getConnection(url, user, password)
