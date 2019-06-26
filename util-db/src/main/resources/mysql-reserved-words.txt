@@ -157,6 +157,7 @@ primary
 procedure
 purge
 range
+rank
 read
 reads
 read_write

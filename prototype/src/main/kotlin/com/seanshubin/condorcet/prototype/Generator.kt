@@ -4,25 +4,25 @@ import com.seanshubin.condorcet.domain.db.Schema
 import com.seanshubin.condorcet.util.db.Table
 
 object Generator {
-    fun dropTables() {
+    fun dropTables(): List<String> {
         fun toDropTableStatement(table: Table): String =
                 "drop table if exists ${table.name};"
-        Schema.tables.reversed().map(::toDropTableStatement).forEach(::println)
+        return Schema.tables.reversed().map(::toDropTableStatement)
     }
 
-    fun createTables() {
-        Schema.tables.flatMap { it.toSql() }.forEach(::println)
+    fun createTables(): List<String> {
+        return Schema.tables.flatMap { it.toSql() }
     }
 
-    fun createStatus() {
+    fun createStatus(): List<String> {
         val statusValues = listOf("editing", "live", "complete")
         fun insertStatus(status: String): String =
                 "insert into status (name) values ('$status');"
         val statusSql = statusValues.map(::insertStatus)
-        statusSql.forEach(::println)
+        return statusSql
     }
 
-    fun sampleData() {
+    fun sampleData(): List<String> {
         val users = listOf("alice", "bob", "carol", "dave")
         fun insertUser(user: String): String =
                 "insert into user (name, email, salt, hash) values ('$user', '$user@email.com', 'salt', 'hash');".trimMargin()
@@ -63,13 +63,13 @@ object Generator {
 
         val sql = usersSql + electionsSql
 
-        sql.forEach(::println)
+        return sql
     }
 
-    fun all() {
-        dropTables()
-        createTables()
-        createStatus()
+    fun all(): List<String> {
+        return dropTables() +
+                createTables() +
+                createStatus() +
         sampleData()
     }
 }
