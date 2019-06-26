@@ -11,6 +11,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.seanshubin.condorcet</groupId>
+            <artifactId>condorcet-util-db</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-rds</artifactId>
         </dependency>

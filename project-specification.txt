@@ -52,7 +52,7 @@
     crypto          []
     table-formatter []
     util-db         [mysql-jdbc util]
-    util-rds        [rds util]
+    util-rds        [rds util util-db]
     util-server     []
     util            [coroutines]
     server          [util-server domain-rds]

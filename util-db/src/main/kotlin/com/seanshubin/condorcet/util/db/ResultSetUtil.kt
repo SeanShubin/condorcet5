@@ -4,7 +4,7 @@ import java.sql.ResultSet
 
 object ResultSetUtil {
     fun ResultSet.consumeToTable(): List<List<Any>> {
-        val columnNames = getColumnNames(this)
+        val columnNames = columnNames()
         val data = getData(this, columnNames)
         return listOf(columnNames) + data
     }
@@ -17,12 +17,23 @@ object ResultSetUtil {
         return list
     }
 
-    private fun getColumnNames(resultSet: ResultSet): List<String> {
-        val metaData = resultSet.metaData
-        val columnCount = metaData.columnCount
-        val extractColumnName = { columnIndex: Int -> metaData.getColumnName(columnIndex) }
-        val columnNames = (1..columnCount).map(extractColumnName)
-        return columnNames
+    fun ResultSet.columnNames(): List<String> = (1..metaData.columnCount).map { metaData.getColumnName(it) }
+
+    fun ResultSet.stringColumn(columnName: String): List<String> =
+            stringColumn(indexOfColumn(columnName))
+
+    fun ResultSet.stringColumn(columnIndex: Int): List<String> =
+            map { getString(columnIndex) }
+
+    fun ResultSet.indexOfColumn(columnName: String): Int =
+            columnNames().indexOf(columnName)
+
+    fun <T> ResultSet.map(f: () -> T): List<T> {
+        val result = mutableListOf<T>()
+        while (this.next()) {
+            result.add(f())
+        }
+        return result
     }
 
     private fun getData(resultSet: ResultSet, columnNames: List<String>): List<List<Any>> {

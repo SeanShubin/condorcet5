@@ -7,7 +7,14 @@ import java.sql.ResultSet
 
 class JdbcConnectionLifecycle(private val host: String,
                               private val user: String,
-                              private val password: String) : ConnectionLifecycle {
+                              private val password: String,
+                              private val database: String) : ConnectionLifecycle {
+    override fun <T> withConnection(doSomethingWithConnection: (Connection) -> T): T {
+        val url = "jdbc:mysql://$host/$database?serverTimezone=UTC"
+        val connection = DriverManager.getConnection(url, user, password)
+        return connection.use(doSomethingWithConnection)
+    }
+
     override fun <T> withResultSet(sqlQuery: String, doSomethingWithResultSet: (ResultSet) -> T): T =
             withPreparedStatement(sqlQuery) { statement ->
                 val resultSet = statement.executeQuery()
@@ -28,11 +35,5 @@ class JdbcConnectionLifecycle(private val host: String,
             doSomethingWithPreparedStatement: (PreparedStatement) -> T): T {
         val statement = connection.prepareStatement(sqlQuery)
         return statement.use(doSomethingWithPreparedStatement)
-    }
-
-    private fun <T> withConnection(doSomethingWithConnection: (Connection) -> T): T {
-        val url = "jdbc:mysql://$host?serverTimezone=UTC"
-        val connection = DriverManager.getConnection(url, user, password)
-        return connection.use(doSomethingWithConnection)
     }
 }

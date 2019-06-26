@@ -5,7 +5,7 @@ import com.amazonaws.services.rds.model.CreateDBInstanceRequest
 import com.amazonaws.services.rds.model.DBInstance
 import com.amazonaws.services.rds.model.DeleteDBInstanceRequest
 import com.amazonaws.services.rds.model.DescribeDBInstancesRequest
-import com.seanshubin.condorcet.util.rds.ResultSetUtil.columnNames
+import com.seanshubin.condorcet.util.db.ResultSetUtil.columnNames
 import com.seanshubin.condorcet.util.retryDuration
 import java.sql.DriverManager
 import java.time.Duration

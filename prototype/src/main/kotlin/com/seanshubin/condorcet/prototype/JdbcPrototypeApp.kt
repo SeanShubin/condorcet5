@@ -1,45 +1,8 @@
 package com.seanshubin.condorcet.prototype
 
 import com.seanshubin.condorcet.table.formatter.RowStyleTableFormatter
+import com.seanshubin.condorcet.util.db.ResultSetUtil.consumeToTable
 import java.sql.DriverManager
-import java.sql.ResultSet
-
-class ResultSetIterator(
-        private val resultSet: ResultSet,
-        private val columnNames: List<String>
-) : Iterator<List<Any>> {
-    private var resultSetNext = resultSet.next()
-    override fun hasNext(): Boolean = resultSetNext
-
-    override fun next(): List<Any> {
-        val rowCells = columnNames.map { resultSet.getString(it) }
-        resultSetNext = resultSet.next()
-        return rowCells
-    }
-}
-
-object ResultSetUtil {
-    fun toTable(resultSet: ResultSet): List<List<Any>> {
-        val columnNames = getColumnNames(resultSet)
-        val data = getData(resultSet, columnNames)
-        return listOf(columnNames) + data
-    }
-
-    private fun getColumnNames(resultSet: ResultSet): List<String> {
-        val metaData = resultSet.metaData
-        val columnCount = metaData.columnCount
-        val extractColumnName = { columnIndex: Int -> metaData.getColumnName(columnIndex) }
-        val columnNames = (1..columnCount).map(extractColumnName)
-        return columnNames
-    }
-
-    private fun getData(resultSet: ResultSet, columnNames: List<String>): List<List<Any>> {
-        val iterator: Iterator<List<Any>> = ResultSetIterator(resultSet, columnNames)
-        val list = ArrayList<List<Any>>()
-        iterator.forEachRemaining { list.add(it) }
-        return list
-    }
-}
 
 fun main() {
     val url = "jdbc:mysql://prototype.cmph7klf3qhg.us-west-1.rds.amazonaws.com/prototype"
@@ -50,7 +13,7 @@ fun main() {
     val statement = connection.prepareStatement(sqlQuery)
     statement.setString(1, "alice")
     val resultSet = statement.executeQuery()
-    val table = ResultSetUtil.toTable(resultSet)
+    val table = resultSet.consumeToTable()
     val tableFormatter = RowStyleTableFormatter.boxDrawing
     val lines = tableFormatter.format(table)
     lines.forEach(::println)
