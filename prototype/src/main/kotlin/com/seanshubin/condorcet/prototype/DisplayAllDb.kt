@@ -30,28 +30,4 @@ fun main() {
         val lines = tables.flatMap(::linesForTable)
         lines.forEach(::println)
     }
-
-//    val resultSet = tableNamesStatement.executeQuery()
-//    fun exec(sql: String) {
-//        val statement = connection.prepareStatement(sql)
-//        try {
-//            val result = statement.execute()
-//            if (result) {
-//                println("true:      $sql")
-//            } else {
-//                println("false:     $sql")
-//            }
-//        } catch (ex: Exception) {
-//            println("exception: $sql")
-//            ex.printStackTrace()
-//            throw ex
-//        }
-//    }
-//
-//    val sqlLines = Generator.all()
-//    val sql = sqlLines.joinToString("\n")
-//    val sqlStatements = sql.split(";").filter { it.isNotBlank() }
-//
-//    sqlStatements.forEach(::exec)
-
 }
