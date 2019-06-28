@@ -1,5 +1,7 @@
 package com.seanshubin.condorcet.domain
 
+import com.seanshubin.condorcet.algorithm.CondorcetAlgorithm
+import com.seanshubin.condorcet.algorithm.TallyElectionRequest
 import com.seanshubin.condorcet.crypto.PasswordUtil
 import com.seanshubin.condorcet.crypto.SaltAndHash
 import com.seanshubin.condorcet.crypto.UniqueIdGenerator
@@ -9,6 +11,7 @@ import com.seanshubin.condorcet.domain.db.*
 import java.time.Clock
 import java.time.Instant
 import java.util.*
+import com.seanshubin.condorcet.algorithm.Ballot as AlgorithmBallot
 
 class ApiBackedByDb(private val db: DbApi,
                     private val clock: Clock,
@@ -161,8 +164,27 @@ class ApiBackedByDb(private val db: DbApi,
             }
 
     private fun updateElectionTally(electionName: String) {
+        val candidates = db.listCandidateNames(electionName)
+        val eligibleVoters = db.listVoterNames(electionName)
+        fun ballotToAlgorithm(ballot: DbBallot): AlgorithmBallot {
+            val rankings = rankingsToAlgorithm(db.listRankings(electionName, ballot.user))
+            return AlgorithmBallot(ballot.user, ballot.confirmation, rankings)
+        }
+
+        val ballots = db.listBallots(electionName).map(::ballotToAlgorithm)
+        val request = TallyElectionRequest(
+                electionName,
+                candidates,
+                eligibleVoters,
+                ballots)
+        val response = CondorcetAlgorithm.tally(request)
         TODO()
     }
+
+    private fun rankingsToAlgorithm(rankings: List<DbRanking>): Map<String, Int> =
+            rankings.map { ranking ->
+                Pair(ranking.candidateName, ranking.rank)
+            }.toMap()
 
     private fun assertUserNameDoesNotExist(userName: String) {
         if (db.searchUserByName(userName) != null) throw RuntimeException("User with name '$userName' already exists")

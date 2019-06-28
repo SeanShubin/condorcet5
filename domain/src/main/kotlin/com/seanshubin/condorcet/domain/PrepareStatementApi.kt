@@ -209,6 +209,10 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
                 """.trimMargin(),
                     election, user)
 
+    override fun listBallots(election: String): List<DbBallot> {
+        TODO("not implemented")
+    }
+
     private fun queryCandidateId(electionName: String, candidateName: String): Int =
             queryInt(
                     """select
