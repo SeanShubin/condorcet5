@@ -8,11 +8,16 @@ data class Table(val name: String,
     constructor(name: String, vararg columns: Column) : this(name, columns.toList(), listOf())
 
     fun toSql(): List<String> {
+        val createTableSql = toCreateTableSql()
+        val uniqueLines = toUniqueSql()
+        return listOf<String>() + createTableSql + uniqueLines
+    }
+
+    private fun toCreateTableSql(): String {
         val firstLine = "create table $name ("
         val middleLines = toMiddleSql().map(::indent)
         val lastLine = ");"
-        val uniqueLines = toUniqueSql()
-        return listOf<String>() + firstLine + middleLines + lastLine + uniqueLines
+        return (emptyList<String>() + firstLine + middleLines + lastLine).joinToString("\n")
     }
 
     private fun toMiddleSql(): List<String> {
