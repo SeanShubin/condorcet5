@@ -11,7 +11,6 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
     private val sqlLookupUserId = "(select id from user where name = ?)"
     private val sqlLookupStatusId = "(select id from status where name = ?)"
 
-
     override fun findUserByName(user: String): DbUser = queryExactlyOneRow(
             ::createUser,
             "select name, email, salt, hash from user where name = ?",
@@ -152,7 +151,7 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
             """select
                 |  election.name,
                 |  candidate.name,
-                |  rank
+                |  `rank`
                 |from
                 |  tally
                 |  inner join election
@@ -193,7 +192,7 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
                     |  user.name voter,
                     |  election.name election,
                     |  candidate.name candidate,
-                    |  ranking.rank rank
+                    |  ranking.rank `rank`
                     |from
                     |  ranking
                     |  inner join candidate
@@ -225,7 +224,7 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
             )
 
     private fun createRanking(ballotId: Int, candidateId: Int, rank: Int) {
-        update("insert into ranking (ballot_id, candidate_id, rank) values (?, ?, ?)",
+        update("insert into ranking (ballot_id, candidate_id, `rank`) values (?, ?, ?)",
                 ballotId, candidateId, rank)
     }
 
