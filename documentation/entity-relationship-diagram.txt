@@ -1,0 +1,69 @@
+@startuml
+hide circle
+'skinparam linetype ortho
+
+entity user {
+    name
+    --
+    email
+    salt
+    hash
+}
+
+entity election {
+    name
+    --
+    owner: fk user
+    end
+    secret
+    status: fk status
+}
+
+entity voter {
+    election: fk election
+    user: fk user
+}
+
+entity status {
+    name
+}
+
+entity ballot {
+    user: fk user
+    election: fk election
+    --
+    confirmation
+    when-cast
+}
+
+entity candidate {
+    name
+    election: fk election
+}
+
+entity ranking {
+    ballot: fk ballot
+    candidate: fk candidate
+    --
+    rank
+}
+
+entity tally {
+    election: fk election
+    candidate: fk candidate
+    --
+    rank
+}
+
+election  -left->  user
+election  -left->  status
+voter     -left->  user
+voter     -down->  election
+ballot    -up->    user
+ballot    -up->    election
+candidate -up->    election
+ranking   -left->  ballot
+ranking   -right-> candidate
+tally     -left->  election
+tally     -down->  candidate
+@enduml
