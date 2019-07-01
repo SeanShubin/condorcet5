@@ -7,7 +7,7 @@ import java.sql.Timestamp
 import java.time.Instant
 
 class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStatement,
-                          private val loadResource:(String)->String) : DbApi {
+                          private val loadResource: (String) -> String) : DbApi {
     private val sqlLookupElectionId = "(select id from election where name = ?)"
     private val sqlLookupUserId = "(select id from user where name = ?)"
     private val sqlLookupStatusId = "(select id from status where name = ?)"
@@ -40,21 +40,12 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
 
     override fun listCandidateNames(election: String): List<String> = query(
             ::createCandidate,
-            """select name
-              |from candidate
-              |where election_id = (select id from election where name = ?)
-            """.trimMargin(),
+            "candidate-names-by-election.sql",
             election)
 
     override fun listVoterNames(election: String): List<String> = query(
             ::createCandidate,
-            """select
-              |  user.name
-              |from voter
-              |  inner join user
-              |  on voter.user_id = user.id
-              |where election_id = (select id from election where name = ?)
-            """.trimMargin(),
+            "voter-names-by-election.sql",
             election)
 
     override fun electionHasAllVoters(name: String): Boolean {
@@ -113,18 +104,7 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
 
     override fun listTally(election: String): List<DbTally> = query(
             ::createDbTally,
-            """select
-                |  election.name,
-                |  candidate.name,
-                |  `rank`
-                |from
-                |  tally
-                |  inner join election
-                |  on tally.election_id = election.id
-                |  inner join candidate
-                |  on tally.candidate_id = candidate.id
-                |where
-                |  election.name = ?""".trimMargin(),
+            "tally-by-election.sql",
             election
     )
 
@@ -153,43 +133,12 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
 
     override fun listRankings(election: String, user: String): List<DbRanking> =
             query(::createRanking,
-                    """select 
-                    |  user.name voter,
-                    |  election.name election,
-                    |  candidate.name candidate,
-                    |  ranking.rank `rank`
-                    |from
-                    |  ranking
-                    |  inner join candidate
-                    |  on ranking.candidate_id = candidate.id
-                    |  inner join ballot
-                    |  on ranking.ballot_id = ballot.id
-                    |  inner join user
-                    |  on ballot.user_id = user.id
-                    |  inner join election
-                    |  on ballot.election_id = election.id
-                    |where
-                    |  election.name = ? and
-                    |  user.name = ?
-                """.trimMargin(),
+                    "ranking-by-user-election.sql",
                     election, user)
 
     override fun listBallots(election: String): List<DbBallot> =
             query(::createBallot,
-                    """select
-                    |  user.name user,
-                    |  election.name election,
-                    |  confirmation,
-                    |  when_cast
-                    |from
-                    |  ballot
-                    |  inner join user
-                    |  on ballot.user_id = user.id
-                    |  inner join election
-                    |  on ballot.election_id = election.id
-                    |where
-                    |  election.name = ?
-                """.trimMargin(),
+                    "ballot-by-election.sql",
                     election)
 
     private fun queryCandidateId(electionName: String, candidateName: String): Int =
@@ -325,7 +274,8 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
         }
     }
 
-    private fun <T> query(createFunction: (ResultSet) -> T, sql: String, vararg parameters: Any?): List<T> {
+    private fun <T> query(createFunction: (ResultSet) -> T, sqlResource: String, vararg parameters: Any?): List<T> {
+        val sql = loadResource(sqlResource)
         val resultSet = queryResultSet(sql, *parameters)
         val results = mutableListOf<T>()
         while (resultSet.next()) {
