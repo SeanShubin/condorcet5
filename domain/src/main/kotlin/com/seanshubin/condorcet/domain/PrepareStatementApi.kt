@@ -6,12 +6,13 @@ import java.sql.ResultSet
 import java.sql.Timestamp
 import java.time.Instant
 
-class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStatement) : DbApi {
+class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStatement,
+                          private val loadResource:(String)->String) : DbApi {
     private val sqlLookupElectionId = "(select id from election where name = ?)"
     private val sqlLookupUserId = "(select id from user where name = ?)"
     private val sqlLookupStatusId = "(select id from status where name = ?)"
 
-    override fun findUserByName(user: String): DbUser = queryExactlyOneRow(
+    override fun findUserByName(user: String): DbUser = queryExactlyOneRowDeprecated(
             ::createUser,
             "select name, email, salt, hash from user where name = ?",
             user)
@@ -26,7 +27,7 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
             "select name, email, salt, hash from user where email = ?",
             email)
 
-    override fun findElectionByName(name: String): DbElection = queryExactlyOneRow(
+    override fun findElectionByName(name: String): DbElection = queryExactlyOneRowDeprecated(
             ::createElection,
             """select 
               |  user.name as owner,
@@ -128,7 +129,7 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
             user, election
     )
 
-    override fun findBallot(election: String, user: String): DbBallot = queryExactlyOneRow(
+    override fun findBallot(election: String, user: String): DbBallot = queryExactlyOneRowDeprecated(
             ::createDbBallot,
             """select
                 |  user.name as user,
@@ -332,8 +333,22 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
         return DbBallot(user, election, confirmation, whenCast.toInstant())
     }
 
-    private fun <T> queryExactlyOneRow(createFunction: (ResultSet) -> T, sql: String, vararg paremeters: Any?): T {
-        val resultSet = queryResultSet(sql, *paremeters)
+    private fun <T> queryExactlyOneRowDeprecated(createFunction: (ResultSet) -> T, sql: String, vararg parameters: Any?): T {
+        val resultSet = queryResultSet(sql, *parameters)
+        return if (resultSet.next()) {
+            val result = createFunction(resultSet)
+            if (resultSet.next()) {
+                throw RuntimeException("No more than 1 row expected for '$sql'")
+            }
+            result
+        } else {
+            throw RuntimeException("Exactly 1 row expected for '$sql', got none")
+        }
+    }
+
+    private fun <T> queryExactlyOneRow(createFunction: (ResultSet) -> T, sqlResource: String, vararg parameters: Any?): T {
+        val sql = loadResource(sqlResource)
+        val resultSet = queryResultSet(sql, *parameters)
         return if (resultSet.next()) {
             val result = createFunction(resultSet)
             if (resultSet.next()) {

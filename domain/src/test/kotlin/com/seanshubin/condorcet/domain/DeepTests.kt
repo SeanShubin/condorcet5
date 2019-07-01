@@ -1,6 +1,7 @@
 package com.seanshubin.condorcet.domain
 
 import com.seanshubin.condorcet.crypto.*
+import com.seanshubin.condorcet.util.ClassLoaderUtil
 import com.seanshubin.condorcet.util.db.jdbc.ConnectionDbFunctions
 import com.seanshubin.condorcet.util.db.jdbc.LoggingPreparedStatement
 import java.sql.DriverManager
@@ -88,7 +89,9 @@ class DeepTests {
         fun prepareStatement(sql: String): PreparedStatement =
                 LoggingPreparedStatement(sql, connection.prepareStatement(sql), emitLine)
 
-        val db = PrepareStatementApi(::prepareStatement)
+        val db = PrepareStatementApi(
+                ::prepareStatement,
+                ClassLoaderUtil::loadResourceAsString)
         val seed = 12345L
         val random = Random(seed)
         val api = ApiBackedByDb(db, clock, passwordUtil, uniqueIdGenerator, random)

@@ -4,6 +4,7 @@ import com.seanshubin.condorcet.crypto.*
 import com.seanshubin.condorcet.domain.Api
 import com.seanshubin.condorcet.domain.ApiBackedByDb
 import com.seanshubin.condorcet.domain.PrepareStatementApi
+import com.seanshubin.condorcet.util.ClassLoaderUtil
 import com.seanshubin.condorcet.util.db.JdbcConnectionLifecycle
 import com.seanshubin.condorcet.util.db.jdbc.LoggingPreparedStatement
 import java.sql.PreparedStatement
@@ -22,7 +23,9 @@ object LocalApiLifecycle : ApiLifecycle {
             fun prepareStatement(sql: String): PreparedStatement =
                     LoggingPreparedStatement(sql, connection.prepareStatement(sql), emitLine)
 
-            val db = PrepareStatementApi(::prepareStatement)
+            val db = PrepareStatementApi(
+                    ::prepareStatement,
+                    ClassLoaderUtil::loadResourceAsString)
             val clock = Clock.systemDefaultZone()
             val uniqueIdGenerator: UniqueIdGenerator = Uuid4()
             val oneWayHash: OneWayHash = Sha256Hash()
