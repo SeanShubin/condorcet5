@@ -12,42 +12,30 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
     private val sqlLookupUserId = "(select id from user where name = ?)"
     private val sqlLookupStatusId = "(select id from status where name = ?)"
 
-    override fun findUserByName(user: String): DbUser = queryExactlyOneRowDeprecated(
+    override fun findUserByName(user: String): DbUser = queryExactlyOneRow(
             ::createUser,
-            "select name, email, salt, hash from user where name = ?",
+            "user-by-name.sql",
             user)
 
     override fun searchUserByName(user: String): DbUser? = queryZeroOrOneRow(
             ::createUser,
-            "select name, email, salt, hash from user where name = ?",
+            "user-by-name.sql",
             user)
 
     override fun searchUserByEmail(email: String): DbUser? = queryZeroOrOneRow(
             ::createUser,
-            "select name, email, salt, hash from user where email = ?",
+            "user-by-email.sql",
             email)
 
-    override fun findElectionByName(name: String): DbElection = queryExactlyOneRowDeprecated(
+    override fun findElectionByName(name: String): DbElection = queryExactlyOneRow(
             ::createElection,
-            """select 
-              |  user.name as owner,
-              |  election.name,
-              |  election.end,
-              |  election.secret,
-              |  status.name as status
-              |from election
-              |  inner join user
-              |  on election.owner_id = user.id
-              |  inner join status
-              |  on election.status_id = status.id
-              |where
-              |  election.name = ?""".trimMargin(),
+            "election-by-name.sql",
             name
     )
 
     override fun searchElectionByName(name: String): DbElection? = queryZeroOrOneRow(
             ::createElection,
-            "select owner_id, name, end, secret, status_id from election where name = ?",
+            "election-by-name.sql",
             name)
 
     override fun listCandidateNames(election: String): List<String> = query(
@@ -113,38 +101,14 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
 
     override fun searchBallot(election: String, user: String): DbBallot? = queryZeroOrOneRow(
             ::createDbBallot,
-            """select
-                |  user.name as user,
-                |  election.name as election,
-                |  confirmation,
-                |  when_cast
-                |from ballot
-                |  inner join user
-                |  on ballot.user_id = user.id
-                |  inner join election
-                |  on ballot.election_id = election.id
-                |where
-                |  user.name = ? and
-                |  election.name = ?""".trimMargin(),
+            "ballot-by-user-election.sql",
             user, election
     )
 
-    override fun findBallot(election: String, user: String): DbBallot = queryExactlyOneRowDeprecated(
+    override fun findBallot(election: String, user: String): DbBallot = queryExactlyOneRow(
             ::createDbBallot,
-            """select
-                |  user.name as user,
-                |  election.name as election,
-                |  confirmation,
-                |  when_cast
-                |from ballot
-                |  inner join user
-                |  on ballot.user_id = user.id
-                |  inner join election
-                |  on ballot.election_id = election.id
-                |where
-                |  election_id = $sqlLookupElectionId and 
-                |  user_id = $sqlLookupUserId""".trimMargin(),
-            election, user
+            "ballot-by-user-election.sql",
+            user, election
     )
 
     override fun listTally(election: String): List<DbTally> = query(
@@ -333,19 +297,6 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
         return DbBallot(user, election, confirmation, whenCast.toInstant())
     }
 
-    private fun <T> queryExactlyOneRowDeprecated(createFunction: (ResultSet) -> T, sql: String, vararg parameters: Any?): T {
-        val resultSet = queryResultSet(sql, *parameters)
-        return if (resultSet.next()) {
-            val result = createFunction(resultSet)
-            if (resultSet.next()) {
-                throw RuntimeException("No more than 1 row expected for '$sql'")
-            }
-            result
-        } else {
-            throw RuntimeException("Exactly 1 row expected for '$sql', got none")
-        }
-    }
-
     private fun <T> queryExactlyOneRow(createFunction: (ResultSet) -> T, sqlResource: String, vararg parameters: Any?): T {
         val sql = loadResource(sqlResource)
         val resultSet = queryResultSet(sql, *parameters)
@@ -360,7 +311,8 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
         }
     }
 
-    private fun <T> queryZeroOrOneRow(createFunction: (ResultSet) -> T, sql: String, vararg parameters: Any?): T? {
+    private fun <T> queryZeroOrOneRow(createFunction: (ResultSet) -> T, sqlResource: String, vararg parameters: Any?): T? {
+        val sql = loadResource(sqlResource)
         val resultSet = queryResultSet(sql, *parameters)
         return if (resultSet.next()) {
             val result = createFunction(resultSet)
