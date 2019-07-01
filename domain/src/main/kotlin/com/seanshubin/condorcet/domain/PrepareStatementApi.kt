@@ -1,9 +1,9 @@
 package com.seanshubin.condorcet.domain
 
 import com.seanshubin.condorcet.domain.db.*
-import java.sql.Date
 import java.sql.PreparedStatement
 import java.sql.ResultSet
+import java.sql.Timestamp
 import java.time.Instant
 
 class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStatement) : DbApi {
@@ -209,9 +209,23 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
                 """.trimMargin(),
                     election, user)
 
-    override fun listBallots(election: String): List<DbBallot> {
-        TODO("not implemented")
-    }
+    override fun listBallots(election: String): List<DbBallot> =
+            query(::createBallot,
+                    """select
+                    |  user.name user,
+                    |  election.name election,
+                    |  confirmation,
+                    |  when_cast
+                    |from
+                    |  ballot
+                    |  inner join user
+                    |  on ballot.user_id = user.id
+                    |  inner join election
+                    |  on ballot.election_id = election.id
+                    |where
+                    |  election.name = ?
+                """.trimMargin(),
+                    election)
 
     private fun queryCandidateId(electionName: String, candidateName: String): Int =
             queryInt(
@@ -279,7 +293,7 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
     private fun createElection(resultSet: ResultSet): DbElection {
         val owner = resultSet.getString("owner")
         val name = resultSet.getString("name")
-        val end = resultSet.getDate("end")?.toInstant()
+        val end = resultSet.getTimestamp("end")?.toInstant()
         val secret = resultSet.getBoolean("secret")
         val status = resultSet.getString("status")
         return DbElection(owner, name, end, secret, enumValueOf(status.toUpperCase()))
@@ -289,7 +303,7 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
         val user = resultSet.getString("user")
         val election = resultSet.getString("election")
         val confirmation = resultSet.getString("confirmation")
-        val whenCast = Instant.ofEpochMilli(resultSet.getDate("when_cast").time)
+        val whenCast = resultSet.getTimestamp("when_cast").toInstant()
         return DbBallot(user, election, confirmation, whenCast)
     }
 
@@ -309,6 +323,14 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
     }
 
     private fun createCandidate(resultSet: ResultSet): String = resultSet.getString("name")
+
+    private fun createBallot(resultSet: ResultSet): DbBallot {
+        val user = resultSet.getString("user")
+        val election = resultSet.getString("election")
+        val confirmation = resultSet.getString("confirmation")
+        val whenCast = resultSet.getTimestamp("when_cast")
+        return DbBallot(user, election, confirmation, whenCast.toInstant())
+    }
 
     private fun <T> queryExactlyOneRow(createFunction: (ResultSet) -> T, sql: String, vararg paremeters: Any?): T {
         val resultSet = queryResultSet(sql, *paremeters)
@@ -371,13 +393,14 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
     private fun prepareStatementWithParameters(sql: String, parameters: Array<out Any?>): PreparedStatement {
         val statement = prepareStatement(sql)
         parameters.toList().forEachIndexed { index, any ->
+            val position = index + 1
             if (any == null) {
-                statement.setObject(index + 1, null)
+                statement.setObject(position, null)
             } else when (any) {
-                is String -> statement.setString(index + 1, any)
-                is Boolean -> statement.setBoolean(index + 1, any)
-                is Int -> statement.setInt(index + 1, any)
-                is Instant -> statement.setDate(index + 1, Date(any.toEpochMilli()))
+                is String -> statement.setString(position, any)
+                is Boolean -> statement.setBoolean(position, any)
+                is Int -> statement.setInt(position, any)
+                is Instant -> statement.setTimestamp(position, Timestamp.from(any))
                 else -> throw UnsupportedOperationException("Unsupported type ${any.javaClass.simpleName}")
             }
         }

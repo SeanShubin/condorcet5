@@ -50,7 +50,7 @@ class LoggingPreparedStatement(
     }
 
     override fun setDate(parameterIndex: Int, x: Date?) {
-        preparedStatement.setDate(parameterIndex, x)
+        throw UnsupportedOperationException("not implemented")
     }
 
     override fun setDate(parameterIndex: Int, x: Date?, cal: Calendar?) {
@@ -320,7 +320,7 @@ class LoggingPreparedStatement(
     }
 
     override fun setTimestamp(parameterIndex: Int, x: Timestamp?) {
-        throw UnsupportedOperationException("not implemented")
+        preparedStatement.setTimestamp(parameterIndex, x)
     }
 
     override fun setTimestamp(parameterIndex: Int, x: Timestamp?, cal: Calendar?) {
