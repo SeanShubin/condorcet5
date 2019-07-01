@@ -8,10 +8,6 @@ import java.time.Instant
 
 class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStatement,
                           private val loadResource: (String) -> String) : DbApi {
-    private val sqlLookupElectionId = "(select id from election where name = ?)"
-    private val sqlLookupUserId = "(select id from user where name = ?)"
-    private val sqlLookupStatusId = "(select id from status where name = ?)"
-
     override fun findUserByName(user: String): DbUser = queryExactlyOneRow(
             ::createUser,
             "user-by-name.sql",
@@ -48,22 +44,18 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
             "voter-names-by-election.sql",
             election)
 
-    override fun electionHasAllVoters(name: String): Boolean {
-        val electionVoterCount = electionVoterCount(name)
-        val allVoterCount = allVoterCount()
+    override fun electionHasAllVoters(election: String): Boolean {
+        val electionVoterCount = queryInt("count-voters-for-election.sql", election)
+        val allVoterCount = queryInt("count-users.sql")
         return electionVoterCount == allVoterCount
     }
 
     override fun createUser(name: String, email: String, salt: String, hash: String) {
-        update("insert into user (name, email, salt, hash) values (?, ?, ?, ?)", name, email, salt, hash)
+        update("create-user.sql", name, email, salt, hash)
     }
 
     override fun createElection(owner: String, name: String) {
-        val selectOwnerId = "(select id from user where name = ?)"
-        val selectStatusId = "(select id from status where name = ?)"
-        update("""insert into election (owner_id, name, end, secret, status_id) 
-                 |values ($selectOwnerId, ?, ?, ?, $selectStatusId)""".trimMargin(),
-                owner, name, null, false, DbStatus.EDITING.name)
+        update("create-election.sql", owner, name, null, false, DbStatus.EDITING.name)
     }
 
     override fun setElectionEndDate(electionName: String, endDate: Instant?) {
@@ -75,19 +67,21 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
     }
 
     override fun setElectionStatus(electionName: String, status: DbStatus) {
-        update("update election set status_id = $sqlLookupStatusId where name = ?", status.name, electionName)
+        update("set-election-status.sql", status.name, electionName)
     }
 
     override fun setCandidates(electionName: String, candidateNames: List<String>) {
-        val electionId = queryInt("select * from election where name = ?", electionName)
-        removeCandidatesFromElection(electionId)
-        candidateNames.forEach { addCandidateToElection(electionId, it) }
+        update("remove-candidates-from-election.sql", electionName)
+        candidateNames.forEach {
+            update("add-candidate-to-election.sql", electionName, it)
+        }
     }
 
     override fun setVoters(electionName: String, voterNames: List<String>) {
-        val electionId = queryInt("select * from election where name = ?", electionName)
-        removeVotersFromElection(electionId)
-        voterNames.forEach { addVoterToElection(electionId, it) }
+        update("remove-voters-from-election.sql", electionName)
+        voterNames.forEach {
+            update("add-voter-to-election.sql", electionName, it)
+        }
     }
 
     override fun searchBallot(election: String, user: String): DbBallot? = queryZeroOrOneRow(
@@ -110,10 +104,10 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
 
     override fun createBallot(electionName: String, userName: String, confirmation: String, whenCast: Instant, rankings: Map<String, Int>) {
         createDbBallot(electionName, userName, confirmation, whenCast)
-        val ballotId = queryBallotId(electionName, userName)
+        val ballotId = queryInt("ballot-id-by-user-election.sql", userName, electionName)
         fun createRanking(ranking: Pair<String, Int>) {
             val (candidateName, rank) = ranking
-            val candidateId = queryCandidateId(electionName, candidateName)
+            val candidateId = queryInt("candidate-id-by-election-candidate.sql", electionName, candidateName)
             createRanking(ballotId, candidateId, rank)
         }
         rankings.toList().sortedBy { it.second }.forEach(::createRanking)
@@ -141,60 +135,16 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
                     "ballot-by-election.sql",
                     election)
 
-    private fun queryCandidateId(electionName: String, candidateName: String): Int =
-            queryInt(
-                    """select
-                    |  candidate.id
-                    |from
-                    |  candidate
-                    |  inner join election
-                    |  on candidate.election_id = election.id
-                    |where
-                    |  election.name = ? and
-                    |  candidate.name = ?""".trimMargin(),
-                    electionName, candidateName
-            )
-
     private fun createRanking(ballotId: Int, candidateId: Int, rank: Int) {
-        update("insert into ranking (ballot_id, candidate_id, `rank`) values (?, ?, ?)",
-                ballotId, candidateId, rank)
+        update("create-ranking.sql", ballotId, candidateId, rank)
     }
-
-    private fun queryBallotId(electionName: String, userName: String): Int = queryInt(
-            "select id from ballot where election_id = $sqlLookupElectionId and user_id = $sqlLookupUserId",
-            electionName, userName
-    )
 
     private fun createDbBallot(electionName: String, userName: String, confirmation: String, whenCast: Instant) {
         update(
-                "insert into ballot (election_id, user_id, confirmation, when_cast) values ($sqlLookupElectionId, $sqlLookupUserId, ?, ?)",
+                "create-ballot.sql",
                 electionName, userName, confirmation, whenCast
         )
     }
-
-    private fun removeCandidatesFromElection(electionId: Int) {
-        update("delete from candidate where election_id = ?", electionId)
-    }
-
-    private fun removeVotersFromElection(electionId: Int) {
-        update("delete from voter where election_id = ?", electionId)
-    }
-
-    private fun addCandidateToElection(electionId: Int, candidateName: String) {
-        update("insert into candidate (election_id, name) values (?, ?)", electionId, candidateName)
-    }
-
-    private fun addVoterToElection(electionId: Int, voterName: String) {
-        val selectVoterId = "(select id from user where name = ?)"
-        update("insert into voter (election_id, user_id) values (?, $selectVoterId)", electionId, voterName)
-    }
-
-    private fun electionVoterCount(electionName: String): Int =
-            queryInt(
-                    "select count(id) from voter where election_id = (select id from election where name = ?)",
-                    electionName)
-
-    private fun allVoterCount(): Int = queryInt("select count(id) from user")
 
     private fun createUser(resultSet: ResultSet): DbUser {
         val name = resultSet.getString("name")
@@ -284,7 +234,8 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
         return results
     }
 
-    private fun queryInt(sql: String, vararg parameters: Any?): Int {
+    private fun queryInt(sqlResource: String, vararg parameters: Any?): Int {
+        val sql = loadResource(sqlResource)
         val resultSet = queryResultSet(sql, *parameters)
         return if (resultSet.next()) {
             val result = resultSet.getInt(1)
@@ -297,7 +248,8 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
         }
     }
 
-    private fun update(sql: String, vararg parameters: Any?): Int {
+    private fun update(sqlResource: String, vararg parameters: Any?): Int {
+        val sql = loadResource(sqlResource)
         val statement = prepareStatementWithParameters(sql, parameters)
         return executeUpdate(sql, statement, parameters)
     }

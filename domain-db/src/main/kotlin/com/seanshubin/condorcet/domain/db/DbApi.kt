@@ -12,7 +12,7 @@ interface DbApi {
     fun searchElectionByName(name: String): DbElection?
     fun listCandidateNames(election: String): List<String>
     fun listVoterNames(election: String): List<String>
-    fun electionHasAllVoters(name: String): Boolean
+    fun electionHasAllVoters(election: String): Boolean
     fun searchBallot(election: String, user: String): DbBallot?
     fun findBallot(election: String, user: String): DbBallot
     fun listTally(election: String): List<DbTally>
