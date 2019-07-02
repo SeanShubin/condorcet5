@@ -5,8 +5,12 @@ import com.seanshubin.condorcet.domain.Credentials
 fun main() {
     LocalConnectionLifecycle.withConnection { connection ->
         fun execSql(sql: String) {
-            val statement = connection.prepareStatement(sql)
-            statement.execute()
+            try {
+                val statement = connection.prepareStatement(sql)
+                statement.execute()
+            } catch (ex: Exception) {
+                throw RuntimeException(sql, ex)
+            }
         }
         LocalSchemaApi.dropTables().forEach(::execSql)
         LocalSchemaApi.createTables().forEach(::execSql)
