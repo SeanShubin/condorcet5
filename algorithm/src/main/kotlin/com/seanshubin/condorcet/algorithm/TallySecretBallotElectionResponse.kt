@@ -4,5 +4,5 @@ data class TallySecretBallotElectionResponse(val election: String,
                                              val candidates: List<String>,
                                              val voted: List<String>,
                                              val didNotVote: List<String>,
-                                             val rankings: List<Ranking>,
+                                             val placings: List<Placing>,
                                              val ballots: List<SecretBallot>)

@@ -13,14 +13,10 @@ object CondorcetAlgorithm {
         val eligibleVoters = request.eligibleVoters
         val ballots = request.ballots.sortedWith(Ballot.sortByConfirmation)
         val (voted, didNotVote) = voted(eligibleVoters, ballots)
-        val initialMatrix = initialMatrix(candidates, ballots)
-        println(candidates)
-        println(initialMatrix)
-        val computed = compute(initialMatrix)
-        val computedRankings = computed.rankings
-        val preferenceMatrix = computed.preferenceMatrix
-        val strongestPathMatrix = computed.strongestPathMatrix
-        val rankings = composeRankings(candidates, computedRankings)
+        val preferenceMatrix = computePreferenceMatrix(candidates, ballots)
+        val strongestPathMatrix = computeStrongestPaths(preferenceMatrix)
+        val winners = computeWinners(strongestPathMatrix)
+        val rankings = computePlacings(candidates, winners)
 
         return TallyElectionResponse(
                 election,
@@ -29,8 +25,8 @@ object CondorcetAlgorithm {
                 didNotVote,
                 rankings,
                 ballots,
-                preferenceMatrix,
-                strongestPathMatrix)
+                preferenceMatrix.rows,
+                strongestPathMatrix.rows)
     }
 
     private fun voted(eligibleVoters: Set<String>, ballots: List<Ballot>): VotedAndDidNotVote {
@@ -38,10 +34,10 @@ object CondorcetAlgorithm {
         val voted = ballots.map(::ballotVoter)
         fun notVoted(voter: String): Boolean = !voted.contains(voter)
         val didNotVote = eligibleVoters.filter(::notVoted)
-        return VotedAndDidNotVote(voted, didNotVote)
+        return VotedAndDidNotVote(voted.sorted(), didNotVote.sorted())
     }
 
-    private fun initialMatrix(candidates: List<String>, ballots: List<Ballot>): Matrix<Int> {
+    private fun computePreferenceMatrix(candidates: List<String>, ballots: List<Ballot>): Matrix<Int> {
         val lose = Int.MAX_VALUE
         val size = Size(candidates.size, candidates.size)
         val emptyMatrix = Matrix(size, 0)
@@ -56,7 +52,7 @@ object CondorcetAlgorithm {
         return ballots.fold(emptyMatrix, ::addBallot)
     }
 
-    private fun compute(matrix: Matrix<Int>): Computed {
+    private fun computeStrongestPaths(matrix: Matrix<Int>): Matrix<Int> {
         val strongestPaths = matrix.mutableCopy()
         val size = matrix.size.row
         for (i in 0 until size) {
@@ -71,11 +67,45 @@ object CondorcetAlgorithm {
                 }
             }
         }
-        val rankings = composeRankings()
-        return Computed(matrix, Matrix(matrix.rows))
+        return Matrix(strongestPaths)
     }
 
-    private fun composeRankings(candidates: List<String>, computedRankings: Map<Int, List<Int>>): List<Ranking> {
-        TODO("not implemented")
+    private fun computeWinners(strongestPaths: Matrix<Int>): List<List<Int>> {
+        val soFar = emptyList<List<Int>>()
+        val remain = (0 until strongestPaths.rows.size).toList()
+        return computeWinners(strongestPaths, soFar, remain)
+    }
+
+    private fun computeWinners(strongestPaths: Matrix<Int>, soFar: List<List<Int>>, remain: List<Int>): List<List<Int>> {
+        if (remain.isEmpty()) return soFar
+        val winners = mutableListOf<Int>()
+        val newRemain = remain.toMutableList()
+        fun undefeated(target: Int): Boolean {
+            for (i in 0 until remain.size) {
+                val votesWon = strongestPaths[target, remain[i]]
+                val votesLost = strongestPaths[remain[i], target]
+                if (votesWon < votesLost) return false
+            }
+            return true
+        }
+        for (i in 0 until remain.size) {
+            if (undefeated(remain[i])) {
+                winners.add(remain[i])
+                newRemain.remove(remain[i])
+            }
+        }
+        return computeWinners(strongestPaths, soFar + listOf(winners), newRemain)
+    }
+
+    private fun computePlacings(candidates: List<String>, indicesPlaceList: List<List<Int>>): List<Placing> {
+        val placings = mutableListOf<Placing>()
+        var place = 1
+        for (indicesAtPlace in indicesPlaceList) {
+            val candidatesAtPlace = indicesAtPlace.map { candidates[it] }
+            placings.add(Placing(place, candidatesAtPlace))
+            place += indicesAtPlace.size
+
+        }
+        return placings
     }
 }

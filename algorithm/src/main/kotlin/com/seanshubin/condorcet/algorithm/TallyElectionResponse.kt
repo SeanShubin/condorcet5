@@ -4,7 +4,7 @@ data class TallyElectionResponse(val election: String,
                                  val candidates: List<String>,
                                  val voted: List<String>,
                                  val didNotVote: List<String>,
-                                 val rankings: List<Ranking>,
+                                 val placings: List<Placing>,
                                  val ballots: List<Ballot>,
                                  val preferenceMatrix: List<List<Int>>,
                                  val strongestPathMatrix: List<List<Int>>)

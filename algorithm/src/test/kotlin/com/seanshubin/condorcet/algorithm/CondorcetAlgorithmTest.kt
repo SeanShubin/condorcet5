@@ -25,13 +25,13 @@ class CondorcetAlgorithmTest {
         assertEquals(listOf("alice", "carol", "dave"), response.voted)
         assertEquals(listOf("bob"), response.didNotVote)
         assertEquals(
-                listOf(Ranking(1, listOf("eve")),
-                        Ranking(2, listOf("grace")),
-                        Ranking(3, listOf("frank"))),
-                response.rankings)
+                listOf(Placing(1, listOf("eve")),
+                        Placing(2, listOf("grace")),
+                        Placing(3, listOf("frank"))),
+                response.placings)
         assertEquals(listOf(carolBallot, aliceBallot, daveBallot), response.ballots)
-        assertEquals(listOf(listOf(1, 2, 3), listOf(4, 5, 6), listOf(7, 8, 9)), response.preferenceMatrix)
-        assertEquals(listOf(listOf(1, 2, 3), listOf(4, 5, 6), listOf(7, 8, 9)), response.strongestPathMatrix)
+        assertEquals(listOf(listOf(0, 2, 2), listOf(1, 0, 1), listOf(1, 2, 0)), response.preferenceMatrix)
+        assertEquals(listOf(listOf(0, 2, 2), listOf(1, 0, 1), listOf(1, 2, 0)), response.strongestPathMatrix)
     }
     // input validation (philosophy: fail if anything looks like it might have been a mistake)
     // candidates must be unique

@@ -1,5 +1,5 @@
-select election.name,
-       candidate.name,
+select election.name  election,
+       candidate.name candidate,
        `rank`
 from tally
          inner join election

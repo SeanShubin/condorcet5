@@ -164,8 +164,8 @@ class ApiBackedByDb(private val db: DbApi,
             }
 
     private fun updateElectionTally(electionName: String) {
-        val candidates = db.listCandidateNames(electionName)
-        val eligibleVoters = db.listVoterNames(electionName)
+        val candidates = db.listCandidateNames(electionName).toSet()
+        val eligibleVoters = db.listVoterNames(electionName).toSet()
         fun ballotToAlgorithm(ballot: DbBallot): AlgorithmBallot {
             val rankings = rankingsToAlgorithm(db.listRankings(electionName, ballot.user))
             return AlgorithmBallot(ballot.user, ballot.confirmation, rankings)
@@ -178,7 +178,10 @@ class ApiBackedByDb(private val db: DbApi,
                 eligibleVoters,
                 ballots)
         val response = CondorcetAlgorithm.tally(request)
-        TODO()
+        val rankMap = response.placings.flatMap { placing ->
+            placing.candidates.map { Pair(it, placing.place) }
+        }.toMap()
+        db.setTally(electionName, rankMap)
     }
 
     private fun rankingsToAlgorithm(rankings: List<DbRanking>): Map<String, Int> =
