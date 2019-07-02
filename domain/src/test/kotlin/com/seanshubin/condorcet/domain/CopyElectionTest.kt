@@ -19,10 +19,10 @@ class CopyElectionTest {
         api.register("Carol", "carol@email.com", "password")
         api.register("Dave", "dave@email.com", "password")
         api.createElection(aliceCredentials, "Ice Cream")
-        api.updateCandidateNames(aliceCredentials, "Ice Cream", listOf("Chocolate", "Vanilla", "Strawberry"))
+        api.setCandidateNames(aliceCredentials, "Ice Cream", listOf("Chocolate", "Vanilla", "Strawberry"))
         api.setEndDate(aliceCredentials, "Ice Cream", Instant.parse("2019-06-11T22:57:26.497Z"))
         api.setSecretBallot(aliceCredentials, "Ice Cream", secretBallot = false)
-        api.updateEligibleVoters(aliceCredentials, "Ice Cream", listOf("Alice", "Carol"))
+        api.setVoters(aliceCredentials, "Ice Cream", listOf("Alice", "Carol"))
         api.doneEditingElection(aliceCredentials, "Ice Cream")
 
         val expected = ElectionDetail(

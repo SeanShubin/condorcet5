@@ -43,8 +43,8 @@ fun main() {
         val aliceCredentials = Credentials("Alice", "password")
         val electionName = "Contrast First Past The Post"
         api.createElection(aliceCredentials, electionName)
-        api.updateCandidateNames(aliceCredentials, electionName, listOf("Minor Improvements", "Radical Changes", "Status Quo"))
-        api.updateEligibleVoters(aliceCredentials, electionName, voters)
+        api.setCandidateNames(aliceCredentials, electionName, listOf("Minor Improvements", "Radical Changes", "Status Quo"))
+        api.setVoters(aliceCredentials, electionName, voters)
         api.doneEditingElection(aliceCredentials, electionName)
 
         vote("Alice", electionName, mapOf(Pair("Minor Improvements", 1), Pair("Status Quo", 2), Pair("Radical Changes", 3)))

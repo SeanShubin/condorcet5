@@ -19,7 +19,7 @@ class UpdateCandidateNamesTest {
         val candidates = listOf("Candidate A", "Candidate B", "Candidate C")
 
         // when
-        val election = api.updateCandidateNames(validCredentials, electionName, candidates)
+        val election = api.setCandidateNames(validCredentials, electionName, candidates)
 
         // then
         assertEquals(candidates, election.candidateNames)
@@ -32,7 +32,7 @@ class UpdateCandidateNamesTest {
         val candidates = listOf("Candidate A", "Candidate B", "Candidate C")
 
         // when
-        val result = Try { api.updateCandidateNames(invalidCredentials, electionName, candidates) }
+        val result = Try { api.setCandidateNames(invalidCredentials, electionName, candidates) }
 
         // then
         assertEquals("Invalid user/password combination for 'Alice'", (result as Failure).exception.message)
@@ -45,7 +45,7 @@ class UpdateCandidateNamesTest {
         val candidates = listOf("Candidate A", "Candidate B", "Candidate C")
 
         // when
-        val result = Try { api.updateCandidateNames(nonOwnerCredentials, electionName, candidates) }
+        val result = Try { api.setCandidateNames(nonOwnerCredentials, electionName, candidates) }
 
         // then
         assertEquals(
@@ -60,7 +60,7 @@ class UpdateCandidateNamesTest {
         val candidates = listOf("Candidate A", "Candidate B", "Candidate C")
 
         // when
-        val election = api.updateCandidateNames(
+        val election = api.setCandidateNames(
                 validCredentials,
                 electionName,
                 candidates.map { it.addWhitespaceNoise() })
@@ -77,7 +77,7 @@ class UpdateCandidateNamesTest {
         val candidatesWithoutDuplicates = listOf("Candidate A", "Candidate B", "Candidate C")
 
         // when
-        val election = api.updateCandidateNames(
+        val election = api.setCandidateNames(
                 validCredentials,
                 electionName,
                 candidates)
@@ -94,7 +94,7 @@ class UpdateCandidateNamesTest {
         val candidatesWithoutDuplicates = listOf("Candidate A")
 
         // when
-        val election = api.updateCandidateNames(
+        val election = api.setCandidateNames(
                 validCredentials,
                 electionName,
                 candidates)
@@ -111,7 +111,7 @@ class UpdateCandidateNamesTest {
         val candidatesWithoutDuplicates = listOf("Candidate A")
 
         // when
-        val election = api.updateCandidateNames(
+        val election = api.setCandidateNames(
                 validCredentials,
                 electionName,
                 candidates)
@@ -127,7 +127,7 @@ class UpdateCandidateNamesTest {
         val candidates = listOf("Candidate A", "Candidate B", "Candidate C")
 
         // when
-        val result = Try { api.updateCandidateNames(validCredentials, "No Election", candidates) }
+        val result = Try { api.setCandidateNames(validCredentials, "No Election", candidates) }
 
         // then
         assertEquals("election 'No Election' not found", (result as Failure).exception.message)

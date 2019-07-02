@@ -73,7 +73,7 @@ object Tester {
 
     fun createWithElectionAndEligibleVoters(vararg voterNames: String): Api {
         val api = createWithElectionAndSeveralUsers()
-        api.updateEligibleVoters(validCredentials, electionName, voterNames.toList())
+        api.setVoters(validCredentials, electionName, voterNames.toList())
         return api
     }
 

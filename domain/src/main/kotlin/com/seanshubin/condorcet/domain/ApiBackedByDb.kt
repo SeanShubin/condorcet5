@@ -78,23 +78,23 @@ class ApiBackedByDb(private val db: DbApi,
         }
     }
 
-    override fun updateCandidateNames(credentials: Credentials,
-                                      electionName: String,
-                                      candidateNames: List<String>): ElectionDetail =
+    override fun setCandidateNames(credentials: Credentials,
+                                   electionName: String,
+                                   candidateNames: List<String>): ElectionDetail =
             withAllowedToEdit(credentials, electionName) { election ->
                 val cleanCandidates = candidateNames.map(::trim).distinctBy { it.toLowerCase() }
                 db.setCandidates(election.name, cleanCandidates)
             }
 
-    override fun updateEligibleVoters(credentials: Credentials,
-                                      electionName: String,
-                                      eligibleVoterNames: List<String>): ElectionDetail =
+    override fun setVoters(credentials: Credentials,
+                           electionName: String,
+                           eligibleVoterNames: List<String>): ElectionDetail =
             withAllowedToEdit(credentials, electionName) { election ->
                 val cleanVoters = eligibleVoterNames.map(::trim).distinctBy { it.toLowerCase() }
                 db.setVoters(election.name, cleanVoters)
             }
 
-    override fun updateEligibleVotersToAll(credentials: Credentials, electionName: String): ElectionDetail =
+    override fun setVotersToAll(credentials: Credentials, electionName: String): ElectionDetail =
             withAllowedToEdit(credentials, electionName) { election ->
                 db.setVotersToAll(election.name)
             }
