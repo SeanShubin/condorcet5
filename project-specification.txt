@@ -48,7 +48,8 @@
   }
   global [ stdlib test ]
   modules {
-    algorithm       []
+    matrix          []
+    algorithm       [matrix]
     crypto          []
     table-formatter []
     util-db         [mysql-jdbc util]
