@@ -72,7 +72,7 @@ object CondorcetAlgorithm {
 
     private fun computeWinners(strongestPaths: Matrix<Int>): List<List<Int>> {
         val soFar = emptyList<List<Int>>()
-        val remain = (0 until strongestPaths.rows.size).toList()
+        val remain = (0 until strongestPaths.size.squareSize()).toList()
         return computeWinners(strongestPaths, soFar, remain)
     }
 
