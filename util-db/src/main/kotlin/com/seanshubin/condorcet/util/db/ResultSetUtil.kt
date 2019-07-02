@@ -17,7 +17,7 @@ object ResultSetUtil {
         return list
     }
 
-    fun ResultSet.columnNames(): List<String> = (1..metaData.columnCount).map { metaData.getColumnName(it) }
+    fun ResultSet.columnNames(): List<String> = (1..metaData.columnCount).map { metaData.getColumnLabel(it) }
 
     fun ResultSet.stringColumn(columnName: String): List<String> =
             stringColumn(indexOfColumn(columnName))

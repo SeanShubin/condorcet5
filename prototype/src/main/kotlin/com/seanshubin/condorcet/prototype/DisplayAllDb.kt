@@ -1,6 +1,7 @@
 package com.seanshubin.condorcet.prototype
 
 import com.seanshubin.condorcet.table.formatter.RowStyleTableFormatter
+import com.seanshubin.condorcet.util.ClassLoaderUtil
 import com.seanshubin.condorcet.util.db.JdbcConnectionLifecycle
 import com.seanshubin.condorcet.util.db.ResultSetUtil.consumeToList
 import com.seanshubin.condorcet.util.db.ResultSetUtil.consumeToTable
@@ -19,15 +20,31 @@ fun main() {
         }
     }
     prototypeLifecycle.withConnection { connection ->
-        fun linesForTable(table: String): List<String> {
-            val statement = connection.prepareStatement("select * from $table")
+        fun tableLinesForSql(sql: String): List<String> {
+            val statement = connection.prepareStatement(sql)
             val resultSet = statement.executeQuery()
             val cells = resultSet.consumeToTable()
             val formattedTable: List<String> = tableFormatter.format(cells)
-            return listOf(table) + formattedTable
+            return listOf(sql) + formattedTable
         }
 
-        val lines = tables.flatMap(::linesForTable)
+        fun linesForTable(table: String): List<String> {
+            val sql = "select * from $table"
+            return tableLinesForSql(sql)
+        }
+
+        val rawDataLines = tables.flatMap(::linesForTable)
+
+        fun linesForDebugQuery(table: String): List<String> {
+            val sqlResource = "debug-$table.sql"
+            val sql = ClassLoaderUtil.loadResourceAsString(sqlResource)
+            return tableLinesForSql(sql)
+        }
+
+        val debugQueryLines = tables.flatMap(::linesForDebugQuery)
+
+        val lines = rawDataLines + debugQueryLines
+
         lines.forEach(::println)
     }
 }
