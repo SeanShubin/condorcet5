@@ -20,7 +20,7 @@ fun main() {
             Pair("DBPassword", "lamppassword"),
             Pair("DBRootPassword", "lamprootpassword"),
             Pair("InstanceType", "t2.micro"),
-            Pair("SSHLocation", "123.123.123.123/24")
+            Pair("SSHLocation", "0.0.0.0/0")
     ).map(AwsConversions::toParameter)
     val createStackRequest = CreateStackRequest()
             .withStackName(stackName)
