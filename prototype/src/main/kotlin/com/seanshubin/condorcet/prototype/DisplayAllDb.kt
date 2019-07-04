@@ -16,8 +16,7 @@ fun main() {
     val prototypeLifecycle = JdbcConnectionLifecycle(host, user, password, "prototype")
     val tableFormatter = RowStyleTableFormatter.boxDrawing
     val logPath = Paths.get("out", "log")
-    val loggerFactory = LoggerFactory(logPath)
-    val logger = loggerFactory.create("display-all-db")
+    val logger = LoggerFactory.create(logPath, "display-all-db")
 
     val tables = rootLifecycle.withResultSet("select table_name from tables where table_schema = 'prototype'") { resultSet ->
         resultSet.consumeToList {

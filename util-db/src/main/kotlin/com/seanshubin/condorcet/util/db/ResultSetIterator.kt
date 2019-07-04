@@ -4,7 +4,7 @@ import java.sql.ResultSet
 
 class ResultSetIterator(
         private val resultSet: ResultSet,
-        private val columnNames: List<String>
+        val columnNames: List<String>
 ) : Iterator<List<Any>> {
     private var resultSetNext = resultSet.next()
     override fun hasNext(): Boolean = resultSetNext
@@ -13,5 +13,19 @@ class ResultSetIterator(
         val rowCells = columnNames.map { resultSet.getString(it) }
         resultSetNext = resultSet.next()
         return rowCells
+    }
+
+    fun consumeRemainingToTable(): List<List<Any>> {
+        val list = mutableListOf<List<Any>>()
+        forEachRemaining { list.add(it) }
+        return list
+    }
+
+    companion object {
+        fun consume(resultSet: ResultSet): ResultSetIterator {
+            val metaData = resultSet.metaData
+            val columnNames = (1..metaData.columnCount).map { metaData.getColumnLabel(it) }
+            return ResultSetIterator(resultSet, columnNames)
+        }
     }
 }
