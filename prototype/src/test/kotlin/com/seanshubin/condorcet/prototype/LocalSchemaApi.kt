@@ -11,7 +11,7 @@ object LocalSchemaApi : SchemaApi {
     }
 
     override fun createTables(): List<String> =
-            Schema.tables.flatMap { it.toSql() }
+            Schema.tables.flatMap { it.toCreateTableStatements() }
 
     override fun createStaticData(): List<String> {
         val statusValues = listOf("editing", "live", "complete")

@@ -11,7 +11,7 @@ object Generator {
     }
 
     fun createTables(): List<String> {
-        return Schema.tables.flatMap { it.toSql() }
+        return Schema.tables.flatMap { it.toCreateTableStatements() }
     }
 
     fun createStatus(): List<String> {

@@ -7,7 +7,9 @@ data class Table(val name: String,
                  val unique: List<Column>) {
     constructor(name: String, vararg columns: Column) : this(name, columns.toList(), listOf())
 
-    fun toSql(): List<String> {
+    fun toDropTableStatement(): String = "drop table if exists $name"
+
+    fun toCreateTableStatements(): List<String> {
         val createTableSql = toCreateTableSql()
         val uniqueLines = toUniqueSql()
         return listOf<String>() + createTableSql + uniqueLines
@@ -16,7 +18,7 @@ data class Table(val name: String,
     private fun toCreateTableSql(): String {
         val firstLine = "create table $name ("
         val middleLines = toMiddleSql().map(::indent)
-        val lastLine = ");"
+        val lastLine = ")"
         return (emptyList<String>() + firstLine + middleLines + lastLine).joinToString("\n")
     }
 
