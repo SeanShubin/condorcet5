@@ -1,4 +1,4 @@
-package com.seanshubin.condorcet.integration
+package com.seanshubin.condorcet.prototype
 
 import com.seanshubin.condorcet.crypto.*
 import com.seanshubin.condorcet.domain.Api

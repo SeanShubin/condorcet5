@@ -1,4 +1,4 @@
-package com.seanshubin.condorcet.integration
+package com.seanshubin.condorcet.prototype
 
 import java.sql.ResultSet
 import java.sql.Timestamp

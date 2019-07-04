@@ -1,4 +1,4 @@
-package com.seanshubin.condorcet.integration
+package com.seanshubin.condorcet.prototype
 
 interface SchemaApi {
     fun dropTables(): List<String>

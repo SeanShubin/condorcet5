@@ -78,7 +78,6 @@
         <module>domain</module>
         <module>domain-db</module>
         <module>prototype</module>
-        <module>integration</module>
         <module>detangler</module>
     </modules>
     <properties>
