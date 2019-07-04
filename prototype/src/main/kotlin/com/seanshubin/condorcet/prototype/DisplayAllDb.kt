@@ -1,10 +1,12 @@
 package com.seanshubin.condorcet.prototype
 
+import com.seanshubin.condorcet.logger.LoggerFactory
 import com.seanshubin.condorcet.table.formatter.RowStyleTableFormatter
 import com.seanshubin.condorcet.util.ClassLoaderUtil
 import com.seanshubin.condorcet.util.db.JdbcConnectionLifecycle
 import com.seanshubin.condorcet.util.db.ResultSetUtil.consumeToList
 import com.seanshubin.condorcet.util.db.ResultSetUtil.consumeToTable
+import java.nio.file.Paths
 
 fun main() {
     val host = "localhost"
@@ -13,6 +15,9 @@ fun main() {
     val rootLifecycle = JdbcConnectionLifecycle(host, user, password, "information_schema")
     val prototypeLifecycle = JdbcConnectionLifecycle(host, user, password, "prototype")
     val tableFormatter = RowStyleTableFormatter.boxDrawing
+    val logPath = Paths.get("out", "log")
+    val loggerFactory = LoggerFactory(logPath)
+    val logger = loggerFactory.create("display-all-db")
 
     val tables = rootLifecycle.withResultSet("select table_name from tables where table_schema = 'prototype'") { resultSet ->
         resultSet.consumeToList {
@@ -45,6 +50,6 @@ fun main() {
 
         val lines = rawDataLines + debugQueryLines
 
-        lines.forEach(::println)
+        lines.forEach(logger::log)
     }
 }

@@ -22,7 +22,7 @@
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-stdlib-jdk8</artifactId>
-                <version>1.3.40</version>
+                <version>1.3.41</version>
             </dependency>
             <dependency>
                 <groupId>org.jetbrains.kotlinx</groupId>
@@ -32,18 +32,18 @@
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-test-junit</artifactId>
-                <version>1.3.40</version>
+                <version>1.3.41</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-rds</artifactId>
-                <version>1.11.585</version>
+                <version>1.11.587</version>
             </dependency>
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-cloudformation</artifactId>
-                <version>1.11.585</version>
+                <version>1.11.587</version>
             </dependency>
             <dependency>
                 <groupId>io.arrow-kt</groupId>
@@ -63,6 +63,8 @@
         </dependencies>
     </dependencyManagement>
     <modules>
+        <module>contract</module>
+        <module>logger</module>
         <module>matrix</module>
         <module>algorithm</module>
         <module>crypto</module>
@@ -98,7 +100,7 @@
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
-                <version>1.3.40</version>
+                <version>1.3.41</version>
                 <executions>
                     <execution>
                         <id>compile</id>

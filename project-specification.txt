@@ -48,6 +48,8 @@
   }
   global [ stdlib test ]
   modules {
+    contract        []
+    logger          [contract]
     matrix          []
     algorithm       [matrix]
     crypto          []
@@ -60,7 +62,7 @@
     domain-rds      [util-rds domain]
     domain          [domain-db algorithm crypto table-formatter arrow]
     domain-db       [util-db jackson]
-    prototype       [cloudformation domain-db table-formatter rds util-rds domain]
+    prototype       [cloudformation domain-db table-formatter rds util-rds domain logger]
     integration     [domain]
     detangler       [algorithm crypto table-formatter util-db util-rds util-server server domain-rds domain domain-db prototype util]
   }
