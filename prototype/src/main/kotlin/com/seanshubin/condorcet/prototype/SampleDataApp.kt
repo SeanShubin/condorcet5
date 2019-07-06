@@ -6,7 +6,7 @@ import com.seanshubin.condorcet.table.formatter.RowStyleTableFormatter
 import com.seanshubin.condorcet.util.db.ConnectionFactory
 import com.seanshubin.condorcet.util.db.ResultSetIterator
 import java.nio.file.Paths
-import java.time.Instant
+import java.time.Clock
 
 fun main() {
     val logger = LoggerFactory.create(Paths.get("out", "log"), "sample-data")
@@ -33,10 +33,10 @@ fun main() {
         SampleData.dropTables().forEach(::execUpdate)
         SampleData.createTables().forEach(::execUpdate)
         SampleData.staticData().forEach(::execUpdate)
-        SampleData.displayGeneric().forEach(::execQuery)
-        SampleData.displayDebug().forEach(::execQuery)
 
-        ApiFactory.withApi(connection) { api ->
+        val clock = Clock.systemDefaultZone()
+
+        ApiFactory.withApi(connection, clock) { api ->
             val alice = Credentials("Alice", "alice-password")
             val bob = Credentials("Bob", "bob-password")
             val carol = Credentials("Carol", "carol-password")
@@ -59,7 +59,9 @@ fun main() {
             api.register("Judy", "judy@email.com", "judy-password")
 
             api.createElection(alice, favoriteIceCream)
-            api.setEndDate(alice, favoriteIceCream, Instant.parse("2019-07-02T22:00:00.000Z"))
+
+            val fiveMinutesFromNow = clock.instant().plusSeconds(5)
+            api.setEndDate(alice, favoriteIceCream, fiveMinutesFromNow)
             api.setSecretBallot(alice, favoriteIceCream, true)
             api.setCandidateNames(alice, favoriteIceCream, listOf("Chocolate", "Vanilla", "Strawberry"))
             api.setVoters(alice, favoriteIceCream, listOf("Alice", "Bob", "Carol", "Dave", "Eve"))
@@ -89,6 +91,9 @@ fun main() {
 
             api.copyElection(dave, "Government 2", "Government")
         }
+
+        SampleData.displayGeneric().forEach(::execQuery)
+        SampleData.displayDebug().forEach(::execQuery)
     }
 }
 /*

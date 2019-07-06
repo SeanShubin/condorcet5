@@ -7,6 +7,7 @@ import com.seanshubin.condorcet.table.formatter.RowStyleTableFormatter
 import com.seanshubin.condorcet.util.db.ConnectionFactory
 import com.seanshubin.condorcet.util.db.ResultSetIterator
 import java.nio.file.Paths
+import java.time.Clock
 import java.time.Instant
 import kotlin.test.assertEquals
 
@@ -37,8 +38,9 @@ fun main() {
         SampleData.staticData().forEach(::execUpdate)
         SampleData.displayGeneric().forEach(::execQuery)
         SampleData.displayDebug().forEach(::execQuery)
+        val clock = Clock.systemDefaultZone()
 
-        ApiFactory.withApi(connection) { api ->
+        ApiFactory.withApi(connection, clock) { api ->
 
             fun vote(userName: String, electionName: String, rankings: Map<String, Int>) {
                 val credentials = Credentials(userName, "password")

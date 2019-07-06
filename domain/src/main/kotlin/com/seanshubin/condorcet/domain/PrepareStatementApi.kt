@@ -58,11 +58,11 @@ class PrepareStatementApi(private val connection: ConnectionWrapper,
     }
 
     override fun setElectionEndDate(electionName: String, endDate: Instant?) {
-        TODO("not implemented")
+        update("set-election-end-date.sql", endDate, electionName)
     }
 
     override fun setElectionSecretBallot(electionName: String, secretBallot: Boolean) {
-        TODO("not implemented")
+        update("set-election-secret-ballot.sql", secretBallot, electionName)
     }
 
     override fun setElectionStatus(electionName: String, status: DbStatus) {
@@ -124,7 +124,7 @@ class PrepareStatementApi(private val connection: ConnectionWrapper,
     }
 
     override fun setVotersToAll(electionName: String) {
-        TODO("not implemented")
+        update("set-voters-to-all.sql", electionName)
     }
 
     override fun listRankings(election: String, user: String): List<DbRanking> =
