@@ -71,7 +71,10 @@ class ApiBackedByDb(private val db: DbApi,
             when (election.status) {
                 DbStatus.EDITING -> throw RuntimeException(
                         "Can not end election '${election.name}', it is not live")
-                DbStatus.LIVE -> db.setElectionStatus(election.name, DbStatus.COMPLETE)
+                DbStatus.LIVE -> {
+                    db.setElectionStatus(election.name, DbStatus.COMPLETE)
+                    updateElectionTally(electionName)
+                }
                 DbStatus.COMPLETE -> throw RuntimeException(
                         "Can not end election '${election.name}', it is already complete")
             }
@@ -152,18 +155,18 @@ class ApiBackedByDb(private val db: DbApi,
 
     override fun tally(credentials: Credentials, electionName: String): Tally =
             withValidCredentialsAndElection(credentials, electionName) { election ->
-                if (election.status != DbStatus.COMPLETE) {
-                    throw RuntimeException("Can not tally election $electionName, its status is ${election.status}")
-                }
-                val originalDbTally = db.listTally(electionName)
-                if (originalDbTally.isEmpty()) {
-                    updateElectionTally(electionName)
-                }
+                updateElectionTally(electionName)
                 val dbTally = db.listTally(electionName)
                 dbTally.toApiTally(electionName)
             }
 
     private fun updateElectionTally(electionName: String) {
+        val election = db.findElectionByName(electionName)
+        if (election.status != DbStatus.COMPLETE) {
+            throw RuntimeException("Can not tally election $electionName, its status is ${election.status}")
+        }
+        val originalDbTally = db.listTally(electionName)
+        if (originalDbTally.isNotEmpty()) return
         val candidates = db.listCandidateNames(electionName).toSet()
         val eligibleVoters = db.listVoterNames(electionName).toSet()
         fun ballotToAlgorithm(ballot: DbBallot): AlgorithmBallot {
@@ -228,6 +231,7 @@ class ApiBackedByDb(private val db: DbApi,
             val dbRanking = dbRankings.find { it.candidateName == candidate }
             return dbRanking?.rank
         }
+
         val rankings = candidates.map {
             Ranking(lookupRanking(it), it)
         }.unbiasedSort(random)

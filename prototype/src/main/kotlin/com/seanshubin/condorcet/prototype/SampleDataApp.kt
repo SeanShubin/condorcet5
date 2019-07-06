@@ -71,11 +71,15 @@ fun main() {
             api.setCandidateNames(alice, government, listOf("Monarchy", "Aristocracy", "Democracy"))
             api.setVoters(alice, government, listOf("Bob", "Carol", "Dave", "Eve"))
             api.doneEditingElection(alice, government)
+            api.castBallot(bob, government, "Bob", mapOf(Pair("Monarchy", 1), Pair("Aristocracy", 2), Pair("Democracy", 3)))
+            api.castBallot(carol, government, "Carol", mapOf(Pair("Democracy", 1), Pair("Aristocracy", 2), Pair("Monarchy", 3)))
+            api.castBallot(dave, government, "Dave", mapOf(Pair("Democracy", 1), Pair("Aristocracy", 2), Pair("Monarchy", 3)))
             api.endElection(alice, government)
 
             api.createElection(alice, dystopia)
             api.setCandidateNames(alice, dystopia, listOf("1984", "Fahrenheit 451", "Brave New World"))
             api.setVotersToAll(alice, dystopia)
+            api.doneEditingElection(alice, dystopia)
 
             api.createElection(bob, pet)
             api.setCandidateNames(bob, pet, listOf("Cat", "Dog", "Bird", "Fish", "Reptile"))
