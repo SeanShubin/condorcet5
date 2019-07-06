@@ -11,7 +11,7 @@ import java.time.Clock
 fun main() {
     val logger = LoggerFactory.create(Paths.get("out", "log"), "sample-data")
     val emit: (String) -> Unit = logger::log
-    fun sqlEvent(sql: String): Unit = emit(sql)
+    fun sqlEvent(sql: String): Unit = emit(sql.trim() + ";")
     ConnectionFactory.withConnection(
             Connections.local,
             ::sqlEvent) { connection ->
@@ -92,7 +92,7 @@ fun main() {
             api.copyElection(dave, "Government 2", "Government")
         }
 
-        SampleData.displayGeneric().forEach(::execQuery)
+//        SampleData.displayGeneric().forEach(::execQuery)
         SampleData.displayDebug().forEach(::execQuery)
     }
 }

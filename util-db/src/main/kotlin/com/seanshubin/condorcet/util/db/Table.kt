@@ -33,6 +33,6 @@ data class Table(val name: String,
             if (unique.isEmpty()) emptyList()
             else {
                 val uniqueColumnNames = unique.map { it.sqlName() }.joinToString(", ")
-                listOf("alter table $name add unique unique_$name($uniqueColumnNames);")
+                listOf("alter table $name add unique unique_$name($uniqueColumnNames)")
             }
 }

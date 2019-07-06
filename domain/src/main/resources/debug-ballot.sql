@@ -8,3 +8,4 @@ select ballot.id,
 from ballot
          inner join user on ballot.user_id = user.id
          inner join election on ballot.election_id = election.id
+order by ballot.id

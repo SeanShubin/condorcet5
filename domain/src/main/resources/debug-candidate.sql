@@ -4,3 +4,4 @@ select candidate.id,
        candidate.election_id
 from candidate
          inner join election on candidate.election_id = election.id
+order by candidate.id

@@ -1,2 +1,3 @@
 select *
-from status;
+from status
+order by status.id

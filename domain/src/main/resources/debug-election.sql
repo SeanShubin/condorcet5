@@ -9,3 +9,4 @@ select election.id,
 from election
          inner join user on election.owner_id = user.id
          inner join status on election.status_id = status.id
+order by election.id

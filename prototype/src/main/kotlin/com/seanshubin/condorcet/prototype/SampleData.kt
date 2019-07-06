@@ -15,7 +15,7 @@ object SampleData {
     fun staticData(): List<String> {
         val statusValues = listOf("editing", "live", "complete")
         fun insertStatus(status: String): String =
-                "insert into status (name) values ('$status');"
+                "insert into status (name) values ('$status')"
 
         val statusSql = statusValues.map(::insertStatus)
         return statusSql

@@ -6,3 +6,4 @@ select voter.id,
 from voter
          inner join election on voter.election_id = election.id
          inner join user on voter.user_id = user.id
+order by voter.id
