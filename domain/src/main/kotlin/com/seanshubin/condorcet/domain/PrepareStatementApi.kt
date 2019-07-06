@@ -1,12 +1,11 @@
 package com.seanshubin.condorcet.domain
 
 import com.seanshubin.condorcet.domain.db.*
-import java.sql.PreparedStatement
+import com.seanshubin.condorcet.util.db.ConnectionWrapper
 import java.sql.ResultSet
-import java.sql.Timestamp
 import java.time.Instant
 
-class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStatement,
+class PrepareStatementApi(private val connection: ConnectionWrapper,
                           private val loadResource: (String) -> String) : DbApi {
     override fun findUserByName(user: String): DbUser = queryExactlyOneRow(
             ::createUser,
@@ -205,112 +204,70 @@ class PrepareStatementApi(private val prepareStatement: (String) -> PreparedStat
         return DbBallot(user, election, confirmation, whenCast.toInstant())
     }
 
-    private fun <T> queryExactlyOneRow(createFunction: (ResultSet) -> T, sqlResource: String, vararg parameters: Any?): T {
+    private fun <T> queryExactlyOneRow(createFunction: (ResultSet) -> T,
+                                       sqlResource: String,
+                                       vararg parameters: Any?): T {
         val sql = loadResource(sqlResource)
-        val resultSet = queryResultSet(sql, *parameters)
-        return if (resultSet.next()) {
-            val result = createFunction(resultSet)
+        return connection.execQuery(sql, *parameters) { resultSet ->
             if (resultSet.next()) {
-                throw RuntimeException("No more than 1 row expected for '$sql'")
+                val result = createFunction(resultSet)
+                if (resultSet.next()) {
+                    throw RuntimeException("No more than 1 row expected for '$sql'")
+                }
+                result
+            } else {
+                throw RuntimeException("Exactly 1 row expected for '$sql', got none")
             }
-            result
-        } else {
-            throw RuntimeException("Exactly 1 row expected for '$sql', got none")
         }
     }
 
-    private fun <T> queryZeroOrOneRow(createFunction: (ResultSet) -> T, sqlResource: String, vararg parameters: Any?): T? {
+    private fun <T> queryZeroOrOneRow(createFunction: (ResultSet) -> T,
+                                      sqlResource: String,
+                                      vararg parameters: Any?): T? {
         val sql = loadResource(sqlResource)
-        val resultSet = queryResultSet(sql, *parameters)
-        return if (resultSet.next()) {
-            val result = createFunction(resultSet)
+        return connection.execQuery(sql, *parameters) { resultSet ->
             if (resultSet.next()) {
-                throw RuntimeException("No more than 1 row expected for '$sql'")
+                val result = createFunction(resultSet)
+                if (resultSet.next()) {
+                    throw RuntimeException("No more than 1 row expected for '$sql'")
+                }
+                result
+            } else {
+                null
             }
-            result
-        } else {
-            null
         }
     }
 
-    private fun <T> query(createFunction: (ResultSet) -> T, sqlResource: String, vararg parameters: Any?): List<T> {
+    private fun <T> query(createFunction: (ResultSet) -> T,
+                          sqlResource: String,
+                          vararg parameters: Any?): List<T> {
         val sql = loadResource(sqlResource)
-        val resultSet = queryResultSet(sql, *parameters)
-        val results = mutableListOf<T>()
-        while (resultSet.next()) {
-            results.add(createFunction(resultSet))
+        return connection.execQuery(sql, *parameters) { resultSet ->
+            val results = mutableListOf<T>()
+            while (resultSet.next()) {
+                results.add(createFunction(resultSet))
+            }
+            results
         }
-        return results
     }
 
     private fun queryInt(sqlResource: String, vararg parameters: Any?): Int {
         val sql = loadResource(sqlResource)
-        val resultSet = queryResultSet(sql, *parameters)
-        return if (resultSet.next()) {
-            val result = resultSet.getInt(1)
+        return connection.execQuery(sql, *parameters) { resultSet ->
             if (resultSet.next()) {
-                throw RuntimeException("No more than 1 row expected for '$sql'")
+                val result = resultSet.getInt(1)
+                if (resultSet.next()) {
+                    throw RuntimeException("No more than 1 row expected for '$sql'")
+                }
+                result
+            } else {
+                throw RuntimeException("Exactly 1 row expected for '$sql', got none")
             }
-            result
-        } else {
-            throw RuntimeException("Exactly 1 row expected for '$sql', got none")
         }
     }
 
     private fun update(sqlResource: String, vararg parameters: Any?): Int {
         val sql = loadResource(sqlResource)
-        val statement = prepareStatementWithParameters(sql, parameters)
-        return executeUpdate(sql, statement, parameters)
-    }
-
-    private fun queryResultSet(sql: String, vararg parameters: Any?): ResultSet {
-        val statement = prepareStatementWithParameters(sql, parameters)
-        return executeQuery(sql, statement, parameters)
-    }
-
-    private fun prepareStatementWithParameters(sql: String, parameters: Array<out Any?>): PreparedStatement {
-        val statement = prepareStatement(sql)
-        parameters.toList().forEachIndexed { index, any ->
-            val position = index + 1
-            if (any == null) {
-                statement.setObject(position, null)
-            } else when (any) {
-                is String -> statement.setString(position, any)
-                is Boolean -> statement.setBoolean(position, any)
-                is Int -> statement.setInt(position, any)
-                is Instant -> statement.setTimestamp(position, Timestamp.from(any))
-                else -> throw UnsupportedOperationException("Unsupported type ${any.javaClass.simpleName}")
-            }
-        }
-        return statement
-    }
-
-    private fun executeQuery(sql: String, statement: PreparedStatement, parameters: Array<out Any?>): ResultSet {
-        try {
-            return statement.executeQuery()
-        } catch (ex: Exception) {
-            throw RuntimeException(formatMessage(sql, parameters, ex), ex)
-        }
-    }
-
-    private fun executeUpdate(sql: String, statement: PreparedStatement, parameters: Array<out Any?>): Int {
-        try {
-            return statement.executeUpdate()
-        } catch (ex: Exception) {
-            throw RuntimeException(formatMessage(sql, parameters, ex), ex)
-        }
-    }
-
-    private fun formatMessage(sql: String, parameters: Array<out Any?>, ex: Exception): String {
-        val parametersString = parameters.map(::parameterToString).joinToString(", ")
-        return "$sql\n$parametersString\n${ex.message}"
-    }
-
-    private fun parameterToString(parameter: Any?): String {
-        return if (parameter == null) "<null>"
-        else {
-            val type = parameter.javaClass.simpleName
-            "($type)$parameter"
-        }
+        return connection.execUpdate(sql, *parameters)
     }
 }
