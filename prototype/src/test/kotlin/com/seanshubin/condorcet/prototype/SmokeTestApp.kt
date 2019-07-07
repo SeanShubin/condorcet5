@@ -1,6 +1,7 @@
 package com.seanshubin.condorcet.prototype
 
 import com.seanshubin.condorcet.domain.Credentials
+import com.seanshubin.condorcet.domain.Ranking
 import com.seanshubin.condorcet.logger.LoggerFactory
 import com.seanshubin.condorcet.table.formatter.RowStyleTableFormatter
 import com.seanshubin.condorcet.util.db.ConnectionFactory
@@ -82,10 +83,28 @@ fun main() {
             api.setCandidateNames(alice, dystopia, listOf("1984", "Fahrenheit 451", "Brave New World"))
             api.setVotersToAll(alice, dystopia)
             api.doneEditingElection(alice, dystopia)
+            api.castBallot(alice, dystopia, "Alice", mapOf(
+                    Pair("1984", 1),
+                    Pair("Brave New World", 2),
+                    Pair("Fahrenheit 451", 3)))
 
             api.createElection(bob, pet)
             api.setCandidateNames(bob, pet, listOf("Cat", "Dog", "Bird", "Fish", "Reptile"))
             api.setVotersToAll(bob, pet)
+            api.doneEditingElection(bob, pet)
+            api.castBallot(alice, pet, "Alice", mapOf(
+                    Pair("Dog", 1),
+                    Pair("Cat", 2)))
+            api.castBallot(alice, pet, "Alice", mapOf(
+                    Pair("Cat", 1),
+                    Pair("Dog", 2)))
+            api.castBallot(bob, pet, "Bob", mapOf(
+                    Pair("Cat", 1),
+                    Pair("Bird", 2)))
+            api.castBallot(carol, pet, "Carol", mapOf(
+                    Pair("Bird", 1),
+                    Pair("Cat", 2),
+                    Pair("Dog", 3)))
 
             api.createElection(carol, scienceFiction)
             api.setCandidateNames(carol, scienceFiction, listOf("Babylon 5", "Star Trek", "Blake's 7", "Firefly"))
@@ -102,7 +121,8 @@ fun main() {
             assertEquals(7, api.listElections(alice).size)
             assertTrue(api.getElection(alice, dystopia).isAllVoters)
             assertEquals(listOf("Alice", "Bob", "Carol", "Dave", "Eve"), api.getElection(alice, favoriteIceCream).voterNames)
-            assertEquals(listOf<String>(), api.listBallots(alice, "Alice").map { it.user })
+            assertEquals(listOf("Dystopia", "Pet"), api.listBallots(alice, "Alice").map { it.election })
+            assertEquals(listOf(Ranking(1, "Cat"), Ranking(2, "Dog")), api.getBallot(alice, "Pet", "Alice").rankings)
         }
 
 //        SampleData.displayGeneric().forEach(::execQuery)
@@ -115,9 +135,7 @@ fun main() {
 
 
     // ballot
-    fun listBallotsForElection(credentials: Credentials, voterName: String): List<Ballot>
     fun getBallot(credentials: Credentials, electionName: String, voterName: String): Ballot
-    fun castBallot(credentials: Credentials, electionName: String, voterName: String, rankings: Map<String, Int>): Ballot
 
     // tally
     fun tally(credentials: Credentials, electionName: String): Tally

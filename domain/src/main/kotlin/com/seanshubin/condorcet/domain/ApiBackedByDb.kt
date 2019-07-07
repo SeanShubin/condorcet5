@@ -123,14 +123,17 @@ class ApiBackedByDb(private val db: DbApi,
                 election.toApiElectionDetail()
             }
 
+    // todo: only list own ballots
     override fun listBallots(credentials: Credentials, voterName: String): List<Ballot> =
             withValidCredentials(credentials) {
                 db.listBallotsForVoter(voterName).map { it.toApiBallot() }
             }
 
-    override fun getBallot(credentials: Credentials, electionName: String, voterName: String): Ballot {
-        TODO("not implemented")
-    }
+    // todo: only list own ballot
+    override fun getBallot(credentials: Credentials, electionName: String, voterName: String): Ballot =
+            withValidCredentials(credentials) {
+                db.findBallot(electionName, voterName).toApiBallot()
+            }
 
     override fun castBallot(credentials: Credentials, electionName: String, voterName: String, rankings: Map<String, Int>): Ballot =
             withAllowedToVote(credentials, electionName) { election ->
