@@ -17,7 +17,9 @@ interface DbApi {
     fun findBallot(election: String, user: String): DbBallot
     fun listTally(election: String): List<DbTally>
     fun listRankings(election: String, user: String): List<DbRanking>
-    fun listBallots(election: String): List<DbBallot>
+    fun listBallotsForElection(election: String): List<DbBallot>
+    fun listBallotsForVoter(voter: String): List<DbBallot>
+    fun listElections(): List<DbElection>
 
     // commands
     fun createUser(name: String, email: String, salt: String, hash: String)

@@ -113,18 +113,20 @@ class ApiBackedByDb(private val db: DbApi,
         }
     }
 
-    override fun listElections(credentials: Credentials): List<ElectionSummary> {
-        TODO("not implemented")
-    }
+    override fun listElections(credentials: Credentials): List<ElectionSummary> =
+            withValidCredentials(credentials) {
+                db.listElections().map { it.toApiElectionSummary() }
+            }
 
     override fun getElection(credentials: Credentials, electionName: String): ElectionDetail =
             withValidCredentialsAndElection(credentials, electionName) { election ->
                 election.toApiElectionDetail()
             }
 
-    override fun listBallots(credentials: Credentials, voterName: String): List<Ballot> {
-        TODO("not implemented")
-    }
+    override fun listBallots(credentials: Credentials, voterName: String): List<Ballot> =
+            withValidCredentials(credentials) {
+                db.listBallotsForVoter(voterName).map { it.toApiBallot() }
+            }
 
     override fun getBallot(credentials: Credentials, electionName: String, voterName: String): Ballot {
         TODO("not implemented")
@@ -174,7 +176,7 @@ class ApiBackedByDb(private val db: DbApi,
             return AlgorithmBallot(ballot.user, ballot.confirmation, rankings)
         }
 
-        val ballots = db.listBallots(electionName).map(::ballotToAlgorithm)
+        val ballots = db.listBallotsForElection(electionName).map(::ballotToAlgorithm)
         val request = TallyElectionRequest(
                 electionName,
                 candidates,
@@ -223,6 +225,18 @@ class ApiBackedByDb(private val db: DbApi,
         return ElectionDetail(owner, name, end, secret, status.toApiStatus(), candidateNames, voterNames, isAllVoters)
     }
 
+    private fun DbElection.toApiElectionSummary(): ElectionSummary {
+        val electionDetail = toApiElectionDetail()
+        return ElectionSummary(
+                owner,
+                name,
+                end,
+                secret,
+                status.toApiStatus(),
+                electionDetail.candidateNames.size,
+                electionDetail.voterNames.size)
+    }
+
     private fun DbBallot.toApiBallot(dbElection: DbElection): Ballot {
         val isActive = dbElection.status == DbStatus.LIVE
         val dbRankings = db.listRankings(election, user)
@@ -242,6 +256,11 @@ class ApiBackedByDb(private val db: DbApi,
                 whenCast,
                 isActive,
                 rankings)
+    }
+
+    private fun DbBallot.toApiBallot(): Ballot {
+        val election = db.findElectionByName(this.election)
+        return toApiBallot(election)
     }
 
     private fun DbStatus.toApiStatus(): ElectionStatus = when (this) {

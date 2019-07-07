@@ -132,10 +132,16 @@ class PrepareStatementApi(private val connection: ConnectionWrapper,
                     "ranking-by-user-election.sql",
                     user, election)
 
-    override fun listBallots(election: String): List<DbBallot> =
+    override fun listBallotsForElection(election: String): List<DbBallot> =
             query(::createBallot,
                     "ballot-by-election.sql",
                     election)
+
+    override fun listElections(): List<DbElection> =
+            query(::createElection, "list-elections.sql")
+
+    override fun listBallotsForVoter(voter: String): List<DbBallot> =
+            query(::createBallot, "ballots-by-user.sql", voter)
 
     private fun createRanking(ballotId: Int, candidateId: Int, rank: Int) {
         update("create-ranking.sql", ballotId, candidateId, rank)

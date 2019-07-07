@@ -114,7 +114,13 @@ class InMemoryDb : DbApi {
         TODO("not implemented")
     }
 
-    override fun listBallots(election: String): List<DbBallot> {
+    override fun listBallotsForElection(election: String): List<DbBallot> {
         TODO("not implemented")
     }
+
+    override fun listBallotsForVoter(voter: String): List<DbBallot> {
+        TODO("not implemented")
+    }
+
+    override fun listElections(): List<DbElection> = electionTable.listAll()
 }

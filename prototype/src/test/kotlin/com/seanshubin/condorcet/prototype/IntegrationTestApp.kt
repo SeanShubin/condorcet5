@@ -94,7 +94,7 @@ fun main() {
             assertEquals(1, elections.size)
             assertEquals("", elections[0].ownerName)
             assertEquals("", elections[0].name)
-            assertEquals("", elections[0].endIsoString)
+            assertEquals(Instant.parse(""), elections[0].end)
             assertEquals(false, elections[0].secretBallot)
             assertEquals(ElectionStatus.COMPLETE, elections[0].status)
             assertEquals(3, elections[0].candidateCount)

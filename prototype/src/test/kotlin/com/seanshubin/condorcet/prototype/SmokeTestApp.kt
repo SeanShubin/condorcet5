@@ -7,6 +7,8 @@ import com.seanshubin.condorcet.util.db.ConnectionFactory
 import com.seanshubin.condorcet.util.db.ResultSetIterator
 import java.nio.file.Paths
 import java.time.Clock
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 fun main() {
     val logger = LoggerFactory.create(Paths.get("out", "log"), "sample-data")
@@ -94,22 +96,26 @@ fun main() {
             api.setVotersToAll(dave, fantasy)
 
             api.copyElection(dave, "Government 2", "Government")
+
+            assertEquals(alice, api.login("Alice", "alice-password"))
+            assertEquals(bob, api.login("bob@email.com", "bob-password"))
+            assertEquals(7, api.listElections(alice).size)
+            assertTrue(api.getElection(alice, dystopia).isAllVoters)
+            assertEquals(listOf("Alice", "Bob", "Carol", "Dave", "Eve"), api.getElection(alice, favoriteIceCream).voterNames)
+            assertEquals(listOf<String>(), api.listBallots(alice, "Alice").map { it.user })
         }
 
 //        SampleData.displayGeneric().forEach(::execQuery)
         SampleData.displayDebug().forEach(::execQuery)
+
     }
 }
 /*
-        assertEquals(alice, api.login("Alice", "alice-password"))
-        assertEquals(bob, api.login("bob@email.com", "bob-password"))
-        assertEquals(6, api.listElections(alice).size)
-        assertTrue(api.getElection(alice, dystopia).isAllVoters)
-        assertEquals(listOf("Bob", "Carol", "Eve", "Dave"), api.getElection(alice, dystopia).voterNames)
+
 
 
     // ballot
-    fun listBallots(credentials: Credentials, voterName: String): List<Ballot>
+    fun listBallotsForElection(credentials: Credentials, voterName: String): List<Ballot>
     fun getBallot(credentials: Credentials, electionName: String, voterName: String): Ballot
     fun castBallot(credentials: Credentials, electionName: String, voterName: String, rankings: Map<String, Int>): Ballot
 
