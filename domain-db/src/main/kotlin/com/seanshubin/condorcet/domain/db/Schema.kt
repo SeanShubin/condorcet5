@@ -57,8 +57,10 @@ object Schema {
             "tally",
             columns = listOf(tallyElection, tallyReport),
             unique = listOf(tallyElection))
-    val eventWhen = Field("when", STRING)
+    val eventWhen = Field("when", DATE)
+    val eventOwner = ForeignKey("owner", user)
+    val eventType = Field("type", STRING)
     val eventText = Field("text", TEXT)
-    val event = Table("event", eventWhen, eventText)
-    val tables = listOf(event, user, status, election, candidate, voter, ballot, ranking, tally)
+    val event = Table("event", eventWhen, eventOwner, eventType, eventText)
+    val tables = listOf(user, event, status, election, candidate, voter, ballot, ranking, tally)
 }
