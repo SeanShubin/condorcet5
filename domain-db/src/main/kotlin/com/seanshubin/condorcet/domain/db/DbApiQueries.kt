@@ -11,7 +11,8 @@ interface DbApiQueries {
     fun electionHasAllVoters(election: String): Boolean
     fun searchBallot(election: String, user: String): DbBallot?
     fun findBallot(election: String, user: String): DbBallot
-    fun listTally(election: String): List<DbTally>
+    fun findTally(election: String): DbTally
+    fun searchTally(election: String): DbTally?
     fun listRankings(election: String, user: String): List<DbRanking>
     fun listBallotsForElection(election: String): List<DbBallot>
     fun listBallotsForVoter(voter: String): List<DbBallot>

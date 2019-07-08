@@ -1,5 +1,6 @@
 package com.seanshubin.condorcet.prototype
 
+import com.seanshubin.condorcet.crypto.Uuid4
 import com.seanshubin.condorcet.domain.Credentials
 import com.seanshubin.condorcet.domain.ElectionStatus
 import com.seanshubin.condorcet.logger.LoggerFactory
@@ -39,8 +40,9 @@ fun main() {
         SampleData.displayGeneric().forEach(::execQuery)
         SampleData.displayDebug().forEach(::execQuery)
         val clock = Clock.systemDefaultZone()
+        val uniqueIdGenerator = Uuid4()
 
-        ApiFactory.withApi(connection, clock) { api ->
+        ApiFactory.withApi(connection, clock, uniqueIdGenerator) { api ->
 
             fun vote(userName: String, electionName: String, rankings: Map<String, Int>) {
                 val credentials = Credentials(userName, "password")
@@ -106,7 +108,7 @@ fun main() {
             assertEquals("", ballots[0].election)
             assertEquals("", ballots[0].confirmation)
             assertEquals(Instant.parse(""), ballots[0].whenCast)
-            assertEquals(false, ballots[0].isActive)
+            assertEquals(false, ballots[0].active)
 
             val rankings = ballots[0].rankings
             assertEquals(3, rankings.size)

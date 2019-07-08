@@ -11,8 +11,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-kotlin</artifactId>
+            <groupId>com.seanshubin.condorcet</groupId>
+            <artifactId>condorcet-json</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <parent>

@@ -1,14 +1,15 @@
 package com.seanshubin.condorcet.domain
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.seanshubin.condorcet.algorithm.CondorcetAlgorithm
 import com.seanshubin.condorcet.algorithm.TallyElectionRequest
 import com.seanshubin.condorcet.crypto.PasswordUtil
 import com.seanshubin.condorcet.crypto.SaltAndHash
 import com.seanshubin.condorcet.crypto.UniqueIdGenerator
+import com.seanshubin.condorcet.domain.AlgorithmToDomain.toDomain
 import com.seanshubin.condorcet.domain.Ranking.Companion.unbiasedSort
 import com.seanshubin.condorcet.domain.db.*
+import com.seanshubin.condorcet.json.JsonUtil.jsonMapper
+import com.seanshubin.condorcet.table.formatter.ListUtil.exactlyOne
 import java.time.Clock
 import java.time.Instant
 import java.util.*
@@ -20,7 +21,6 @@ class ApiBackedByDb(private val db: DbApi,
                     private val passwordUtil: PasswordUtil,
                     private val uniqueIdGenerator: UniqueIdGenerator,
                     private val random: Random) : Api {
-    private val jsonMapper = ObjectMapper().registerModule(KotlinModule())
     override fun login(nameOrEmail: String, password: String): Credentials {
         val dbUser =
                 db.searchUserByName(nameOrEmail) ?: db.searchUserByEmail(nameOrEmail)
@@ -158,17 +158,17 @@ class ApiBackedByDb(private val db: DbApi,
     override fun tally(credentials: Credentials, electionName: String): Tally =
             withValidCredentialsAndElection(credentials, electionName) { election ->
                 updateElectionTally(electionName)
-                val dbTally = db.listTally(electionName)
-                dbTally.toApiTally(electionName)
+                val dbTally = db.findTally(electionName)
+                dbTally.toApiTally()
             }
 
     private fun updateElectionTally(electionName: String) {
-        val election = db.findElectionByName(electionName)
-        if (election.status != DbStatus.COMPLETE) {
-            throw RuntimeException("Can not tally election $electionName, its status is ${election.status}")
+        val dbElection = db.findElectionByName(electionName)
+        if (dbElection.status != DbStatus.COMPLETE) {
+            throw RuntimeException("Can not tally election $electionName, its status is ${dbElection.status}")
         }
-        val originalDbTally = db.listTally(electionName)
-        if (originalDbTally.isNotEmpty()) return
+        val originalDbTally = db.searchTally(electionName)
+        if (originalDbTally != null) return
         val candidates = db.listCandidateNames(electionName).toSet()
         val eligibleVoters = db.listEligibleVoterNames(electionName).toSet()
         fun ballotToAlgorithm(ballot: DbBallot): AlgorithmBallot {
@@ -176,14 +176,29 @@ class ApiBackedByDb(private val db: DbApi,
             return AlgorithmBallot(ballot.user, ballot.confirmation, rankings)
         }
 
-        val ballots = db.listBallotsForElection(electionName).map(::ballotToAlgorithm)
+        val dbBallots = db.listBallotsForElection(electionName)
+        val dbBallotByConfirmation: Map<String, DbBallot> =
+                dbBallots.groupBy { it.confirmation }.mapValues { it.value.exactlyOne() }
+        val algorithmBallots = dbBallots.map(::ballotToAlgorithm)
         val request = TallyElectionRequest(
                 electionName,
                 candidates,
                 eligibleVoters,
-                ballots)
+                algorithmBallots)
         val response = CondorcetAlgorithm.tally(request)
-        db.setTally(electionName, jsonMapper.writeValueAsString(response))
+        val isActive = dbElection.status == DbStatus.LIVE
+        val tally = Tally(
+                response.election,
+                dbElection.owner,
+                response.candidates,
+                response.voted,
+                response.didNotVote,
+                response.ballots.toDomain(dbBallotByConfirmation, isActive),
+                response.preferenceMatrix,
+                response.strongestPathMatrix,
+                response.placings.toDomain()
+        )
+        db.setTally(electionName, jsonMapper.writeValueAsString(tally))
     }
 
     private fun rankingsToAlgorithm(rankings: List<DbRanking>): Map<String, Int> =
@@ -266,30 +281,9 @@ class ApiBackedByDb(private val db: DbApi,
         DbStatus.COMPLETE -> ElectionStatus.COMPLETE
     }
 
-    private fun List<DbTally>.toApiTally(electionName: String): Tally {
-        TODO()
-//        val election = db.findElectionByName(electionName)
-//        val electionOwner = election.owner
-//        val candidates = db.listCandidateNames(electionName)
-//        val eligibleVoters = db.listEligibleVoterNames(electionName)
-//        val ballots = db.listBallotsForElection(electionName).map{ it.toApiBallot() }
-//        val voted = ballots.map { ballot -> ballot.user }
-//        val didNotVote = eligibleVoters - voted
-//        val grouped: Map<Int, List<DbTally>> = this.groupBy { it.rank }
-//        val keys = grouped.keys.sorted()
-//        val places = mutableListOf<Place>()
-//        keys.forEach { key ->
-//            places.add(Place(key.toPlaceName(), grouped.getValue(key).map { it.candidateName }.sorted()))
-//        }
-//        return Tally(electionName,
-//                electionOwner,
-//                candidates,
-//                voted,
-//                didNotVote,
-//                ballots,
-//                preferences,
-//                strongestPaths,
-//                places)
+    private fun DbTally.toApiTally(): Tally {
+        val tally = jsonMapper.readValue(report, Tally::class.java)
+        return tally
     }
 
     private fun <T> withValidCredentials(credentials: Credentials, f: () -> T): T {

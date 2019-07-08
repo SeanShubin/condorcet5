@@ -7,5 +7,5 @@ data class Ballot(
         val election: String,
         val confirmation: String,
         val whenCast: Instant,
-        val isActive: Boolean,
+        val active: Boolean,
         val rankings: List<Ranking>)

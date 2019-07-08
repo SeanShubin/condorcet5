@@ -90,8 +90,11 @@ class InMemoryDb : DbApi {
         TODO("not implemented")
     }
 
-    override fun listTally(election: String): List<DbTally> =
-            tallyTable.listWhere { it.electionName == election }
+    override fun findTally(election: String): DbTally =
+            tallyTable.find { it.electionName == election }
+
+    override fun searchTally(election: String): DbTally? =
+            tallyTable.searchOne { it.electionName == election }
 
     override fun createBallot(electionName: String, userName: String, confirmation: String, whenCast: Instant, rankings: Map<String, Int>) {
         TODO("not implemented")

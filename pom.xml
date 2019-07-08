@@ -38,12 +38,12 @@
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-rds</artifactId>
-                <version>1.11.587</version>
+                <version>1.11.588</version>
             </dependency>
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-cloudformation</artifactId>
-                <version>1.11.587</version>
+                <version>1.11.588</version>
             </dependency>
             <dependency>
                 <groupId>io.arrow-kt</groupId>
@@ -60,9 +60,15 @@
                 <artifactId>jackson-module-kotlin</artifactId>
                 <version>2.9.9</version>
             </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
+                <version>2.9.9</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <modules>
+        <module>json</module>
         <module>contract</module>
         <module>logger</module>
         <module>matrix</module>
@@ -181,7 +187,7 @@
                     </plugin>
                     <plugin>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.1.0</version>
+                        <version>3.1.1</version>
                         <executions>
                             <execution>
                                 <id>generate-dummy-javadoc-per-maven-central-requirements</id>

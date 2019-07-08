@@ -1,28 +1,26 @@
 package com.seanshubin.condorcet.domain.db
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.seanshubin.condorcet.json.JsonUtil.jsonMapper
 import java.time.Instant
 
 interface Event {
     companion object {
-        private val mapper = ObjectMapper().registerModule(KotlinModule())
         fun parse(type: String, json: String): Event =
                 when (type) {
-                    "CreateUser" -> mapper.readValue<CreateUser>(json)
-                    "CreateElection" -> mapper.readValue<CreateElection>(json)
-                    "SetElectionEndDate" -> mapper.readValue<SetElectionEndDate>(json)
-                    "SetElectionSecretBallot" -> mapper.readValue<SetElectionSecretBallot>(json)
-                    "SetElectionStatus" -> mapper.readValue<SetElectionStatus>(json)
-                    "SetCandidates" -> mapper.readValue<SetCandidates>(json)
-                    "SetVoters" -> mapper.readValue<SetVoters>(json)
-                    "SetVotersToAll" -> mapper.readValue<SetVotersToAll>(json)
+                    "CreateUser" -> jsonMapper.readValue<CreateUser>(json)
+                    "CreateElection" -> jsonMapper.readValue<CreateElection>(json)
+                    "SetElectionEndDate" -> jsonMapper.readValue<SetElectionEndDate>(json)
+                    "SetElectionSecretBallot" -> jsonMapper.readValue<SetElectionSecretBallot>(json)
+                    "SetElectionStatus" -> jsonMapper.readValue<SetElectionStatus>(json)
+                    "SetCandidates" -> jsonMapper.readValue<SetCandidates>(json)
+                    "SetVoters" -> jsonMapper.readValue<SetVoters>(json)
+                    "SetVotersToAll" -> jsonMapper.readValue<SetVotersToAll>(json)
                     else -> throw RuntimeException("Unknown event type $type")
                 }
 
         fun toTypeAndParsable(event: Event): TypeAndParsable =
-                TypeAndParsable(event.javaClass.simpleName, mapper.writeValueAsString(event))
+                TypeAndParsable(event.javaClass.simpleName, jsonMapper.writeValueAsString(event))
     }
 
     data class TypeAndParsable(val type: String, val parsable: String)

@@ -3,7 +3,8 @@ package com.seanshubin.condorcet.prototype
 import com.seanshubin.condorcet.crypto.*
 import com.seanshubin.condorcet.domain.Api
 import com.seanshubin.condorcet.domain.ApiBackedByDb
-import com.seanshubin.condorcet.domain.PrepareStatementApi
+import com.seanshubin.condorcet.domain.db.DbFromResourceImpl
+import com.seanshubin.condorcet.domain.db.PrepareStatementApi
 import com.seanshubin.condorcet.logger.Logger
 import com.seanshubin.condorcet.util.ClassLoaderUtil
 import com.seanshubin.condorcet.util.db.ConnectionFactory
@@ -12,11 +13,15 @@ import java.time.Clock
 import java.util.*
 
 object ApiFactory {
-    fun <T> withApi(connection: ConnectionWrapper, clock: Clock, f: (Api) -> T): T {
-        val db = PrepareStatementApi(
+    fun <T> withApi(connection: ConnectionWrapper,
+                    clock: Clock,
+                    uniqueIdGenerator: UniqueIdGenerator,
+                    f: (Api) -> T): T {
+        val dbFromResource = DbFromResourceImpl(
                 connection,
-                ClassLoaderUtil::loadResourceAsString)
-        val uniqueIdGenerator: UniqueIdGenerator = Uuid4()
+                ClassLoaderUtil::loadResourceAsString
+        )
+        val db = PrepareStatementApi(dbFromResource)
         val oneWayHash: OneWayHash = Sha256Hash()
         val passwordUtil = PasswordUtil(uniqueIdGenerator, oneWayHash)
         val seed = 12345L
@@ -31,9 +36,11 @@ object ApiFactory {
         return ConnectionFactory.withConnection(
                 Connections.local,
                 ::sqlEvent) { connection ->
-            val db = PrepareStatementApi(
+            val dbFromResource = DbFromResourceImpl(
                     connection,
-                    ClassLoaderUtil::loadResourceAsString)
+                    ClassLoaderUtil::loadResourceAsString
+            )
+            val db = PrepareStatementApi(dbFromResource)
             val clock = Clock.systemDefaultZone()
             val uniqueIdGenerator: UniqueIdGenerator = Uuid4()
             val oneWayHash: OneWayHash = Sha256Hash()
@@ -45,8 +52,11 @@ object ApiFactory {
         }
     }
 
-    fun <T> withApiAndCleanDatabase(connection: ConnectionWrapper, clock: Clock, f: (Api) -> T): T {
-        return withApi(connection, clock) { api ->
+    fun <T> withApiAndCleanDatabase(connection: ConnectionWrapper,
+                                    clock: Clock,
+                                    uniqueIdGenerator: UniqueIdGenerator,
+                                    f: (Api) -> T): T {
+        return withApi(connection, clock, uniqueIdGenerator) { api ->
             fun execUpdate(sql: String) {
                 connection.execUpdate(sql)
             }

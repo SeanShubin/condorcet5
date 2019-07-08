@@ -1,13 +1,15 @@
 package com.seanshubin.condorcet.prototype
 
-import com.seanshubin.condorcet.domain.Credentials
-import com.seanshubin.condorcet.domain.Ranking
+import com.seanshubin.condorcet.domain.*
+import com.seanshubin.condorcet.json.JsonUtil.jsonMapper
 import com.seanshubin.condorcet.logger.LoggerFactory
 import com.seanshubin.condorcet.table.formatter.RowStyleTableFormatter
+import com.seanshubin.condorcet.util.ListDifference
 import com.seanshubin.condorcet.util.db.ConnectionFactory
 import com.seanshubin.condorcet.util.db.ResultSetIterator
 import java.nio.file.Paths
-import java.time.Clock
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -37,9 +39,10 @@ fun main() {
         SampleData.createTables().forEach(::execUpdate)
         SampleData.staticData().forEach(::execUpdate)
 
-        val clock = Clock.systemDefaultZone()
+        val clock = MinuteAtATime()
+        val uniqueIdGenerator = DeterministicUniqueIdGenerator()
 
-        ApiFactory.withApi(connection, clock) { api ->
+        ApiFactory.withApi(connection, clock, uniqueIdGenerator) { api ->
             val alice = Credentials("Alice", "alice-password")
             val bob = Credentials("Bob", "bob-password")
             val carol = Credentials("Carol", "carol-password")
@@ -63,7 +66,7 @@ fun main() {
 
             api.createElection(alice, favoriteIceCream)
 
-            val fiveMinutesFromNow = clock.instant().plusSeconds(5)
+            val fiveMinutesFromNow = clock.instant().plus(5, ChronoUnit.MINUTES)
             api.setEndDate(alice, favoriteIceCream, fiveMinutesFromNow)
             api.setSecretBallot(alice, favoriteIceCream, true)
             api.setCandidateNames(alice, favoriteIceCream, listOf("Chocolate", "Vanilla", "Strawberry"))
@@ -105,6 +108,11 @@ fun main() {
                     Pair("Bird", 1),
                     Pair("Cat", 2),
                     Pair("Dog", 3)))
+            api.castBallot(dave, pet, "Dave", mapOf(
+                    Pair("Cat", 1),
+                    Pair("Reptile", 2),
+                    Pair("Dog", 3),
+                    Pair("Bird", 4)))
             api.endElection(bob, pet)
 
             api.createElection(carol, scienceFiction)
@@ -123,20 +131,81 @@ fun main() {
             assertTrue(api.getElection(alice, dystopia).isAllVoters)
             assertEquals(listOf("Alice", "Bob", "Carol", "Dave", "Eve"), api.getElection(alice, favoriteIceCream).voterNames)
             assertEquals(listOf("Dystopia", pet), api.listBallots(alice, "Alice").map { it.election })
-            api.getBallot(alice, pet, "Alice").rankings.forEach(::println)
             assertEquals(listOf(
                     Ranking(1, "Cat"),
                     Ranking(2, "Dog"),
                     Ranking(null, "Fish"),
                     Ranking(null, "Reptile"),
                     Ranking(null, "Bird")), api.getBallot(alice, pet, "Alice").rankings)
-//            assertEquals(Tally(pet, listOf(
-//                    Place("1st", listOf("Cat")),
-//                    Place("2nd", listOf("Bird")),
-//                    Place("3rd", listOf("Dog")),
-//                    Place("4th", listOf("Fish", "Reptile")))), api.tally(alice, pet))
-        }
+            val expectedTally = Tally(
+                    electionName = "Pet",
+                    electionOwner = "Bob",
+                    candidates = listOf("Bird", "Cat", "Dog", "Fish", "Reptile"),
+                    voted = listOf("Alice", "Bob", "Carol", "Dave"),
+                    didNotVote = listOf("Eve", "Frank", "Grace", "Heidi", "Ivy", "Judy"),
+                    ballots = listOf(
+                            Ballot(user = "Alice",
+                                    election = "Pet",
+                                    confirmation = "unique-id-15",
+                                    whenCast = Instant.parse("2019-07-08T22:06:08Z"),
+                                    active = false,
+                                    rankings = listOf(Ranking(rank = 1, candidateName = "Cat"),
+                                            Ranking(rank = 2, candidateName = "Dog"))),
+                            Ballot(user = "Bob",
+                                    election = "Pet",
+                                    confirmation = "unique-id-16",
+                                    whenCast = Instant.parse("2019-07-08T22:08:08Z"),
+                                    active = false,
+                                    rankings = listOf(
+                                            Ranking(rank = 1, candidateName = "Cat"),
+                                            Ranking(rank = 2, candidateName = "Bird"))),
+                            Ballot(user = "Carol",
+                                    election = "Pet",
+                                    confirmation = "unique-id-17",
+                                    whenCast = Instant.parse("2019-07-08T22:09:08Z"),
+                                    active = false,
+                                    rankings = listOf(
+                                            Ranking(rank = 2, candidateName = "Cat"),
+                                            Ranking(rank = 3, candidateName = "Dog"),
+                                            Ranking(rank = 1, candidateName = "Bird"))),
+                            Ballot(user = "Dave",
+                                    election = "Pet",
+                                    confirmation = "unique-id-18",
+                                    whenCast = Instant.parse("2019-07-08T22:10:08Z"),
+                                    active = false,
+                                    rankings = listOf(
+                                            Ranking(rank = 1, candidateName = "Cat"),
+                                            Ranking(rank = 3, candidateName = "Dog"),
+                                            Ranking(rank = 4, candidateName = "Bird"),
+                                            Ranking(rank = 2, candidateName = "Reptile")))),
+                    preferences = listOf(
+                            listOf(0, 1, 2, 3, 2),
+                            listOf(3, 0, 4, 4, 4),
+                            listOf(2, 0, 0, 3, 2),
+                            listOf(0, 0, 0, 0, 0),
+                            listOf(1, 0, 1, 1, 0)),
+                    strongestPaths = listOf(
+                            listOf(0, 1, 2, 3, 2),
+                            listOf(3, 0, 4, 4, 4),
+                            listOf(2, 1, 0, 3, 2),
+                            listOf(0, 0, 0, 0, 0),
+                            listOf(1, 1, 1, 1, 0)),
+                    places = listOf(
+                            Place(name = "1st", candidates = listOf("Cat")),
+                            Place(name = "2nd", candidates = listOf("Bird", "Dog")),
+                            Place(name = "4th", candidates = listOf("Reptile")),
+                            Place(name = "5th", candidates = listOf("Fish"))))
 
+            val actualTally = api.tally(alice, pet)
+
+            val difference = ListDifference.compare(
+                    "expected",
+                    jsonMapper.writeValueAsString(expectedTally),
+                    "actual  ",
+                    jsonMapper.writeValueAsString(actualTally))
+
+            assertTrue(difference.isSame, difference.messageLines.joinToString("\n"))
+        }
         SampleData.displayDebug().forEach(::execQuery)
 
     }

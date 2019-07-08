@@ -1,12 +1,12 @@
-package com.seanshubin.condorcet.domain
+package com.seanshubin.condorcet.domain.db
 
-import com.seanshubin.condorcet.domain.db.*
-import com.seanshubin.condorcet.util.db.ConnectionWrapper
 import java.sql.ResultSet
 import java.time.Instant
 
-class PrepareStatementApi(private val connection: ConnectionWrapper,
-                          private val loadResource: (String) -> String) : DbApi {
+
+class PrepareStatementApi(private val dbFromResource: DbFromResource) :
+        DbApi,
+        DbFromResource by dbFromResource {
     override fun findUserByName(user: String): DbUser = queryExactlyOneRow(
             ::createUser,
             "user-by-name.sql",
@@ -95,7 +95,13 @@ class PrepareStatementApi(private val connection: ConnectionWrapper,
             user, election
     )
 
-    override fun listTally(election: String): List<DbTally> = query(
+    override fun findTally(election: String): DbTally = queryExactlyOneRow(
+            ::createDbTally,
+            "tally-by-election.sql",
+            election
+    )
+
+    override fun searchTally(election: String): DbTally? = queryZeroOrOneRow(
             ::createDbTally,
             "tally-by-election.sql",
             election
@@ -112,19 +118,6 @@ class PrepareStatementApi(private val connection: ConnectionWrapper,
         val ballotId = queryInt("ballot-id-by-user-election.sql", userName, electionName)
         removeRankings(ballotId)
         createRankings(ballotId, userName, electionName, rankings)
-    }
-
-    private fun removeRankings(ballotId: Int) {
-        update("remove-rankings-by-ballot.sql", ballotId)
-    }
-
-    private fun createRankings(ballotId: Int, userName: String, electionName: String, rankings: Map<String, Int>) {
-        fun createRanking(ranking: Pair<String, Int>) {
-            val (candidateName, rank) = ranking
-            val candidateId = queryInt("candidate-id-by-election-candidate.sql", electionName, candidateName)
-            createRanking(ballotId, candidateId, rank)
-        }
-        rankings.toList().sortedBy { it.second }.forEach(::createRanking)
     }
 
     override fun setTally(electionName: String, report: String) {
@@ -150,6 +143,19 @@ class PrepareStatementApi(private val connection: ConnectionWrapper,
 
     override fun listBallotsForVoter(voter: String): List<DbBallot> =
             query(::createBallot, "ballots-by-user.sql", voter)
+
+    private fun removeRankings(ballotId: Int) {
+        update("remove-rankings-by-ballot.sql", ballotId)
+    }
+
+    private fun createRankings(ballotId: Int, userName: String, electionName: String, rankings: Map<String, Int>) {
+        fun createRanking(ranking: Pair<String, Int>) {
+            val (candidateName, rank) = ranking
+            val candidateId = queryInt("candidate-id-by-election-candidate.sql", electionName, candidateName)
+            createRanking(ballotId, candidateId, rank)
+        }
+        rankings.toList().sortedBy { it.second }.forEach(::createRanking)
+    }
 
     private fun createRanking(ballotId: Int, candidateId: Int, rank: Int) {
         update("create-ranking.sql", ballotId, candidateId, rank)
@@ -210,72 +216,5 @@ class PrepareStatementApi(private val connection: ConnectionWrapper,
         val confirmation = resultSet.getString("confirmation")
         val whenCast = resultSet.getTimestamp("when_cast")
         return DbBallot(user, election, confirmation, whenCast.toInstant())
-    }
-
-    private fun <T> queryExactlyOneRow(createFunction: (ResultSet) -> T,
-                                       sqlResource: String,
-                                       vararg parameters: Any?): T {
-        val sql = loadResource(sqlResource)
-        return connection.execQuery(sql, *parameters) { resultSet ->
-            if (resultSet.next()) {
-                val result = createFunction(resultSet)
-                if (resultSet.next()) {
-                    throw RuntimeException("No more than 1 row expected for '$sql'")
-                }
-                result
-            } else {
-                throw RuntimeException("Exactly 1 row expected for '$sql', got none")
-            }
-        }
-    }
-
-    private fun <T> queryZeroOrOneRow(createFunction: (ResultSet) -> T,
-                                      sqlResource: String,
-                                      vararg parameters: Any?): T? {
-        val sql = loadResource(sqlResource)
-        return connection.execQuery(sql, *parameters) { resultSet ->
-            if (resultSet.next()) {
-                val result = createFunction(resultSet)
-                if (resultSet.next()) {
-                    throw RuntimeException("No more than 1 row expected for '$sql'")
-                }
-                result
-            } else {
-                null
-            }
-        }
-    }
-
-    private fun <T> query(createFunction: (ResultSet) -> T,
-                          sqlResource: String,
-                          vararg parameters: Any?): List<T> {
-        val sql = loadResource(sqlResource)
-        return connection.execQuery(sql, *parameters) { resultSet ->
-            val results = mutableListOf<T>()
-            while (resultSet.next()) {
-                results.add(createFunction(resultSet))
-            }
-            results
-        }
-    }
-
-    private fun queryInt(sqlResource: String, vararg parameters: Any?): Int {
-        val sql = loadResource(sqlResource)
-        return connection.execQuery(sql, *parameters) { resultSet ->
-            if (resultSet.next()) {
-                val result = resultSet.getInt(1)
-                if (resultSet.next()) {
-                    throw RuntimeException("No more than 1 row expected for '$sql'")
-                }
-                result
-            } else {
-                throw RuntimeException("Exactly 1 row expected for '$sql', got none")
-            }
-        }
-    }
-
-    private fun update(sqlResource: String, vararg parameters: Any?): Int {
-        val sql = loadResource(sqlResource)
-        return connection.execUpdate(sql, *parameters)
     }
 }

@@ -16,4 +16,11 @@ object ListUtil {
             mutableList
         }
     }
+
+    fun <T> List<T>.exactlyOne(): T =
+            when (size) {
+                0 -> throw RuntimeException("exactly 1 element expected, got 0")
+                1 -> get(0)
+                else -> throw  RuntimeException("exactly 1 element expected, got $size")
+            }
 }
