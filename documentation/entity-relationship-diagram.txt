@@ -50,9 +50,8 @@ entity ranking {
 
 entity tally {
     election: fk election
-    candidate: fk candidate
     --
-    rank
+    report
 }
 
 election  -left->  user
@@ -65,5 +64,4 @@ candidate -up->    election
 ranking   -left->  ballot
 ranking   -right-> candidate
 tally     -left->  election
-tally     -down->  candidate
 @enduml
