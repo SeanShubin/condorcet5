@@ -11,7 +11,7 @@ interface DbApi {
     fun findElectionByName(name: String): DbElection
     fun searchElectionByName(name: String): DbElection?
     fun listCandidateNames(election: String): List<String>
-    fun listVoterNames(election: String): List<String>
+    fun listEligibleVoterNames(election: String): List<String>
     fun electionHasAllVoters(election: String): Boolean
     fun searchBallot(election: String, user: String): DbBallot?
     fun findBallot(election: String, user: String): DbBallot
@@ -42,5 +42,5 @@ interface DbApi {
                      whenCast: Instant,
                      rankings: Map<String, Int>)
 
-    fun setTally(electionName: String, rankings: Map<String, Int>)
+    fun setTally(electionName: String, report: String)
 }

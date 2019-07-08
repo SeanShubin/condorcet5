@@ -38,7 +38,7 @@ class PrepareStatementApi(private val connection: ConnectionWrapper,
             "candidate-names-by-election.sql",
             election)
 
-    override fun listVoterNames(election: String): List<String> = query(
+    override fun listEligibleVoterNames(election: String): List<String> = query(
             ::createCandidate,
             "voter-names-by-election.sql",
             election)
@@ -127,11 +127,8 @@ class PrepareStatementApi(private val connection: ConnectionWrapper,
         rankings.toList().sortedBy { it.second }.forEach(::createRanking)
     }
 
-    override fun setTally(electionName: String, rankings: Map<String, Int>) {
-        rankings.forEach {
-            val (candidate, place) = it
-            setTallyRow(electionName, candidate, place)
-        }
+    override fun setTally(electionName: String, report: String) {
+        update("create-tally.sql", electionName, report)
     }
 
     override fun setVotersToAll(electionName: String) {
@@ -163,12 +160,6 @@ class PrepareStatementApi(private val connection: ConnectionWrapper,
                 "create-ballot.sql",
                 electionName, userName, confirmation, whenCast
         )
-    }
-
-    private fun setTallyRow(electionName: String, candidateName: String, rank: Int) {
-        val electionId = queryInt("election-id-by-name.sql", electionName)
-        val candidateId = queryInt("candidate-id-by-election-id-candidate.sql", electionId, candidateName)
-        update("create-tally.sql", electionId, candidateId, rank)
     }
 
     private fun createUser(resultSet: ResultSet): DbUser {

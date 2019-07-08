@@ -1,2 +1,2 @@
-insert into tally (election_id, candidate_id, `rank`)
-values (?, ?, ?)
+insert into tally (election_id, report)
+values ((select id from election where name = ?), ?)

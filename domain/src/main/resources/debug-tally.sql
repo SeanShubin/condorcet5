@@ -1,10 +1,7 @@
 select tally.id,
        election.name  election,
-       candidate.name candidate,
-       tally.`rank`,
-       tally.election_id,
-       tally.candidate_id
+       tally.report,
+       tally.election_id
 from tally
          inner join election on tally.election_id = election.id
-         inner join candidate on tally.candidate_id = candidate.id
 order by tally.id

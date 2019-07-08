@@ -52,12 +52,11 @@ object Schema {
             columns = listOf(rankingBallot, rankingCandidate, rankingRank),
             unique = listOf(rankingBallot, rankingCandidate))
     val tallyElection = ForeignKey("election", election)
-    val tallyCandidate = ForeignKey("candidate", candidate)
-    val tallyRank = Field("rank", INT)
+    val tallyReport = Field("report", TEXT)
     val tally = Table(
             "tally",
-            columns = listOf(tallyElection, tallyCandidate, tallyRank),
-            unique = listOf(tallyElection, tallyCandidate))
+            columns = listOf(tallyElection, tallyReport),
+            unique = listOf(tallyElection))
     val eventWhen = Field("when", STRING)
     val eventText = Field("text", TEXT)
     val event = Table("event", eventWhen, eventText)

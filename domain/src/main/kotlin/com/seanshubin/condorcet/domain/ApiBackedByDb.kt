@@ -1,11 +1,12 @@
 package com.seanshubin.condorcet.domain
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.seanshubin.condorcet.algorithm.CondorcetAlgorithm
 import com.seanshubin.condorcet.algorithm.TallyElectionRequest
 import com.seanshubin.condorcet.crypto.PasswordUtil
 import com.seanshubin.condorcet.crypto.SaltAndHash
 import com.seanshubin.condorcet.crypto.UniqueIdGenerator
-import com.seanshubin.condorcet.domain.Place.Companion.toPlaceName
 import com.seanshubin.condorcet.domain.Ranking.Companion.unbiasedSort
 import com.seanshubin.condorcet.domain.db.*
 import java.time.Clock
@@ -13,11 +14,13 @@ import java.time.Instant
 import java.util.*
 import com.seanshubin.condorcet.algorithm.Ballot as AlgorithmBallot
 
+
 class ApiBackedByDb(private val db: DbApi,
                     private val clock: Clock,
                     private val passwordUtil: PasswordUtil,
                     private val uniqueIdGenerator: UniqueIdGenerator,
                     private val random: Random) : Api {
+    private val jsonMapper = ObjectMapper().registerModule(KotlinModule())
     override fun login(nameOrEmail: String, password: String): Credentials {
         val trimmedUserNameOrUserEmail = trim(nameOrEmail)
         val dbUser =
@@ -108,7 +111,7 @@ class ApiBackedByDb(private val db: DbApi,
             db.createElection(credentials.userName, newElectionName)
             db.setElectionSecretBallot(newElectionName, election.secret)
             db.setCandidates(newElectionName, db.listCandidateNames(electionToCopyName))
-            db.setVoters(newElectionName, db.listVoterNames(electionToCopyName))
+            db.setVoters(newElectionName, db.listEligibleVoterNames(electionToCopyName))
             db.findElectionByName(newElectionName).toApiElectionDetail()
         }
     }
@@ -173,7 +176,7 @@ class ApiBackedByDb(private val db: DbApi,
         val originalDbTally = db.listTally(electionName)
         if (originalDbTally.isNotEmpty()) return
         val candidates = db.listCandidateNames(electionName).toSet()
-        val eligibleVoters = db.listVoterNames(electionName).toSet()
+        val eligibleVoters = db.listEligibleVoterNames(electionName).toSet()
         fun ballotToAlgorithm(ballot: DbBallot): AlgorithmBallot {
             val rankings = rankingsToAlgorithm(db.listRankings(electionName, ballot.user))
             return AlgorithmBallot(ballot.user, ballot.confirmation, rankings)
@@ -186,10 +189,7 @@ class ApiBackedByDb(private val db: DbApi,
                 eligibleVoters,
                 ballots)
         val response = CondorcetAlgorithm.tally(request)
-        val rankMap = response.placings.flatMap { placing ->
-            placing.candidates.map { Pair(it, placing.place) }
-        }.toMap()
-        db.setTally(electionName, rankMap)
+        db.setTally(electionName, jsonMapper.writeValueAsString(response))
     }
 
     private fun rankingsToAlgorithm(rankings: List<DbRanking>): Map<String, Int> =
@@ -223,7 +223,7 @@ class ApiBackedByDb(private val db: DbApi,
 
     private fun DbElection.toApiElectionDetail(): ElectionDetail {
         val candidateNames = db.listCandidateNames(name)
-        val voterNames = db.listVoterNames(name)
+        val voterNames = db.listEligibleVoterNames(name)
         val isAllVoters = db.electionHasAllVoters(name)
         return ElectionDetail(owner, name, end, secret, status.toApiStatus(), candidateNames, voterNames, isAllVoters)
     }
@@ -273,13 +273,29 @@ class ApiBackedByDb(private val db: DbApi,
     }
 
     private fun List<DbTally>.toApiTally(electionName: String): Tally {
-        val grouped: Map<Int, List<DbTally>> = this.groupBy { it.rank }
-        val keys = grouped.keys.sorted()
-        val places = mutableListOf<Place>()
-        keys.forEach { key ->
-            places.add(Place(key.toPlaceName(), grouped.getValue(key).map { it.candidateName }.sorted()))
-        }
-        return Tally(electionName, places)
+        TODO()
+//        val election = db.findElectionByName(electionName)
+//        val electionOwner = election.owner
+//        val candidates = db.listCandidateNames(electionName)
+//        val eligibleVoters = db.listEligibleVoterNames(electionName)
+//        val ballots = db.listBallotsForElection(electionName).map{ it.toApiBallot() }
+//        val voted = ballots.map { ballot -> ballot.user }
+//        val didNotVote = eligibleVoters - voted
+//        val grouped: Map<Int, List<DbTally>> = this.groupBy { it.rank }
+//        val keys = grouped.keys.sorted()
+//        val places = mutableListOf<Place>()
+//        keys.forEach { key ->
+//            places.add(Place(key.toPlaceName(), grouped.getValue(key).map { it.candidateName }.sorted()))
+//        }
+//        return Tally(electionName,
+//                electionOwner,
+//                candidates,
+//                voted,
+//                didNotVote,
+//                ballots,
+//                preferences,
+//                strongestPaths,
+//                places)
     }
 
     private fun trim(s: String): String = s.trim().replace(whitespaceBlock, " ")
@@ -320,7 +336,7 @@ class ApiBackedByDb(private val db: DbApi,
                 if (election.status != DbStatus.LIVE) {
                     throw RuntimeException("Election $electionName is not live")
                 }
-                val voters = db.listVoterNames(election.name)
+                val voters = db.listEligibleVoterNames(election.name)
                 if (!voters.contains(credentials.userName)) {
                     throw RuntimeException("User ${credentials.userName} is not allowed to vote in election ${election.name}")
                 }

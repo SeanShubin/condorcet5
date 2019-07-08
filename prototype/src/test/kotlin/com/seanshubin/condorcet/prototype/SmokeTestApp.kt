@@ -1,9 +1,7 @@
 package com.seanshubin.condorcet.prototype
 
 import com.seanshubin.condorcet.domain.Credentials
-import com.seanshubin.condorcet.domain.Place
 import com.seanshubin.condorcet.domain.Ranking
-import com.seanshubin.condorcet.domain.Tally
 import com.seanshubin.condorcet.logger.LoggerFactory
 import com.seanshubin.condorcet.table.formatter.RowStyleTableFormatter
 import com.seanshubin.condorcet.util.db.ConnectionFactory
@@ -132,11 +130,11 @@ fun main() {
                     Ranking(null, "Fish"),
                     Ranking(null, "Reptile"),
                     Ranking(null, "Bird")), api.getBallot(alice, pet, "Alice").rankings)
-            assertEquals(Tally(pet, listOf(
-                    Place("1st", listOf("Cat")),
-                    Place("2nd", listOf("Bird")),
-                    Place("3rd", listOf("Dog")),
-                    Place("4th", listOf("Fish", "Reptile")))), api.tally(alice, pet))
+//            assertEquals(Tally(pet, listOf(
+//                    Place("1st", listOf("Cat")),
+//                    Place("2nd", listOf("Bird")),
+//                    Place("3rd", listOf("Dog")),
+//                    Place("4th", listOf("Fish", "Reptile")))), api.tally(alice, pet))
         }
 
         SampleData.displayDebug().forEach(::execQuery)

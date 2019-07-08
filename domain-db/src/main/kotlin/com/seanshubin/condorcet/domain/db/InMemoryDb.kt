@@ -62,7 +62,7 @@ class InMemoryDb : DbApi {
     override fun listCandidateNames(election: String): List<String> =
             candidateTable.listWhere { it.electionName == election }.map { it.name }
 
-    override fun listVoterNames(election: String): List<String> =
+    override fun listEligibleVoterNames(election: String): List<String> =
             voterTable.listWhere { it.electionName == election }.map { it.userName }
 
     override fun findElectionByName(name: String): DbElection =
@@ -84,7 +84,7 @@ class InMemoryDb : DbApi {
     }
 
     override fun electionHasAllVoters(name: String): Boolean =
-            userTable.size() == listVoterNames(name).size
+            userTable.size() == listEligibleVoterNames(name).size
 
     override fun searchBallot(election: String, user: String): DbBallot? {
         TODO("not implemented")
@@ -102,7 +102,7 @@ class InMemoryDb : DbApi {
         TODO("not implemented")
     }
 
-    override fun setTally(electionName: String, rankings: Map<String, Int>) {
+    override fun setTally(electionName: String, report: String) {
         TODO("not implemented")
     }
 
