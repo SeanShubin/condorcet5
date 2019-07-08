@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.seanshubin.condorcet.domain.db.DbStatus
+import java.time.Instant
 
 interface Event {
     companion object {
@@ -37,7 +38,7 @@ interface Event {
                               val election: String) : Event
 
     data class SetElectionEndDate(val name: String,
-                                  val end: String?) : Event
+                                  val end: Instant?) : Event
 
     data class SetElectionSecretBallot(val election: String,
                                        val secret: Boolean) : Event
@@ -52,4 +53,18 @@ interface Event {
                          val voters: List<String>) : Event
 
     data class SetVotersToAll(val election: String) : Event
+
+
+    data class CreateBallot(val electionName: String,
+                            val userName: String,
+                            val confirmation: String,
+                            val whenCast: Instant,
+                            val rankings: Map<String, Int>) : Event
+
+    data class UpdateBallot(val electionName: String,
+                            val userName: String,
+                            val whenCast: Instant,
+                            val rankings: Map<String, Int>) : Event
+
+    data class SetReport(val electionName: String, val report: String) : Event
 }

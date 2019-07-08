@@ -53,12 +53,12 @@ class PrepareStatementApi(private val connection: ConnectionWrapper,
         update("create-user.sql", name, email, salt, hash)
     }
 
-    override fun createElection(owner: String, name: String) {
-        update("create-election.sql", owner, name, null, false, DbStatus.EDITING.name)
+    override fun createElection(ownerUserName: String, electionName: String) {
+        update("create-election.sql", ownerUserName, electionName, null, false, DbStatus.EDITING.name)
     }
 
-    override fun setElectionEndDate(electionName: String, endDate: Instant?) {
-        update("set-election-end-date.sql", endDate, electionName)
+    override fun setElectionEndDate(electionName: String, end: Instant?) {
+        update("set-election-end-date.sql", end, electionName)
     }
 
     override fun setElectionSecretBallot(electionName: String, secretBallot: Boolean) {

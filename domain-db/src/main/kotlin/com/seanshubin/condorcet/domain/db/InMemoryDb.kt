@@ -32,18 +32,18 @@ class InMemoryDb : DbApi {
     override fun searchElectionByName(name: String): DbElection? =
             electionTable.searchOne { it.name.equals(name, ignoreCase = true) }
 
-    override fun createElection(owner: String, name: String) {
+    override fun createElection(ownerUserName: String, electionName: String) {
         electionTable.add(DbElection(
-                owner = owner,
-                name = name,
+                owner = ownerUserName,
+                name = electionName,
                 end = null,
                 secret = true,
                 status = DbStatus.EDITING))
     }
 
-    override fun setElectionEndDate(electionName: String, endDate: Instant?) {
+    override fun setElectionEndDate(electionName: String, end: Instant?) {
         val oldElection = electionTable.find(electionName)
-        val newElection = oldElection.copy(end = endDate)
+        val newElection = oldElection.copy(end = end)
         electionTable.update(newElection)
     }
 
