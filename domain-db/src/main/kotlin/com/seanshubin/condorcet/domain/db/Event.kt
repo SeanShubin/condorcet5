@@ -1,9 +1,8 @@
-package com.seanshubin.condorcet.domain.db.event
+package com.seanshubin.condorcet.domain.db
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.seanshubin.condorcet.domain.db.DbStatus
 import java.time.Instant
 
 interface Event {

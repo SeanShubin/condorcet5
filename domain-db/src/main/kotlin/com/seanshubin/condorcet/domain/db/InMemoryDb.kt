@@ -11,7 +11,7 @@ class InMemoryDb : DbApi {
     private val voterTable: Table<DbVoter, DbVoter> = InMemoryTable("voter")
     private val ballotTable: Table<DbVoter, DbBallot> = InMemoryTable("ballotTable")
     private val rankingTable: Table<DbUserElectionCandidate, DbRanking> = InMemoryTable("ranking")
-    private val tallyTable: Table<DbElectionCandidate, DbTally> = InMemoryTable("tally")
+    private val tallyTable: Table<String, DbTally> = InMemoryTable("tally")
 
     override fun findUserByName(user: String): DbUser =
             userTable.find { it.name.equals(user, ignoreCase = true) }
@@ -90,9 +90,8 @@ class InMemoryDb : DbApi {
         TODO("not implemented")
     }
 
-    override fun listTally(election: String): List<DbTally> {
-        TODO("not implemented")
-    }
+    override fun listTally(election: String): List<DbTally> =
+            tallyTable.listWhere { it.electionName == election }
 
     override fun createBallot(electionName: String, userName: String, confirmation: String, whenCast: Instant, rankings: Map<String, Int>) {
         TODO("not implemented")
@@ -103,7 +102,7 @@ class InMemoryDb : DbApi {
     }
 
     override fun setTally(electionName: String, report: String) {
-        TODO("not implemented")
+        tallyTable.add(DbTally(electionName, report))
     }
 
     override fun findBallot(election: String, user: String): DbBallot {
@@ -114,9 +113,9 @@ class InMemoryDb : DbApi {
         TODO("not implemented")
     }
 
-    override fun listBallotsForElection(election: String): List<DbBallot> {
-        TODO("not implemented")
-    }
+    override fun listBallotsForElection(election: String): List<DbBallot> =
+            ballotTable.listWhere { it.election == election }
+
 
     override fun listBallotsForVoter(voter: String): List<DbBallot> {
         TODO("not implemented")

@@ -1,4 +1,4 @@
-package com.seanshubin.condorcet.domain.db.event
+package com.seanshubin.condorcet.domain.db
 
 class DbEventHandler : EventHandler {
     override fun handle(event: Event) {

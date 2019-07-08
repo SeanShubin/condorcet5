@@ -1,6 +1,5 @@
 package com.seanshubin.condorcet.domain.db
 
-import com.seanshubin.condorcet.domain.db.event.Event
 import java.time.Instant
 
 class DbApiCommandsWithEvents(private val fireEvent: (Event) -> Unit) : DbApiCommands {

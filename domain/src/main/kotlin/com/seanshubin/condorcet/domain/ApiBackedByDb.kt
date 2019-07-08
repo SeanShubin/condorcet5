@@ -22,10 +22,9 @@ class ApiBackedByDb(private val db: DbApi,
                     private val random: Random) : Api {
     private val jsonMapper = ObjectMapper().registerModule(KotlinModule())
     override fun login(nameOrEmail: String, password: String): Credentials {
-        val trimmedUserNameOrUserEmail = trim(nameOrEmail)
         val dbUser =
-                db.searchUserByName(trimmedUserNameOrUserEmail) ?: db.searchUserByEmail(trimmedUserNameOrUserEmail)
-                ?: throw RuntimeException("User with name or email '$trimmedUserNameOrUserEmail' does not exist")
+                db.searchUserByName(nameOrEmail) ?: db.searchUserByEmail(nameOrEmail)
+                ?: throw RuntimeException("User with name or email '$nameOrEmail' does not exist")
         val givenCredentials = Credentials(dbUser.name, password)
         assertCredentialsValid(givenCredentials)
         val actualCredentials = Credentials(dbUser.name, password)
@@ -33,22 +32,19 @@ class ApiBackedByDb(private val db: DbApi,
     }
 
     override fun register(name: String, email: String, password: String): Credentials {
-        val trimmedUserName = trim(name)
-        val trimmedUserEmail = trim(email)
-        assertUserNameDoesNotExist(trimmedUserName)
-        assertUserEmailDoesNotExist(trimmedUserEmail)
+        assertUserNameDoesNotExist(name)
+        assertUserEmailDoesNotExist(email)
         val (salt, hash) = passwordUtil.createSaltAndHash(password)
-        db.createUser(trimmedUserName, trimmedUserEmail, salt, hash)
-        val dbUser = db.findUserByName(trimmedUserName)
+        db.createUser(name, email, salt, hash)
+        val dbUser = db.findUserByName(name)
         return Credentials(dbUser.name, password)
     }
 
     override fun createElection(credentials: Credentials, electionName: String): ElectionDetail {
-        val trimmedElectionName = trim(electionName)
         assertCredentialsValid(credentials)
-        assertElectionNameDoesNotExist(trimmedElectionName)
-        db.createElection(credentials.userName, trimmedElectionName)
-        val dbElection = db.findElectionByName(trimmedElectionName)
+        assertElectionNameDoesNotExist(electionName)
+        db.createElection(credentials.userName, electionName)
+        val dbElection = db.findElectionByName(electionName)
         return dbElection.toApiElectionDetail()
     }
 
@@ -88,16 +84,14 @@ class ApiBackedByDb(private val db: DbApi,
                                    electionName: String,
                                    candidateNames: List<String>): ElectionDetail =
             withAllowedToEdit(credentials, electionName) { election ->
-                val cleanCandidates = candidateNames.map(::trim).distinctBy { it.toLowerCase() }
-                db.setCandidates(election.name, cleanCandidates)
+                db.setCandidates(election.name, candidateNames)
             }
 
     override fun setVoters(credentials: Credentials,
                            electionName: String,
                            eligibleVoterNames: List<String>): ElectionDetail =
             withAllowedToEdit(credentials, electionName) { election ->
-                val cleanVoters = eligibleVoterNames.map(::trim).distinctBy { it.toLowerCase() }
-                db.setVoters(election.name, cleanVoters)
+                db.setVoters(election.name, eligibleVoterNames)
             }
 
     override fun setVotersToAll(credentials: Credentials, electionName: String): ElectionDetail =
@@ -298,8 +292,6 @@ class ApiBackedByDb(private val db: DbApi,
 //                places)
     }
 
-    private fun trim(s: String): String = s.trim().replace(whitespaceBlock, " ")
-
     private fun <T> withValidCredentials(credentials: Credentials, f: () -> T): T {
         db.searchUserByName(credentials.userName) ?: authError(credentials)
         assertCredentialsValid(credentials)
@@ -310,7 +302,7 @@ class ApiBackedByDb(private val db: DbApi,
                                                     electionName: String,
                                                     f: (DbElection) -> T): T =
             withValidCredentials(credentials) {
-                val election = db.findElectionByName(trim(electionName))
+                val election = db.findElectionByName(electionName)
                 f(election)
             }
 
@@ -342,8 +334,4 @@ class ApiBackedByDb(private val db: DbApi,
                 }
                 f(election)
             }
-
-    companion object {
-        private val whitespaceBlock = Regex("""\s+""")
-    }
 }

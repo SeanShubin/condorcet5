@@ -187,11 +187,11 @@ class PrepareStatementApi(private val connection: ConnectionWrapper,
         return DbBallot(user, election, confirmation, whenCast)
     }
 
+    // todo: why does the smoke test not catch this?
     private fun createDbTally(resultSet: ResultSet): DbTally {
         val election = resultSet.getString("election")
-        val candidate = resultSet.getString("candidate")
-        val rank = resultSet.getInt("rank")
-        return DbTally(election, candidate, rank)
+        val report = resultSet.getString("report")
+        return DbTally(election, report)
     }
 
     private fun createRanking(resultSet: ResultSet): DbRanking {
