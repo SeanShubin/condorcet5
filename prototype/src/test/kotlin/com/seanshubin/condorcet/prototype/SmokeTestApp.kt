@@ -1,7 +1,9 @@
 package com.seanshubin.condorcet.prototype
 
 import com.seanshubin.condorcet.domain.Credentials
+import com.seanshubin.condorcet.domain.Place
 import com.seanshubin.condorcet.domain.Ranking
+import com.seanshubin.condorcet.domain.Tally
 import com.seanshubin.condorcet.logger.LoggerFactory
 import com.seanshubin.condorcet.table.formatter.RowStyleTableFormatter
 import com.seanshubin.condorcet.util.db.ConnectionFactory
@@ -105,6 +107,7 @@ fun main() {
                     Pair("Bird", 1),
                     Pair("Cat", 2),
                     Pair("Dog", 3)))
+            api.endElection(bob, pet)
 
             api.createElection(carol, scienceFiction)
             api.setCandidateNames(carol, scienceFiction, listOf("Babylon 5", "Star Trek", "Blake's 7", "Firefly"))
@@ -121,22 +124,22 @@ fun main() {
             assertEquals(7, api.listElections(alice).size)
             assertTrue(api.getElection(alice, dystopia).isAllVoters)
             assertEquals(listOf("Alice", "Bob", "Carol", "Dave", "Eve"), api.getElection(alice, favoriteIceCream).voterNames)
-            assertEquals(listOf("Dystopia", "Pet"), api.listBallots(alice, "Alice").map { it.election })
-            assertEquals(listOf(Ranking(1, "Cat"), Ranking(2, "Dog")), api.getBallot(alice, "Pet", "Alice").rankings)
+            assertEquals(listOf("Dystopia", pet), api.listBallots(alice, "Alice").map { it.election })
+            api.getBallot(alice, pet, "Alice").rankings.forEach(::println)
+            assertEquals(listOf(
+                    Ranking(1, "Cat"),
+                    Ranking(2, "Dog"),
+                    Ranking(null, "Fish"),
+                    Ranking(null, "Reptile"),
+                    Ranking(null, "Bird")), api.getBallot(alice, pet, "Alice").rankings)
+            assertEquals(Tally(pet, listOf(
+                    Place("1st", listOf("Cat")),
+                    Place("2nd", listOf("Bird")),
+                    Place("3rd", listOf("Dog")),
+                    Place("4th", listOf("Fish", "Reptile")))), api.tally(alice, pet))
         }
 
-//        SampleData.displayGeneric().forEach(::execQuery)
         SampleData.displayDebug().forEach(::execQuery)
 
     }
 }
-/*
-
-
-
-    // ballot
-    fun getBallot(credentials: Credentials, electionName: String, voterName: String): Ballot
-
-    // tally
-    fun tally(credentials: Credentials, electionName: String): Tally
-*/
