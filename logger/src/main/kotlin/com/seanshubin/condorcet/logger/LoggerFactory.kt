@@ -29,7 +29,8 @@ object LoggerFactory {
         val zone = clock.zone
         val zonedDateTime = ZonedDateTime.ofInstant(now, zone)
         val formattedDateTime = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(zonedDateTime)
-        val baseDir = baseDir.resolve(formattedDateTime.replace(':', '-').replace('.', '-'))
-        return LogDirectory(files, baseDir)
+        val logDir = baseDir.resolve(formattedDateTime.replace(':', '-').replace('.', '-'))
+        val emit: (String) -> Unit = ::println
+        return LogDirectory(emit, files, logDir)
     }
 }

@@ -14,19 +14,21 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 fun main() {
-    val logger = LoggerFactory.create(Paths.get("out", "log"), "sample-data")
-    val emit: (String) -> Unit = logger::log
-    fun sqlEvent(sql: String): Unit = emit(sql.trim() + ";")
+    val logDir = LoggerFactory.createDirectory(Paths.get("out", "log", "sample-data"))
+    val sqlLogger = logDir.create("sql")
+    fun logSql(sql: String) = sqlLogger.log("${sql.trim()};")
+    val resultSetLogger = logDir.create("resultset")
     ConnectionFactory.withConnection(
             Connections.local,
-            ::sqlEvent) { connection ->
+            ::logSql) { connection ->
         fun execQuery(sql: String) {
             connection.execQuery(sql) { resultSet ->
                 val iterator = ResultSetIterator.consume(resultSet)
                 val header = iterator.columnNames
                 val table = iterator.consumeRemainingToTable()
                 val formattedTable = RowStyleTableFormatter.boxDrawing.format(listOf(header) + table)
-                formattedTable.forEach(emit)
+                resultSetLogger.log(sql.trim())
+                formattedTable.forEach(resultSetLogger::log)
             }
         }
 
