@@ -193,7 +193,6 @@ class PrepareStatementApi(private val dbFromResource: DbFromResource) :
         return DbBallot(user, election, confirmation, whenCast)
     }
 
-    // todo: why does the smoke test not catch this?
     private fun createDbTally(resultSet: ResultSet): DbTally {
         val election = resultSet.getString("election")
         val report = resultSet.getString("report")
