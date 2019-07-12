@@ -22,7 +22,8 @@ class InMemoryDb : DbApi {
     override fun searchUserByEmail(email: String): DbUser? =
             userTable.searchOne { it.email.equals(email, ignoreCase = true) }
 
-    override fun createUser(name: String,
+    override fun createUser(initiator: Initiator,
+                            name: String,
                             email: String,
                             salt: String,
                             hash: String) {
@@ -32,7 +33,9 @@ class InMemoryDb : DbApi {
     override fun searchElectionByName(name: String): DbElection? =
             electionTable.searchOne { it.name.equals(name, ignoreCase = true) }
 
-    override fun createElection(ownerUserName: String, electionName: String) {
+    override fun createElection(initiator: Initiator,
+                                ownerUserName: String,
+                                electionName: String) {
         electionTable.add(DbElection(
                 owner = ownerUserName,
                 name = electionName,
@@ -41,19 +44,25 @@ class InMemoryDb : DbApi {
                 status = DbStatus.EDITING))
     }
 
-    override fun setElectionEndDate(electionName: String, end: Instant?) {
+    override fun setElectionEndDate(initiator: Initiator,
+                                    electionName: String,
+                                    end: Instant?) {
         val oldElection = electionTable.find(electionName)
         val newElection = oldElection.copy(end = end)
         electionTable.update(newElection)
     }
 
-    override fun setElectionSecretBallot(electionName: String, secretBallot: Boolean) {
+    override fun setElectionSecretBallot(initiator: Initiator,
+                                         electionName: String,
+                                         secretBallot: Boolean) {
         val oldElection = electionTable.find(electionName)
         val newElection = oldElection.copy(secret = secretBallot)
         electionTable.update(newElection)
     }
 
-    override fun setElectionStatus(electionName: String, status: DbStatus) {
+    override fun setElectionStatus(initiator: Initiator,
+                                   electionName: String,
+                                   status: DbStatus) {
         val oldElection = electionTable.find(electionName)
         val newElection = oldElection.copy(status = status)
         electionTable.update(newElection)
@@ -68,17 +77,22 @@ class InMemoryDb : DbApi {
     override fun findElectionByName(name: String): DbElection =
             electionTable.find(name)
 
-    override fun setCandidates(electionName: String, candidateNames: List<String>) {
+    override fun setCandidates(initiator: Initiator,
+                               electionName: String,
+                               candidateNames: List<String>) {
         candidateTable.removeWhere { it.electionName == electionName }
         candidateTable.addAll(candidateNames.map { DbCandidate(it, electionName) })
     }
 
-    override fun setVoters(electionName: String, voterNames: List<String>) {
+    override fun setVoters(initiator: Initiator,
+                           electionName: String,
+                           voterNames: List<String>) {
         voterTable.removeWhere { it.electionName == electionName }
         voterTable.addAll(voterNames.map { DbVoter(it, electionName) })
     }
 
-    override fun setVotersToAll(electionName: String) {
+    override fun setVotersToAll(initiator: Initiator,
+                                electionName: String) {
         voterTable.removeWhere { it.electionName == electionName }
         voterTable.addAll(userTable.listAll().map { DbVoter(it.name, electionName) })
     }
@@ -96,15 +110,23 @@ class InMemoryDb : DbApi {
     override fun searchTally(election: String): DbTally? =
             tallyTable.searchOne { it.electionName == election }
 
-    override fun createBallot(electionName: String, userName: String, confirmation: String, whenCast: Instant, rankings: Map<String, Int>) {
+    override fun createBallot(initiator: Initiator,
+                              electionName: String,
+                              userName: String, confirmation: String, whenCast: Instant, rankings: Map<String, Int>) {
         TODO("not implemented")
     }
 
-    override fun updateBallot(electionName: String, userName: String, whenCast: Instant, rankings: Map<String, Int>) {
+    override fun updateBallot(initiator: Initiator,
+                              electionName: String,
+                              userName: String,
+                              whenCast: Instant,
+                              rankings: Map<String, Int>) {
         TODO("not implemented")
     }
 
-    override fun setTally(electionName: String, report: String) {
+    override fun setTally(initiator: Initiator,
+                          electionName: String,
+                          report: String) {
         tallyTable.add(DbTally(electionName, report))
     }
 

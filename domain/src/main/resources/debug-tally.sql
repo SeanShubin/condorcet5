@@ -1,5 +1,5 @@
 select tally.id,
-       election.name  election,
+       election.name election,
        tally.report,
        tally.election_id
 from tally

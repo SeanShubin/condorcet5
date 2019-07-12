@@ -1,4 +1,4 @@
-select election.name  election,
+select election.name election,
        tally.report
 from tally
          inner join election

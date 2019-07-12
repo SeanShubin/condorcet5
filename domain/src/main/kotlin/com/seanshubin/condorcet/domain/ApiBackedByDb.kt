@@ -35,7 +35,7 @@ class ApiBackedByDb(private val db: DbApi,
         assertUserNameDoesNotExist(name)
         assertUserEmailDoesNotExist(email)
         val (salt, hash) = passwordUtil.createSaltAndHash(password)
-        db.createUser(name, email, salt, hash)
+        db.createUser(name.initiator(), name, email, salt, hash)
         val dbUser = db.findUserByName(name)
         return Credentials(dbUser.name, password)
     }
@@ -43,7 +43,7 @@ class ApiBackedByDb(private val db: DbApi,
     override fun createElection(credentials: Credentials, electionName: String): ElectionDetail {
         assertCredentialsValid(credentials)
         assertElectionNameDoesNotExist(electionName)
-        db.createElection(credentials.userName, electionName)
+        db.createElection(credentials.initiator(), credentials.userName, electionName)
         val dbElection = db.findElectionByName(electionName)
         return dbElection.toApiElectionDetail()
     }
@@ -52,7 +52,10 @@ class ApiBackedByDb(private val db: DbApi,
         return withAllowedToEdit(credentials, electionName) { election ->
             val electionEnd = election.end
             if (electionEnd == null) {
-                db.setElectionStatus(election.name, DbStatus.LIVE)
+                db.setElectionStatus(
+                        credentials.initiator(),
+                        election.name,
+                        DbStatus.LIVE)
             } else {
                 val now = clock.instant()
                 if (electionEnd.isBefore(now)) {
@@ -71,8 +74,8 @@ class ApiBackedByDb(private val db: DbApi,
                 DbStatus.EDITING -> throw RuntimeException(
                         "Can not end election '${election.name}', it is not live")
                 DbStatus.LIVE -> {
-                    db.setElectionStatus(election.name, DbStatus.COMPLETE)
-                    updateElectionTally(electionName)
+                    db.setElectionStatus(credentials.initiator(), election.name, DbStatus.COMPLETE)
+                    updateElectionTally(credentials, electionName)
                 }
                 DbStatus.COMPLETE -> throw RuntimeException(
                         "Can not end election '${election.name}', it is already complete")
@@ -84,28 +87,28 @@ class ApiBackedByDb(private val db: DbApi,
                                    electionName: String,
                                    candidateNames: List<String>): ElectionDetail =
             withAllowedToEdit(credentials, electionName) { election ->
-                db.setCandidates(election.name, candidateNames)
+                db.setCandidates(credentials.initiator(), election.name, candidateNames)
             }
 
     override fun setVoters(credentials: Credentials,
                            electionName: String,
                            eligibleVoterNames: List<String>): ElectionDetail =
             withAllowedToEdit(credentials, electionName) { election ->
-                db.setVoters(election.name, eligibleVoterNames)
+                db.setVoters(credentials.initiator(), election.name, eligibleVoterNames)
             }
 
     override fun setVotersToAll(credentials: Credentials, electionName: String): ElectionDetail =
             withAllowedToEdit(credentials, electionName) { election ->
-                db.setVotersToAll(election.name)
+                db.setVotersToAll(credentials.initiator(), election.name)
             }
 
     override fun copyElection(credentials: Credentials, newElectionName: String, electionToCopyName: String): ElectionDetail {
         assertElectionNameDoesNotExist(newElectionName)
         return withValidCredentialsAndElection(credentials, electionToCopyName) { election ->
-            db.createElection(credentials.userName, newElectionName)
-            db.setElectionSecretBallot(newElectionName, election.secret)
-            db.setCandidates(newElectionName, db.listCandidateNames(electionToCopyName))
-            db.setVoters(newElectionName, db.listEligibleVoterNames(electionToCopyName))
+            db.createElection(credentials.initiator(), credentials.userName, newElectionName)
+            db.setElectionSecretBallot(credentials.initiator(), newElectionName, election.secret)
+            db.setCandidates(credentials.initiator(), newElectionName, db.listCandidateNames(electionToCopyName))
+            db.setVoters(credentials.initiator(), newElectionName, db.listEligibleVoterNames(electionToCopyName))
             db.findElectionByName(newElectionName).toApiElectionDetail()
         }
     }
@@ -138,31 +141,31 @@ class ApiBackedByDb(private val db: DbApi,
                 val now = clock.instant()
                 if (ballot == null) {
                     val confirmation = uniqueIdGenerator.uniqueId()
-                    db.createBallot(electionName, credentials.userName, confirmation, now, rankings)
+                    db.createBallot(credentials.initiator(), electionName, credentials.userName, confirmation, now, rankings)
                 } else {
-                    db.updateBallot(electionName, credentials.userName, now, rankings)
+                    db.updateBallot(credentials.initiator(), electionName, credentials.userName, now, rankings)
                 }
                 db.findBallot(electionName, credentials.userName).toApiBallot(election)
             }
 
     override fun setEndDate(credentials: Credentials, electionName: String, endDate: Instant?): ElectionDetail =
             withAllowedToEdit(credentials, electionName) { election ->
-                db.setElectionEndDate(election.name, endDate)
+                db.setElectionEndDate(credentials.initiator(), election.name, endDate)
             }
 
     override fun setSecretBallot(credentials: Credentials, electionName: String, secretBallot: Boolean): ElectionDetail =
             withAllowedToEdit(credentials, electionName) { election ->
-                db.setElectionSecretBallot(election.name, secretBallot)
+                db.setElectionSecretBallot(credentials.initiator(), election.name, secretBallot)
             }
 
     override fun tally(credentials: Credentials, electionName: String): Tally =
             withValidCredentialsAndElection(credentials, electionName) { election ->
-                updateElectionTally(electionName)
+                updateElectionTally(credentials, electionName)
                 val dbTally = db.findTally(electionName)
                 dbTally.toApiTally()
             }
 
-    private fun updateElectionTally(electionName: String) {
+    private fun updateElectionTally(credentials: Credentials, electionName: String) {
         val dbElection = db.findElectionByName(electionName)
         if (dbElection.status != DbStatus.COMPLETE) {
             throw RuntimeException("Can not tally election $electionName, its status is ${dbElection.status}")
@@ -198,7 +201,7 @@ class ApiBackedByDb(private val db: DbApi,
                 response.strongestPathMatrix,
                 response.placings.toDomain()
         )
-        db.setTally(electionName, jsonMapper.writeValueAsString(tally))
+        db.setTally(credentials.initiator(), electionName, jsonMapper.writeValueAsString(tally))
     }
 
     private fun rankingsToAlgorithm(rankings: List<DbRanking>): Map<String, Int> =
@@ -328,4 +331,7 @@ class ApiBackedByDb(private val db: DbApi,
                 }
                 f(election)
             }
+
+    private fun String.initiator(): Initiator = Initiator("<nobody>", this)
+    private fun Credentials.initiator() = userName.initiator()
 }

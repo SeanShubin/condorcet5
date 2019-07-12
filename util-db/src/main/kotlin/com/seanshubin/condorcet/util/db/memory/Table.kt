@@ -33,6 +33,7 @@ interface Table<PkType, T : TableRow<PkType>> {
             else -> throw RuntimeException("Expected 0 or 1, got ${matching.size}")
         }
     }
+
     fun listWhere(p: (T) -> Boolean): List<T> = listAll().filter(p)
     fun existsWhere(p: (T) -> Boolean): Boolean = listWhere(p).isNotEmpty()
     fun removeValue(value: T) {
@@ -45,7 +46,7 @@ interface Table<PkType, T : TableRow<PkType>> {
 
     fun find(key: PkType): T =
             search(key) ?: throw RuntimeException("$this '$key' not found")
-    
+
     fun keyExists(key: PkType): Boolean = search(key) != null
     fun addAll(list: List<T>) {
         list.forEach(::add)

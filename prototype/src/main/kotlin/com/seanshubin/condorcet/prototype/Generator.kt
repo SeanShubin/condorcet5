@@ -18,6 +18,7 @@ object Generator {
         val statusValues = listOf("editing", "live", "complete")
         fun insertStatus(status: String): String =
                 "insert into status (name) values ('$status');"
+
         val statusSql = statusValues.map(::insertStatus)
         return statusSql
     }
@@ -70,6 +71,6 @@ object Generator {
         return dropTables() +
                 createTables() +
                 createStatus() +
-        sampleData()
+                sampleData()
     }
 }

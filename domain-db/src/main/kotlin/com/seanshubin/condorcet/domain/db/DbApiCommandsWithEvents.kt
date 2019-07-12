@@ -1,56 +1,90 @@
 package com.seanshubin.condorcet.domain.db
 
+import com.seanshubin.condorcet.json.JsonUtil
+import com.seanshubin.condorcet.util.db.ConnectionWrapper
+import java.time.Clock
 import java.time.Instant
 
-class DbApiCommandsWithEvents(private val fireEvent: (Event) -> Unit) : DbApiCommands {
-    override fun createUser(name: String, email: String, salt: String, hash: String) {
-        fireEvent(Event.CreateUser(name, email, salt, hash))
+class DbApiCommandsWithEvents(private val connection: ConnectionWrapper,
+                              private val clock: Clock) : DbApiCommands {
+    override fun createUser(initiator: Initiator,
+                            name: String,
+                            email: String,
+                            salt: String,
+                            hash: String) {
+        insertEvent(initiator, "CreateUser", Event.CreateUser(name, email, salt, hash))
     }
 
-    override fun createElection(ownerUserName: String, electionName: String) {
-        fireEvent(Event.CreateElection(ownerUserName, electionName))
+    override fun createElection(initiator: Initiator,
+                                ownerUserName: String,
+                                electionName: String) {
+        insertEvent(initiator, "CreateElection", Event.CreateElection(ownerUserName, electionName))
     }
 
-    override fun setElectionEndDate(electionName: String, end: Instant?) {
-        fireEvent(Event.SetElectionEndDate(electionName, end))
+    override fun setElectionEndDate(initiator: Initiator,
+                                    electionName: String,
+                                    end: Instant?) {
+        insertEvent(initiator, "SetElectionEndDate", Event.SetElectionEndDate(electionName, end))
     }
 
-    override fun setElectionSecretBallot(electionName: String, secretBallot: Boolean) {
-        fireEvent(Event.SetElectionSecretBallot(electionName, secretBallot))
+    override fun setElectionSecretBallot(initiator: Initiator,
+                                         electionName: String,
+                                         secretBallot: Boolean) {
+        insertEvent(initiator, "SetElectionSecretBallot", Event.SetElectionSecretBallot(electionName, secretBallot))
     }
 
-    override fun setElectionStatus(electionName: String, status: DbStatus) {
-        fireEvent(Event.SetElectionStatus(electionName, status))
+    override fun setElectionStatus(initiator: Initiator,
+                                   electionName: String,
+                                   status: DbStatus) {
+        insertEvent(initiator, "SetElectionStatus", Event.SetElectionStatus(electionName, status))
     }
 
-    override fun setCandidates(electionName: String, candidateNames: List<String>) {
-        fireEvent(Event.SetCandidates(electionName, candidateNames))
+    override fun setCandidates(initiator: Initiator,
+                               electionName: String,
+                               candidateNames: List<String>) {
+        insertEvent(initiator, "SetCandidates", Event.SetCandidates(electionName, candidateNames))
     }
 
-    override fun setVoters(electionName: String, voterNames: List<String>) {
-        fireEvent(Event.SetVoters(electionName, voterNames))
+    override fun setVoters(initiator: Initiator,
+                           electionName: String,
+                           voterNames: List<String>) {
+        insertEvent(initiator, "SetVoters", Event.SetVoters(electionName, voterNames))
     }
 
-    override fun setVotersToAll(electionName: String) {
-        fireEvent(Event.SetVotersToAll(electionName))
+    override fun setVotersToAll(initiator: Initiator,
+                                electionName: String) {
+        insertEvent(initiator, "SetVotersToAll", Event.SetVotersToAll(electionName))
     }
 
-    override fun createBallot(electionName: String,
+    override fun createBallot(initiator: Initiator,
+                              electionName: String,
                               userName: String,
                               confirmation: String,
                               whenCast: Instant,
                               rankings: Map<String, Int>) {
-        fireEvent(Event.CreateBallot(electionName, userName, confirmation, whenCast, rankings))
+        insertEvent(initiator, "CreateBallot", Event.CreateBallot(electionName, userName, confirmation, whenCast, rankings))
     }
 
-    override fun updateBallot(electionName: String,
+    override fun updateBallot(initiator: Initiator,
+                              electionName: String,
                               userName: String,
                               whenCast: Instant,
                               rankings: Map<String, Int>) {
-        fireEvent(Event.UpdateBallot(electionName, userName, whenCast, rankings))
+        insertEvent(initiator, "UpdateBallot", Event.UpdateBallot(electionName, userName, whenCast, rankings))
     }
 
-    override fun setTally(electionName: String, report: String) {
-        fireEvent(Event.SetReport(electionName, report))
+    override fun setTally(initiator: Initiator,
+                          electionName: String,
+                          report: String) {
+        insertEvent(initiator, "SetReport", Event.SetReport(electionName, report))
+    }
+
+    private fun insertEvent(initiator: Initiator, type: String, event: Event) {
+        val sql =
+                """insert into event (when, owner, type, text)
+                  |values (?, ?, ?, ?)
+                """.trimIndent()
+        val json = JsonUtil.jsonMapper.writeValueAsString(event)
+        connection.execUpdate(sql, clock.instant(), initiator.user, type, json)
     }
 }
