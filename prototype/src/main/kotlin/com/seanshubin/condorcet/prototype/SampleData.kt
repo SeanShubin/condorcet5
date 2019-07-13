@@ -25,7 +25,7 @@ object SampleData {
 
     fun displayDebug(): List<String> =
             Schema.tables.map { table ->
-                val sqlResource = "debug-${table.name}.sql"
+                val sqlResource = "sql/debug-${table.name}.sql"
                 val sql = ClassLoaderUtil.loadResourceAsString(sqlResource)
                 sql
             }

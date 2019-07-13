@@ -3,8 +3,7 @@ package com.seanshubin.condorcet.prototype
 import com.seanshubin.condorcet.crypto.*
 import com.seanshubin.condorcet.domain.Api
 import com.seanshubin.condorcet.domain.ApiBackedByDb
-import com.seanshubin.condorcet.domain.db.DbFromResourceImpl
-import com.seanshubin.condorcet.domain.db.PrepareStatementApi
+import com.seanshubin.condorcet.domain.db.*
 import com.seanshubin.condorcet.logger.Logger
 import com.seanshubin.condorcet.util.ClassLoaderUtil
 import com.seanshubin.condorcet.util.db.ConnectionFactory
@@ -17,11 +16,7 @@ object ApiFactory {
                     clock: Clock,
                     uniqueIdGenerator: UniqueIdGenerator,
                     f: (Api) -> T): T {
-        val dbFromResource = DbFromResourceImpl(
-                connection,
-                ClassLoaderUtil::loadResourceAsString
-        )
-        val db = PrepareStatementApi(dbFromResource)
+        val db = createDb(connection, clock)
         val oneWayHash: OneWayHash = Sha256Hash()
         val passwordUtil = PasswordUtil(uniqueIdGenerator, oneWayHash)
         val seed = 12345L
@@ -30,18 +25,15 @@ object ApiFactory {
         return f(api)
     }
 
+
     fun <T> withApi(logger: Logger, f: (Api) -> T): T {
         val emit: (String) -> Unit = logger::log
         fun sqlEvent(sql: String): Unit = emit(sql)
         return ConnectionFactory.withConnection(
                 Connections.local,
                 ::sqlEvent) { connection ->
-            val dbFromResource = DbFromResourceImpl(
-                    connection,
-                    ClassLoaderUtil::loadResourceAsString
-            )
-            val db = PrepareStatementApi(dbFromResource)
             val clock = Clock.systemDefaultZone()
+            val db = createDb(connection, clock)
             val uniqueIdGenerator: UniqueIdGenerator = Uuid4()
             val oneWayHash: OneWayHash = Sha256Hash()
             val passwordUtil = PasswordUtil(uniqueIdGenerator, oneWayHash)
@@ -67,5 +59,19 @@ object ApiFactory {
             SampleData.staticData().forEach(::execUpdate)
             f(api)
         }
+    }
+
+    private fun createDb(connection: ConnectionWrapper, clock: Clock): DbApiComposed {
+        fun loadResource(name: String): String = ClassLoaderUtil.loadResourceAsString("sql/$name")
+        val dbFromResource = DbFromResourceImpl(
+                connection,
+                ::loadResource
+        )
+        val dbApiCommandsWithEvents = DbApiCommandsWithEvents(dbFromResource, clock)
+        val resourceDbCommands = ResourceDbApiCommands(dbFromResource)
+        val compositeDbCommands = CompositeDbApiCommands(dbApiCommandsWithEvents, resourceDbCommands)
+        val resourceDbQueries = ResourceDbApiQueries(dbFromResource)
+        val db = DbApiComposed(resourceDbQueries, compositeDbCommands)
+        return db
     }
 }

@@ -1,11 +1,10 @@
 package com.seanshubin.condorcet.domain.db
 
 import com.seanshubin.condorcet.json.JsonUtil
-import com.seanshubin.condorcet.util.db.ConnectionWrapper
 import java.time.Clock
 import java.time.Instant
 
-class DbApiCommandsWithEvents(private val connection: ConnectionWrapper,
+class DbApiCommandsWithEvents(private val dbFromResource: DbFromResource,
                               private val clock: Clock) : DbApiCommands {
     override fun createUser(initiator: Initiator,
                             name: String,
@@ -80,11 +79,12 @@ class DbApiCommandsWithEvents(private val connection: ConnectionWrapper,
     }
 
     private fun insertEvent(initiator: Initiator, type: String, event: Event) {
-        val sql =
-                """insert into event (when, owner, type, text)
-                  |values (?, ?, ?, ?)
-                """.trimIndent()
         val json = JsonUtil.jsonMapper.writeValueAsString(event)
-        connection.execUpdate(sql, clock.instant(), initiator.user, type, json)
+        dbFromResource.update(
+                "insert-event.sql",
+                clock.instant(),
+                initiator.user,
+                type,
+                json)
     }
 }
