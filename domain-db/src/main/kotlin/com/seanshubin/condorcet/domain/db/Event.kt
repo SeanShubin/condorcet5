@@ -1,26 +1,26 @@
 package com.seanshubin.condorcet.domain.db
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.seanshubin.condorcet.json.JsonUtil.jsonMapper
+import com.seanshubin.condorcet.json.JsonUtil.compact
 import java.time.Instant
 
 interface Event {
     companion object {
         fun parse(type: String, json: String): Event =
                 when (type) {
-                    "CreateUser" -> jsonMapper.readValue<CreateUser>(json)
-                    "CreateElection" -> jsonMapper.readValue<CreateElection>(json)
-                    "SetElectionEndDate" -> jsonMapper.readValue<SetElectionEndDate>(json)
-                    "SetElectionSecretBallot" -> jsonMapper.readValue<SetElectionSecretBallot>(json)
-                    "SetElectionStatus" -> jsonMapper.readValue<SetElectionStatus>(json)
-                    "SetCandidates" -> jsonMapper.readValue<SetCandidates>(json)
-                    "SetVoters" -> jsonMapper.readValue<SetVoters>(json)
-                    "SetVotersToAll" -> jsonMapper.readValue<SetVotersToAll>(json)
+                    "CreateUser" -> compact.readValue<CreateUser>(json)
+                    "CreateElection" -> compact.readValue<CreateElection>(json)
+                    "SetElectionEndDate" -> compact.readValue<SetElectionEndDate>(json)
+                    "SetElectionSecretBallot" -> compact.readValue<SetElectionSecretBallot>(json)
+                    "SetElectionStatus" -> compact.readValue<SetElectionStatus>(json)
+                    "SetCandidates" -> compact.readValue<SetCandidates>(json)
+                    "SetVoters" -> compact.readValue<SetVoters>(json)
+                    "SetVotersToAll" -> compact.readValue<SetVotersToAll>(json)
                     else -> throw RuntimeException("Unknown event type $type")
                 }
 
         fun toTypeAndParsable(event: Event): TypeAndParsable =
-                TypeAndParsable(event.javaClass.simpleName, jsonMapper.writeValueAsString(event))
+                TypeAndParsable(event.javaClass.simpleName, compact.writeValueAsString(event))
     }
 
     data class TypeAndParsable(val type: String, val parsable: String)

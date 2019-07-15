@@ -8,7 +8,7 @@ import com.seanshubin.condorcet.crypto.UniqueIdGenerator
 import com.seanshubin.condorcet.domain.AlgorithmToDomain.toDomain
 import com.seanshubin.condorcet.domain.Ranking.Companion.unbiasedSort
 import com.seanshubin.condorcet.domain.db.*
-import com.seanshubin.condorcet.json.JsonUtil.jsonMapper
+import com.seanshubin.condorcet.json.JsonUtil.compact
 import com.seanshubin.condorcet.table.formatter.ListUtil.exactlyOne
 import java.time.Clock
 import java.time.Instant
@@ -201,7 +201,7 @@ class ApiBackedByDb(private val db: DbApi,
                 response.strongestPathMatrix,
                 response.placings.toDomain()
         )
-        db.setTally(credentials.initiator(), electionName, jsonMapper.writeValueAsString(tally))
+        db.setTally(credentials.initiator(), electionName, compact.writeValueAsString(tally))
     }
 
     private fun rankingsToAlgorithm(rankings: List<DbRanking>): Map<String, Int> =
@@ -285,7 +285,7 @@ class ApiBackedByDb(private val db: DbApi,
     }
 
     private fun DbTally.toApiTally(): Tally {
-        val tally = jsonMapper.readValue(report, Tally::class.java)
+        val tally = compact.readValue(report, Tally::class.java)
         return tally
     }
 

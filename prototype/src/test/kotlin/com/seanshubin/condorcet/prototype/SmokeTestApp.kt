@@ -1,7 +1,7 @@
 package com.seanshubin.condorcet.prototype
 
 import com.seanshubin.condorcet.domain.*
-import com.seanshubin.condorcet.json.JsonUtil.jsonMapper
+import com.seanshubin.condorcet.json.JsonUtil.pretty
 import com.seanshubin.condorcet.logger.LoggerFactory
 import com.seanshubin.condorcet.table.formatter.RowStyleTableFormatter
 import com.seanshubin.condorcet.util.ListDifference
@@ -202,9 +202,9 @@ fun main() {
 
             val difference = ListDifference.compare(
                     "expected",
-                    jsonMapper.writeValueAsString(expectedTally),
+                    pretty.writeValueAsString(expectedTally),
                     "actual  ",
-                    jsonMapper.writeValueAsString(actualTally))
+                    pretty.writeValueAsString(actualTally))
 
             assertTrue(difference.isSame, difference.messageLines.joinToString("\n"))
         }

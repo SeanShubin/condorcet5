@@ -1,6 +1,6 @@
 package com.seanshubin.condorcet.domain.db
 
-import com.seanshubin.condorcet.json.JsonUtil
+import com.seanshubin.condorcet.json.JsonUtil.compact
 import java.time.Clock
 import java.time.Instant
 
@@ -79,7 +79,7 @@ class DbApiCommandsWithEvents(private val dbFromResource: DbFromResource,
     }
 
     private fun insertEvent(initiator: Initiator, type: String, event: Event) {
-        val json = JsonUtil.jsonMapper.writeValueAsString(event)
+        val json = compact.writeValueAsString(event)
         dbFromResource.update(
                 "insert-event.sql",
                 clock.instant(),

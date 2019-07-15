@@ -61,7 +61,6 @@ object StringUtil {
                 '\b' -> "\\b"
                 '\t' -> "\\t"
                 '\r' -> "\\r"
-                '\"' -> "\\\""
                 '\'' -> "\\\'"
                 '\\' -> "\\\\"
                 else -> target.toString()
