@@ -63,5 +63,24 @@ interface Event {
                             val whenCast: Instant,
                             val rankings: Map<String, Int>) : Event
 
-    data class SetReport(val electionName: String, val report: String) : Event
+    data class SetReport(val electionName: String,
+                         val electionOwner: String,
+                         val candidates: List<String>,
+                         val voted: List<String>,
+                         val didNotVote: List<String>,
+                         val ballots: List<Ballot>,
+                         val preferences: List<List<Int>>,
+                         val strongestPaths: List<List<Int>>,
+                         val places: List<Place>) : Event {
+        constructor(report: Report) : this(
+                report.electionName,
+                report.electionOwner,
+                report.candidates,
+                report.voted,
+                report.didNotVote,
+                report.ballots,
+                report.preferences,
+                report.strongestPaths,
+                report.places)
+    }
 }

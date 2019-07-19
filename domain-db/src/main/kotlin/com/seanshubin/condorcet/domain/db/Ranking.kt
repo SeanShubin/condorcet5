@@ -1,4 +1,4 @@
-package com.seanshubin.condorcet.domain
+package com.seanshubin.condorcet.domain.db
 
 import java.util.*
 

@@ -1,8 +1,10 @@
 package com.seanshubin.condorcet.domain
 
 import com.seanshubin.condorcet.algorithm.Placing
-import com.seanshubin.condorcet.domain.Place.Companion.toPlaceName
+import com.seanshubin.condorcet.domain.db.Ballot
 import com.seanshubin.condorcet.domain.db.DbBallot
+import com.seanshubin.condorcet.domain.db.Place
+import com.seanshubin.condorcet.domain.db.Ranking
 import java.time.Instant
 import com.seanshubin.condorcet.algorithm.Ballot as AlgorithmBallot
 
@@ -35,7 +37,7 @@ object AlgorithmToDomain {
         return toList().map { it.algorithmRankingToDomain() }
     }
 
-    fun Placing.toDomain(): Place = Place(place.toPlaceName(), candidates)
+    fun Placing.toDomain(): Place = Place(place, candidates)
 
     fun List<Placing>.toDomain(): List<Place> = map { it.toDomain() }
 }

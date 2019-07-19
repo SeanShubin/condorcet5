@@ -6,9 +6,8 @@ import com.seanshubin.condorcet.crypto.PasswordUtil
 import com.seanshubin.condorcet.crypto.SaltAndHash
 import com.seanshubin.condorcet.crypto.UniqueIdGenerator
 import com.seanshubin.condorcet.domain.AlgorithmToDomain.toDomain
-import com.seanshubin.condorcet.domain.Ranking.Companion.unbiasedSort
 import com.seanshubin.condorcet.domain.db.*
-import com.seanshubin.condorcet.json.JsonUtil.compact
+import com.seanshubin.condorcet.domain.db.Ranking.Companion.unbiasedSort
 import com.seanshubin.condorcet.table.formatter.ListUtil.exactlyOne
 import java.time.Clock
 import java.time.Instant
@@ -158,7 +157,7 @@ class ApiBackedByDb(private val db: DbApi,
                 db.setElectionSecretBallot(credentials.initiator(), election.name, secretBallot)
             }
 
-    override fun tally(credentials: Credentials, electionName: String): Tally =
+    override fun tally(credentials: Credentials, electionName: String): Report =
             withValidCredentialsAndElection(credentials, electionName) { election ->
                 updateElectionTally(credentials, electionName)
                 val dbTally = db.findTally(electionName)
@@ -190,7 +189,7 @@ class ApiBackedByDb(private val db: DbApi,
                 algorithmBallots)
         val response = CondorcetAlgorithm.tally(request)
         val isActive = dbElection.status == DbStatus.LIVE
-        val tally = Tally(
+        val report = Report(
                 response.election,
                 dbElection.owner,
                 response.candidates,
@@ -201,7 +200,7 @@ class ApiBackedByDb(private val db: DbApi,
                 response.strongestPathMatrix,
                 response.placings.toDomain()
         )
-        db.setTally(credentials.initiator(), electionName, compact.writeValueAsString(tally))
+        db.setReport(credentials.initiator(), electionName, report)
     }
 
     private fun rankingsToAlgorithm(rankings: List<DbRanking>): Map<String, Int> =
@@ -284,10 +283,7 @@ class ApiBackedByDb(private val db: DbApi,
         DbStatus.COMPLETE -> ElectionStatus.COMPLETE
     }
 
-    private fun DbTally.toApiTally(): Tally {
-        val tally = compact.readValue(report, Tally::class.java)
-        return tally
-    }
+    private fun DbTally.toApiTally(): Report = report
 
     private fun <T> withValidCredentials(credentials: Credentials, f: () -> T): T {
         db.searchUserByName(credentials.userName) ?: authError(credentials)

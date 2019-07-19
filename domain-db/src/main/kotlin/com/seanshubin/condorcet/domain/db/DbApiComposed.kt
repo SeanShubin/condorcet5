@@ -85,7 +85,7 @@ class DbApiComposed(private val queries: DbApiQueries,
         commands.updateBallot(initiator, electionName, userName, whenCast, rankings)
     }
 
-    override fun setTally(initiator: Initiator, electionName: String, report: String) {
-        commands.setTally(initiator, electionName, report)
+    override fun setReport(initiator: Initiator, electionName: String, report: Report) {
+        commands.setReport(initiator, electionName, report)
     }
 }

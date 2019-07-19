@@ -1,5 +1,7 @@
 package com.seanshubin.condorcet.domain
 
+import com.seanshubin.condorcet.domain.db.Ballot
+import com.seanshubin.condorcet.domain.db.Report
 import com.seanshubin.condorcet.util.db.TransactionFunction
 import java.time.Instant
 
@@ -73,7 +75,7 @@ class ApiWrappedInDbTransaction(private val api: Api,
         api.setSecretBallot(credentials, electionName, secretBallot)
     }
 
-    override fun tally(credentials: Credentials, electionName: String): Tally = t.inTransaction {
+    override fun tally(credentials: Credentials, electionName: String): Report = t.inTransaction {
         api.tally(credentials, electionName)
     }
 

@@ -1,5 +1,6 @@
 package com.seanshubin.condorcet.domain.db
 
+import com.seanshubin.condorcet.json.JsonUtil
 import java.time.Instant
 
 class ResourceDbApiCommands(private val dbFromResource: DbFromResource) :
@@ -77,10 +78,10 @@ class ResourceDbApiCommands(private val dbFromResource: DbFromResource) :
         createRankings(ballotId, userName, electionName, rankings)
     }
 
-    override fun setTally(initiator: Initiator,
-                          electionName: String,
-                          report: String) {
-        update("create-tally.sql", electionName, report)
+    override fun setReport(initiator: Initiator,
+                           electionName: String,
+                           report: Report) {
+        update("create-tally.sql", electionName, JsonUtil.compact.writeValueAsString(report))
     }
 
     override fun setVotersToAll(initiator: Initiator,

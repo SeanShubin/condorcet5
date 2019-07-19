@@ -1,6 +1,10 @@
 package com.seanshubin.condorcet.prototype
 
-import com.seanshubin.condorcet.domain.*
+import com.seanshubin.condorcet.domain.Credentials
+import com.seanshubin.condorcet.domain.db.Ballot
+import com.seanshubin.condorcet.domain.db.Place
+import com.seanshubin.condorcet.domain.db.Ranking
+import com.seanshubin.condorcet.domain.db.Report
 import com.seanshubin.condorcet.json.JsonUtil.pretty
 import com.seanshubin.condorcet.logger.LoggerFactory
 import com.seanshubin.condorcet.table.formatter.RowStyleTableFormatter
@@ -17,7 +21,7 @@ fun main() {
     val logDir = LoggerFactory.createDirectory(Paths.get("out", "log", "sample-data"))
     val sqlLogger = logDir.create("sql")
     fun logSql(sql: String) = sqlLogger.log("${sql.trim()};")
-    val resultSetLogger = logDir.create("resultset")
+    val debugLogger = logDir.create("debug")
     ConnectionFactory.withConnection(
             Connections.local,
             ::logSql) { connection ->
@@ -27,8 +31,8 @@ fun main() {
                 val header = iterator.columnNames
                 val table = iterator.consumeRemainingToTable()
                 val formattedTable = RowStyleTableFormatter.boxDrawing.format(listOf(header) + table)
-                resultSetLogger.log(sql.trim())
-                formattedTable.forEach(resultSetLogger::log)
+                debugLogger.log(sql.trim())
+                formattedTable.forEach(debugLogger::log)
             }
         }
 
@@ -139,7 +143,7 @@ fun main() {
                     Ranking(null, "Fish"),
                     Ranking(null, "Reptile"),
                     Ranking(null, "Bird")), api.getBallot(alice, pet, "Alice").rankings)
-            val expectedTally = Tally(
+            val expectedTally = Report(
                     electionName = "Pet",
                     electionOwner = "Bob",
                     candidates = listOf("Bird", "Cat", "Dog", "Fish", "Reptile"),

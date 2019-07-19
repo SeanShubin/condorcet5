@@ -124,9 +124,9 @@ class InMemoryDb : DbApi {
         TODO("not implemented")
     }
 
-    override fun setTally(initiator: Initiator,
-                          electionName: String,
-                          report: String) {
+    override fun setReport(initiator: Initiator,
+                           electionName: String,
+                           report: Report) {
         tallyTable.add(DbTally(electionName, report))
     }
 

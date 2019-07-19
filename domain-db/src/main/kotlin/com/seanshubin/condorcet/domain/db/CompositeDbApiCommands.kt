@@ -43,7 +43,7 @@ class CompositeDbApiCommands(private vararg val apis: DbApiCommands) : DbApiComm
         apis.forEach { it.updateBallot(initiator, electionName, userName, whenCast, rankings) }
     }
 
-    override fun setTally(initiator: Initiator, electionName: String, report: String) {
-        apis.forEach { it.setTally(initiator, electionName, report) }
+    override fun setReport(initiator: Initiator, electionName: String, report: Report) {
+        apis.forEach { it.setReport(initiator, electionName, report) }
     }
 }

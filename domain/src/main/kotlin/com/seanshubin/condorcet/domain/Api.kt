@@ -1,5 +1,7 @@
 package com.seanshubin.condorcet.domain
 
+import com.seanshubin.condorcet.domain.db.Ballot
+import com.seanshubin.condorcet.domain.db.Report
 import java.time.Instant
 
 interface Api {
@@ -32,5 +34,5 @@ interface Api {
     fun castBallot(credentials: Credentials, electionName: String, voterName: String, rankings: Map<String, Int>): Ballot
 
     // tally
-    fun tally(credentials: Credentials, electionName: String): Tally
+    fun tally(credentials: Credentials, electionName: String): Report
 }

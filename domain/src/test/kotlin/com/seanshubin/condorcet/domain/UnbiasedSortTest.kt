@@ -1,6 +1,7 @@
 package com.seanshubin.condorcet.domain
 
-import com.seanshubin.condorcet.domain.Ranking.Companion.unbiasedSort
+import com.seanshubin.condorcet.domain.db.Ranking
+import com.seanshubin.condorcet.domain.db.Ranking.Companion.unbiasedSort
 import org.junit.Test
 import java.util.*
 import kotlin.test.assertEquals

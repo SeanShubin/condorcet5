@@ -49,7 +49,7 @@ interface DbApiCommands {
                      whenCast: Instant,
                      rankings: Map<String, Int>)
 
-    fun setTally(initiator: Initiator,
-                 electionName: String,
-                 report: String)
+    fun setReport(initiator: Initiator,
+                  electionName: String,
+                  report: Report)
 }

@@ -1,5 +1,7 @@
 package com.seanshubin.condorcet.domain.db
 
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.seanshubin.condorcet.json.JsonUtil
 import java.sql.ResultSet
 import java.time.Instant
 
@@ -139,7 +141,8 @@ class ResourceDbApiQueries(private val dbFromResource: DbFromResource) :
 
     private fun createDbTally(resultSet: ResultSet): DbTally {
         val election = resultSet.getString("election")
-        val report = resultSet.getString("report")
+        val reportJson = resultSet.getString("report")
+        val report = JsonUtil.compact.readValue<Report>(reportJson)
         return DbTally(election, report)
     }
 

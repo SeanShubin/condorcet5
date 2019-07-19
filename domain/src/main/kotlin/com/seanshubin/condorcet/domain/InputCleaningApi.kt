@@ -1,5 +1,7 @@
 package com.seanshubin.condorcet.domain
 
+import com.seanshubin.condorcet.domain.db.Ballot
+import com.seanshubin.condorcet.domain.db.Report
 import java.time.Instant
 
 class InputCleaningApi(private val delegate: Api) : Api {
@@ -67,7 +69,7 @@ class InputCleaningApi(private val delegate: Api) : Api {
                             rankings: Map<String, Int>): Ballot =
             delegate.castBallot(credentials, electionName.clean(), voterName.clean(), rankings)
 
-    override fun tally(credentials: Credentials, electionName: String): Tally =
+    override fun tally(credentials: Credentials, electionName: String): Report =
             delegate.tally(credentials, electionName.clean())
 
     private fun String.clean() = trim().replace(whitespaceBlock, " ")

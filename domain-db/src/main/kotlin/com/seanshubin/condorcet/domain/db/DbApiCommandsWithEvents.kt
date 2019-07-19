@@ -72,10 +72,10 @@ class DbApiCommandsWithEvents(private val dbFromResource: DbFromResource,
         insertEvent(initiator, "UpdateBallot", Event.UpdateBallot(electionName, userName, whenCast, rankings))
     }
 
-    override fun setTally(initiator: Initiator,
-                          electionName: String,
-                          report: String) {
-        insertEvent(initiator, "SetReport", Event.SetReport(electionName, report))
+    override fun setReport(initiator: Initiator,
+                           electionName: String,
+                           report: Report) {
+        insertEvent(initiator, "SetReport", Event.SetReport(report))
     }
 
     private fun insertEvent(initiator: Initiator, type: String, event: Event) {
