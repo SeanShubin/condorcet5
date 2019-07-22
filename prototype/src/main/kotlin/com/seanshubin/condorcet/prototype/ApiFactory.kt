@@ -25,7 +25,6 @@ object ApiFactory {
         return f(api)
     }
 
-
     fun <T> withApi(logger: Logger, f: (Api) -> T): T {
         val emit: (String) -> Unit = logger::log
         fun sqlEvent(sql: String): Unit = emit(sql)
