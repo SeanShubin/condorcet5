@@ -21,7 +21,7 @@ object ApiFactory {
         val passwordUtil = PasswordUtil(uniqueIdGenerator, oneWayHash)
         val seed = 12345L
         val random = Random(seed)
-        val api = ApiBackedByDb(db, clock, passwordUtil, uniqueIdGenerator, random)
+        val api = ApiBackedByDb(db, db, clock, passwordUtil, uniqueIdGenerator, random)
         return f(api)
     }
 
@@ -33,14 +33,8 @@ object ApiFactory {
                 Connections.local,
                 ::sqlEvent) { connection ->
             val clock = Clock.systemDefaultZone()
-            val db = createDb(connection, clock)
             val uniqueIdGenerator: UniqueIdGenerator = Uuid4()
-            val oneWayHash: OneWayHash = Sha256Hash()
-            val passwordUtil = PasswordUtil(uniqueIdGenerator, oneWayHash)
-            val seed = 12345L
-            val random = Random(seed)
-            val api = ApiBackedByDb(db, clock, passwordUtil, uniqueIdGenerator, random)
-            f(api)
+            withApi(connection, clock, uniqueIdGenerator, f)
         }
     }
 

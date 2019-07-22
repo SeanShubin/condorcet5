@@ -38,7 +38,7 @@ object Tester {
     val random = Random(seed)
     fun createEmpty(): Api {
         val db = InMemoryDb()
-        val api = ApiBackedByDb(db, clock, passwordUtil, uniqueIdGenerator, random)
+        val api = ApiBackedByDb(db, db, clock, passwordUtil, uniqueIdGenerator, random)
         val cleanApi = InputCleaningApi(api)
         return cleanApi
     }
