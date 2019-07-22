@@ -3,7 +3,6 @@ package com.seanshubin.condorcet.domain.db
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.seanshubin.condorcet.json.JsonUtil
 import java.sql.ResultSet
-import java.time.Instant
 
 class ResourceDbApiQueries(private val dbFromResource: DbFromResource) :
         DbApiQueries,
@@ -90,28 +89,8 @@ class ResourceDbApiQueries(private val dbFromResource: DbFromResource) :
     override fun listBallotsForVoter(voter: String): List<DbBallot> =
             query(::createBallot, "ballots-by-user.sql", voter)
 
-    private fun removeRankings(ballotId: Int) {
-        update("remove-rankings-by-ballot.sql", ballotId)
-    }
-
-    private fun createRankings(ballotId: Int, userName: String, electionName: String, rankings: Map<String, Int>) {
-        fun createRanking(ranking: Pair<String, Int>) {
-            val (candidateName, rank) = ranking
-            val candidateId = queryInt("candidate-id-by-election-candidate.sql", electionName, candidateName)
-            createRanking(ballotId, candidateId, rank)
-        }
-        rankings.toList().sortedBy { it.second }.forEach(::createRanking)
-    }
-
-    private fun createRanking(ballotId: Int, candidateId: Int, rank: Int) {
-        update("create-ranking.sql", ballotId, candidateId, rank)
-    }
-
-    private fun createDbBallot(electionName: String, userName: String, confirmation: String, whenCast: Instant) {
-        update(
-                "create-ballot.sql",
-                electionName, userName, confirmation, whenCast
-        )
+    override fun lastEventSynced(): Int {
+        TODO("not implemented")
     }
 
     private fun createUser(resultSet: ResultSet): DbUser {

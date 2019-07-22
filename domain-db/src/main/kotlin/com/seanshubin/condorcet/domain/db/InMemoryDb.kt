@@ -147,4 +147,8 @@ class InMemoryDb : DbApi {
     }
 
     override fun listElections(): List<DbElection> = electionTable.listAll()
+
+    override fun lastEventSynced(): Int {
+        TODO("not implemented")
+    }
 }

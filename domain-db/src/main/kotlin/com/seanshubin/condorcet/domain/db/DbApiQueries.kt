@@ -17,4 +17,5 @@ interface DbApiQueries {
     fun listBallotsForElection(election: String): List<DbBallot>
     fun listBallotsForVoter(voter: String): List<DbBallot>
     fun listElections(): List<DbElection>
+    fun lastEventSynced(): Int
 }

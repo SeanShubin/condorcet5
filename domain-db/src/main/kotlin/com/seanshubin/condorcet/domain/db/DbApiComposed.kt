@@ -36,6 +36,8 @@ class DbApiComposed(private val queries: DbApiQueries,
 
     override fun listElections(): List<DbElection> = queries.listElections()
 
+    override fun lastEventSynced(): Int = queries.lastEventSynced()
+
     override fun createUser(initiator: Initiator, name: String, email: String, salt: String, hash: String) {
         commands.createUser(initiator, name, email, salt, hash)
     }
