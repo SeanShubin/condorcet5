@@ -1,12 +1,11 @@
 package com.seanshubin.condorcet.domain.db
 
-class EventSynchronizer(private val eventDb: EventDb,
-                        private val query: MutableDbQueries,
-                        private val command: MutableDbCommands,
-                        private val eventHandler: (Event) -> Unit) : Synchronizer {
+class EventSynchronizer(private val eventDbQueries: EventDbQueries,
+                        private val mutableDbQueries: MutableDbQueries,
+                        private val eventHandler: (InitiatorAndEvent) -> Unit) : Synchronizer {
     override fun synchronize() {
-        val lastEventSynced = query.lastEventSynced()
-        val eventsToSync = eventDb.eventsToSync(lastEventSynced)
+        val lastEventSynced = mutableDbQueries.lastEventSynced()
+        val eventsToSync = eventDbQueries.eventsToSync(lastEventSynced)
         eventsToSync.forEach(eventHandler)
     }
 }

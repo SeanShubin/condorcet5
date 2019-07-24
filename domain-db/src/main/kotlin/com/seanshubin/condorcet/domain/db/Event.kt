@@ -16,7 +16,7 @@ interface Event {
                     "SetCandidates" -> compact.readValue<SetCandidates>(json)
                     "SetVoters" -> compact.readValue<SetVoters>(json)
                     "SetVotersToAll" -> compact.readValue<SetVotersToAll>(json)
-                    else -> throw RuntimeException("Unknown event type $type")
+                    else -> throw UnsupportedOperationException("Unsupported event type '$type'")
                 }
 
         fun toTypeAndParsable(event: Event): TypeAndParsable =
@@ -82,5 +82,15 @@ interface Event {
                 report.preferences,
                 report.strongestPaths,
                 report.places)
+
+        fun toReport(): Report = Report(
+                electionName,
+                electionOwner,
+                candidates, voted,
+                didNotVote,
+                ballots,
+                preferences,
+                strongestPaths,
+                places)
     }
 }
