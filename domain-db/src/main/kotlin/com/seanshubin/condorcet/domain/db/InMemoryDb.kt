@@ -4,7 +4,7 @@ import com.seanshubin.condorcet.util.db.memory.InMemoryTable
 import com.seanshubin.condorcet.util.db.memory.Table
 import java.time.Instant
 
-class InMemoryDb : DbApi {
+class InMemoryDb : MutableDbCommands, MutableDbQueries {
     private val userTable: Table<String, DbUser> = InMemoryTable("user")
     private val electionTable: Table<String, DbElection> = InMemoryTable("election")
     private val candidateTable: Table<DbCandidate, DbCandidate> = InMemoryTable("candidate")

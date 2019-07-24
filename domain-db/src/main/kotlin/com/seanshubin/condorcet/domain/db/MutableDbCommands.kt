@@ -2,7 +2,7 @@ package com.seanshubin.condorcet.domain.db
 
 import java.time.Instant
 
-interface DbApiCommands {
+interface MutableDbCommands {
     fun createUser(initiator: Initiator,
                    name: String,
                    email: String,

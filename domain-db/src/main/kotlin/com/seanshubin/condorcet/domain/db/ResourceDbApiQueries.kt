@@ -5,7 +5,7 @@ import com.seanshubin.condorcet.json.JsonUtil
 import java.sql.ResultSet
 
 class ResourceDbApiQueries(private val dbFromResource: DbFromResource) :
-        DbApiQueries,
+        MutableDbQueries,
         DbFromResource by dbFromResource {
     override fun findUserByName(user: String): DbUser = queryExactlyOneRow(
             ::createUser,

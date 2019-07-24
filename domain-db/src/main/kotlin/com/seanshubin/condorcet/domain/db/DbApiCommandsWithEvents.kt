@@ -5,7 +5,7 @@ import java.time.Clock
 import java.time.Instant
 
 class DbApiCommandsWithEvents(private val dbFromResource: DbFromResource,
-                              private val clock: Clock) : DbApiCommands {
+                              private val clock: Clock) : MutableDbCommands {
     override fun createUser(initiator: Initiator,
                             name: String,
                             email: String,

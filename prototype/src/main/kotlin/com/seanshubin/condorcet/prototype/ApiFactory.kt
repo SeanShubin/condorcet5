@@ -16,12 +16,18 @@ object ApiFactory {
                     clock: Clock,
                     uniqueIdGenerator: UniqueIdGenerator,
                     f: (Api) -> T): T {
-        val db = createDb(connection, clock)
+        fun loadResource(name: String): String = ClassLoaderUtil.loadResourceAsString("sql/$name")
+        val dbFromResource = DbFromResourceImpl(
+                connection,
+                ::loadResource
+        )
+        val dbCommands = createMutableDbCommands(dbFromResource, clock)
+        val dbQueries = createMutableDbQueries(dbFromResource)
         val oneWayHash: OneWayHash = Sha256Hash()
         val passwordUtil = PasswordUtil(uniqueIdGenerator, oneWayHash)
         val seed = 12345L
         val random = Random(seed)
-        val api = ApiBackedByDb(db, db, clock, passwordUtil, uniqueIdGenerator, random)
+        val api = ApiBackedByDb(dbQueries, dbCommands, clock, passwordUtil, uniqueIdGenerator, random)
         return f(api)
     }
 
@@ -54,17 +60,15 @@ object ApiFactory {
         }
     }
 
-    private fun createDb(connection: ConnectionWrapper, clock: Clock): DbApiComposed {
-        fun loadResource(name: String): String = ClassLoaderUtil.loadResourceAsString("sql/$name")
-        val dbFromResource = DbFromResourceImpl(
-                connection,
-                ::loadResource
-        )
+    private fun createMutableDbCommands(dbFromResource: DbFromResource, clock: Clock): MutableDbCommands {
         val dbApiCommandsWithEvents = DbApiCommandsWithEvents(dbFromResource, clock)
         val resourceDbCommands = ResourceDbApiCommands(dbFromResource)
         val compositeDbCommands = CompositeDbApiCommands(dbApiCommandsWithEvents, resourceDbCommands)
+        return compositeDbCommands
+    }
+
+    private fun createMutableDbQueries(dbFromResource: DbFromResource): MutableDbQueries {
         val resourceDbQueries = ResourceDbApiQueries(dbFromResource)
-        val db = DbApiComposed(resourceDbQueries, compositeDbCommands)
-        return db
+        return resourceDbQueries
     }
 }

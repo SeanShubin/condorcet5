@@ -1,6 +1,6 @@
 package com.seanshubin.condorcet.domain.db
 
-interface DbApiQueries {
+interface MutableDbQueries {
     fun findUserByName(user: String): DbUser
     fun searchUserByName(user: String): DbUser?
     fun searchUserByEmail(email: String): DbUser?

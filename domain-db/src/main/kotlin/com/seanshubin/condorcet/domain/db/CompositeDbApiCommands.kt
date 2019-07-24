@@ -2,7 +2,7 @@ package com.seanshubin.condorcet.domain.db
 
 import java.time.Instant
 
-class CompositeDbApiCommands(private vararg val apis: DbApiCommands) : DbApiCommands {
+class CompositeDbApiCommands(private vararg val apis: MutableDbCommands) : MutableDbCommands {
     override fun createUser(initiator: Initiator, name: String, email: String, salt: String, hash: String) {
         apis.forEach { it.createUser(initiator, name, email, salt, hash) }
     }

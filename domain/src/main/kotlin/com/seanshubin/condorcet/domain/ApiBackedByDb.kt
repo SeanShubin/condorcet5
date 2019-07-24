@@ -15,8 +15,8 @@ import java.util.*
 import com.seanshubin.condorcet.algorithm.Ballot as AlgorithmBallot
 
 
-class ApiBackedByDb(private val dbQuery: DbApiQueries,
-                    private val dbCommand: DbApiCommands,
+class ApiBackedByDb(private val dbQuery: MutableDbQueries,
+                    private val dbCommand: MutableDbCommands,
                     private val clock: Clock,
                     private val passwordUtil: PasswordUtil,
                     private val uniqueIdGenerator: UniqueIdGenerator,

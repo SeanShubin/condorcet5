@@ -4,7 +4,7 @@ import com.seanshubin.condorcet.json.JsonUtil
 import java.time.Instant
 
 class ResourceDbApiCommands(private val dbFromResource: DbFromResource) :
-        DbApiCommands,
+        MutableDbCommands,
         DbFromResource by dbFromResource {
     override fun createUser(initiator: Initiator,
                             name: String,
