@@ -21,8 +21,8 @@ object ApiFactory {
                 connection,
                 ::loadResource
         )
-        val dbCommands = createMutableDbCommands(dbFromResource, clock)
         val dbQueries = createMutableDbQueries(dbFromResource)
+        val dbCommands = createMutableDbCommands(dbFromResource, clock)
         val oneWayHash: OneWayHash = Sha256Hash()
         val passwordUtil = PasswordUtil(uniqueIdGenerator, oneWayHash)
         val seed = 12345L
@@ -61,10 +61,13 @@ object ApiFactory {
     }
 
     private fun createMutableDbCommands(dbFromResource: DbFromResource, clock: Clock): MutableDbCommands {
-        val dbApiCommandsWithEvents = DbApiCommandsWithEvents(dbFromResource, clock)
         val resourceDbCommands = ResourceDbApiCommands(dbFromResource)
-        val compositeDbCommands = CompositeDbApiCommands(dbApiCommandsWithEvents, resourceDbCommands)
-        return compositeDbCommands
+        val eventHandler: EventHandler = DbEventHandler(resourceDbCommands)
+        val eventDbQueries = ResourceEventDbQueries(dbFromResource)
+        val eventDbCommands = ResourceEventDbCommands(dbFromResource)
+        val synchronizer: Synchronizer = EventSynchronizer(eventDbQueries, eventDbCommands, eventHandler)
+        val dbApiCommandsWithEvents = DbApiCommandsWithEvents(dbFromResource, clock, synchronizer)
+        return dbApiCommandsWithEvents
     }
 
     private fun createMutableDbQueries(dbFromResource: DbFromResource): MutableDbQueries {

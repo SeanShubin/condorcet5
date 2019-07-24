@@ -3,8 +3,9 @@ package com.seanshubin.condorcet.domain.db
 import com.seanshubin.condorcet.domain.db.Event.*
 
 class DbEventHandler(private val dbCommands: MutableDbCommands) : EventHandler {
-    override fun handle(initiator: Initiator, event: Event) {
-        when (event) {
+    override fun handle(eventDetail: EventDetail) {
+        val initiator = eventDetail.initiator
+        when (val event = eventDetail.event) {
             is CreateUser -> dbCommands.createUser(initiator, event.name, event.email, event.salt, event.hash)
             is CreateElection -> dbCommands.createElection(initiator, event.user, event.election)
             is SetElectionEndDate -> dbCommands.setElectionEndDate(initiator, event.name, event.end)

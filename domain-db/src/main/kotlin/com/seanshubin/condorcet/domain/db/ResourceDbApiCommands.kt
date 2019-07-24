@@ -63,7 +63,7 @@ class ResourceDbApiCommands(private val dbFromResource: DbFromResource) :
                               whenCast: Instant,
                               rankings: Map<String, Int>) {
         createDbBallot(electionName, userName, confirmation, whenCast)
-        val ballotId = queryInt("ballot-id-by-user-election.sql", userName, electionName)
+        val ballotId = queryExactlyOneInt("ballot-id-by-user-election.sql", userName, electionName)
         createRankings(ballotId, userName, electionName, rankings)
     }
 
@@ -73,7 +73,7 @@ class ResourceDbApiCommands(private val dbFromResource: DbFromResource) :
                               userName: String,
                               whenCast: Instant,
                               rankings: Map<String, Int>) {
-        val ballotId = queryInt("ballot-id-by-user-election.sql", userName, electionName)
+        val ballotId = queryExactlyOneInt("ballot-id-by-user-election.sql", userName, electionName)
         removeRankings(ballotId)
         createRankings(ballotId, userName, electionName, rankings)
     }
@@ -96,7 +96,7 @@ class ResourceDbApiCommands(private val dbFromResource: DbFromResource) :
     private fun createRankings(ballotId: Int, userName: String, electionName: String, rankings: Map<String, Int>) {
         fun createRanking(ranking: Pair<String, Int>) {
             val (candidateName, rank) = ranking
-            val candidateId = queryInt("candidate-id-by-election-candidate.sql", electionName, candidateName)
+            val candidateId = queryExactlyOneInt("candidate-id-by-election-candidate.sql", electionName, candidateName)
             createRanking(ballotId, candidateId, rank)
         }
         rankings.toList().sortedBy { it.second }.forEach(::createRanking)

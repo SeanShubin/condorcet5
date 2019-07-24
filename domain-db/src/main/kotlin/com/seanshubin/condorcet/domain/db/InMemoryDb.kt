@@ -147,8 +147,4 @@ class InMemoryDb : MutableDbCommands, MutableDbQueries {
     }
 
     override fun listElections(): List<DbElection> = electionTable.listAll()
-
-    override fun lastEventSynced(): Int {
-        TODO("not implemented")
-    }
 }

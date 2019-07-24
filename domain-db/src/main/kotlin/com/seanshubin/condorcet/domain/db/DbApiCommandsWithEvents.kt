@@ -5,7 +5,8 @@ import java.time.Clock
 import java.time.Instant
 
 class DbApiCommandsWithEvents(private val dbFromResource: DbFromResource,
-                              private val clock: Clock) : MutableDbCommands {
+                              private val clock: Clock,
+                              private val synchronizer: Synchronizer) : MutableDbCommands {
     override fun createUser(initiator: Initiator,
                             name: String,
                             email: String,
@@ -83,8 +84,10 @@ class DbApiCommandsWithEvents(private val dbFromResource: DbFromResource,
         dbFromResource.update(
                 "insert-event.sql",
                 clock.instant(),
+                initiator.source,
                 initiator.user,
                 type,
                 json)
+        synchronizer.synchronize()
     }
 }

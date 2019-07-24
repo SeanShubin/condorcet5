@@ -44,8 +44,8 @@ class ResourceDbApiQueries(private val dbFromResource: DbFromResource) :
             election)
 
     override fun electionHasAllVoters(election: String): Boolean {
-        val electionVoterCount = queryInt("count-voters-for-election.sql", election)
-        val allVoterCount = queryInt("count-users.sql")
+        val electionVoterCount = queryExactlyOneInt("count-voters-for-election.sql", election)
+        val allVoterCount = queryExactlyOneInt("count-users.sql")
         return electionVoterCount == allVoterCount
     }
 
@@ -88,10 +88,6 @@ class ResourceDbApiQueries(private val dbFromResource: DbFromResource) :
 
     override fun listBallotsForVoter(voter: String): List<DbBallot> =
             query(::createBallot, "ballots-by-user.sql", voter)
-
-    override fun lastEventSynced(): Int {
-        TODO("not implemented")
-    }
 
     private fun createUser(resultSet: ResultSet): DbUser {
         val name = resultSet.getString("name")

@@ -58,9 +58,12 @@ object Schema {
             columns = listOf(tallyElection, tallyReport),
             unique = listOf(tallyElection))
     val eventWhen = Field("when", DATE)
+    val eventSource = Field("source", STRING)
     val eventOwner = Field("owner", STRING)
     val eventType = Field("type", STRING)
     val eventText = Field("text", TEXT)
-    val event = Table("event", eventWhen, eventOwner, eventType, eventText)
-    val tables = listOf(user, event, status, election, candidate, voter, ballot, ranking, tally)
+    val event = Table("event", eventWhen, eventSource, eventOwner, eventType, eventText)
+    val lastSyncedEvent = ForeignKey("event", event)
+    val lastSynced = Table("last_synced", lastSyncedEvent)
+    val tables = listOf(user, event, lastSynced, status, election, candidate, voter, ballot, ranking, tally)
 }

@@ -52,20 +52,11 @@ class DbFromResourceImpl(private val connection: ConnectionWrapper,
         }
     }
 
-    override fun queryInt(sqlResource: String, vararg parameters: Any?): Int {
-        val sql = loadResource(sqlResource)
-        return connection.execQuery(sql, *parameters) { resultSet ->
-            if (resultSet.next()) {
-                val result = resultSet.getInt(1)
-                if (resultSet.next()) {
-                    throw RuntimeException("No more than 1 row expected for '$sql'")
-                }
-                result
-            } else {
-                throw RuntimeException("Exactly 1 row expected for '$sql', got none")
-            }
-        }
-    }
+    override fun queryExactlyOneInt(sqlResource: String, vararg parameters: Any?): Int =
+            queryExactlyOneRow(::createInt, sqlResource, *parameters)
+
+    override fun queryZeroOrOneInt(sqlResource: String, vararg parameters: Any?): Int? =
+            queryZeroOrOneRow(::createInt, sqlResource, *parameters)
 
     override fun update(sqlResource: String, vararg parameters: Any?): Int {
         val sql = loadResource(sqlResource)

@@ -1,2 +1,2 @@
-insert into event (`when`, owner, type, text)
-values (?, ?, ?, ?)
+insert into event (`when`, source, owner, type, text)
+values (?, ?, ?, ?, ?)

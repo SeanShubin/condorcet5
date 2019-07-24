@@ -15,7 +15,9 @@ interface DbFromResource {
                   sqlResource: String,
                   vararg parameters: Any?): List<T>
 
-    fun queryInt(sqlResource: String, vararg parameters: Any?): Int
+    fun queryExactlyOneInt(sqlResource: String, vararg parameters: Any?): Int
+    fun queryZeroOrOneInt(sqlResource: String, vararg parameters: Any?): Int?
     fun update(sqlResource: String, vararg parameters: Any?): Int
 
+    fun createInt(resultSet: ResultSet): Int = resultSet.getInt(1)
 }
