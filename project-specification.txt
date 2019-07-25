@@ -57,6 +57,10 @@
       group io.ktor
       artifact ktor-server-netty
     }
+    jetty {
+        group org.eclipse.jetty
+        artifact jetty-server
+    }
   }
   global [ stdlib test ]
   modules {
@@ -71,7 +75,7 @@
     util-rds        [rds util util-db]
     util-server     []
     util            [coroutines]
-    server          [util-server domain-rds ktor-server-core ktor-server-netty]
+    server          [util-server domain-rds ktor-server-core ktor-server-netty jetty]
     domain-rds      [util-rds domain]
     domain          [domain-db algorithm crypto table-formatter arrow logger json]
     domain-db       [util-db json]

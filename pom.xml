@@ -75,6 +75,11 @@
                 <artifactId>ktor-server-netty</artifactId>
                 <version>1.2.2</version>
             </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>9.4.19.v20190610</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <modules>
