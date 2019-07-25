@@ -16,6 +16,9 @@ interface Event {
                     "SetCandidates" -> compact.readValue<SetCandidates>(json)
                     "SetVoters" -> compact.readValue<SetVoters>(json)
                     "SetVotersToAll" -> compact.readValue<SetVotersToAll>(json)
+                    "CreateBallot" -> compact.readValue<CreateBallot>(json)
+                    "SetReport" -> compact.readValue<SetReport>(json)
+                    "UpdateBallot" -> compact.readValue<UpdateBallot>(json)
                     else -> throw UnsupportedOperationException("Unsupported event type '$type'")
                 }
 

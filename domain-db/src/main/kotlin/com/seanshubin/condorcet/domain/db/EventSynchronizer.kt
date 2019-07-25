@@ -6,7 +6,7 @@ class EventSynchronizer(private val eventDbQueries: EventDbQueries,
     override tailrec fun synchronize() {
         val lastEventSynced = eventDbQueries.lastSynced()
         if (lastEventSynced == null) {
-            eventDbCommands.setLastSynced(0)
+            eventDbCommands.initializeLastSynced(0)
             synchronize()
         } else {
             val eventsToSync = eventDbQueries.eventsToSync(lastEventSynced)
