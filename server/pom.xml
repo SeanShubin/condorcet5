@@ -15,6 +15,14 @@
             <artifactId>condorcet-domain-rds</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-server-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-server-netty</artifactId>
+        </dependency>
     </dependencies>
     <parent>
         <groupId>com.seanshubin.condorcet</groupId>

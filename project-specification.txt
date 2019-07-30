@@ -49,6 +49,14 @@
         group com.fasterxml.jackson.datatype
         artifact jackson-datatype-jsr310
     }
+    ktor-server-core {
+      group io.ktor
+      artifact ktor-server-core
+    }
+    ktor-server-netty {
+      group io.ktor
+      artifact ktor-server-netty
+    }
   }
   global [ stdlib test ]
   modules {
@@ -63,7 +71,7 @@
     util-rds        [rds util util-db]
     util-server     []
     util            [coroutines]
-    server          [util-server domain-rds]
+    server          [util-server domain-rds ktor-server-core ktor-server-netty]
     domain-rds      [util-rds domain]
     domain          [domain-db algorithm crypto table-formatter arrow logger json]
     domain-db       [util-db json]
