@@ -38,12 +38,12 @@
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-rds</artifactId>
-                <version>1.11.601</version>
+                <version>1.11.602</version>
             </dependency>
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-cloudformation</artifactId>
-                <version>1.11.601</version>
+                <version>1.11.602</version>
             </dependency>
             <dependency>
                 <groupId>io.arrow-kt</groupId>
@@ -97,6 +97,7 @@
         <module>server</module>
         <module>domain-rds</module>
         <module>domain</module>
+        <module>json-api</module>
         <module>domain-db</module>
         <module>prototype</module>
         <module>detangler</module>

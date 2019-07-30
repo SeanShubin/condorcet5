@@ -2,23 +2,24 @@ package com.seanshubin.condorcet.domain.db
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.seanshubin.condorcet.json.JsonUtil.compact
+import com.seanshubin.condorcet.json.JsonUtil.parser
 import java.time.Instant
 
 interface Event {
     companion object {
         fun parse(type: String, json: String): Event =
                 when (type) {
-                    "CreateUser" -> compact.readValue<CreateUser>(json)
-                    "CreateElection" -> compact.readValue<CreateElection>(json)
-                    "SetElectionEndDate" -> compact.readValue<SetElectionEndDate>(json)
-                    "SetElectionSecretBallot" -> compact.readValue<SetElectionSecretBallot>(json)
-                    "SetElectionStatus" -> compact.readValue<SetElectionStatus>(json)
-                    "SetCandidates" -> compact.readValue<SetCandidates>(json)
-                    "SetVoters" -> compact.readValue<SetVoters>(json)
-                    "SetVotersToAll" -> compact.readValue<SetVotersToAll>(json)
-                    "CreateBallot" -> compact.readValue<CreateBallot>(json)
-                    "SetReport" -> compact.readValue<SetReport>(json)
-                    "UpdateBallot" -> compact.readValue<UpdateBallot>(json)
+                    "CreateUser" -> parser.readValue<CreateUser>(json)
+                    "CreateElection" -> parser.readValue<CreateElection>(json)
+                    "SetElectionEndDate" -> parser.readValue<SetElectionEndDate>(json)
+                    "SetElectionSecretBallot" -> parser.readValue<SetElectionSecretBallot>(json)
+                    "SetElectionStatus" -> parser.readValue<SetElectionStatus>(json)
+                    "SetCandidates" -> parser.readValue<SetCandidates>(json)
+                    "SetVoters" -> parser.readValue<SetVoters>(json)
+                    "SetVotersToAll" -> parser.readValue<SetVotersToAll>(json)
+                    "CreateBallot" -> parser.readValue<CreateBallot>(json)
+                    "SetReport" -> parser.readValue<SetReport>(json)
+                    "UpdateBallot" -> parser.readValue<UpdateBallot>(json)
                     else -> throw UnsupportedOperationException("Unsupported event type '$type'")
                 }
 

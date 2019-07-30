@@ -117,7 +117,7 @@ class ResourceDbApiQueries(private val dbFromResource: DbFromResource) :
     private fun createDbTally(resultSet: ResultSet): DbTally {
         val election = resultSet.getString("election")
         val reportJson = resultSet.getString("report")
-        val report = JsonUtil.compact.readValue<Report>(reportJson)
+        val report = JsonUtil.parser.readValue<Report>(reportJson)
         return DbTally(election, report)
     }
 
