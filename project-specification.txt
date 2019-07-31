@@ -50,16 +50,32 @@
         artifact jackson-datatype-jsr310
     }
     ktor-server-core {
-      group io.ktor
+      group    io.ktor
       artifact ktor-server-core
     }
     ktor-server-netty {
-      group io.ktor
+      group    io.ktor
       artifact ktor-server-netty
+    }
+    ktor-auth {
+        group    io.ktor
+        artifact ktor-auth
+    }
+    ktor-auth-jwt {
+        group io.ktor
+        artifact ktor-auth-jwt
+    }
+    ktor-jackson {
+        group    io.ktor
+        artifact ktor-jackson
     }
     jetty {
         group org.eclipse.jetty
         artifact jetty-server
+    }
+    jwt {
+        group com.auth0
+        artifact java-jwt
     }
   }
   global [ stdlib test ]
@@ -75,7 +91,7 @@
     util-rds        [rds util util-db]
     util-server     []
     util            [coroutines]
-    server          [util-server domain-rds ktor-server-core ktor-server-netty jetty json-api]
+    server          [util-server domain-rds ktor-server-core ktor-server-netty jetty json-api jwt ktor-auth ktor-jackson ktor-auth-jwt]
     domain-rds      [util-rds domain]
     domain          [domain-db algorithm crypto table-formatter arrow logger json]
     json-api        [domain]
