@@ -5,7 +5,7 @@ import com.seanshubin.condorcet.domain.db.Ballot
 import com.seanshubin.condorcet.domain.db.Place
 import com.seanshubin.condorcet.domain.db.Ranking
 import com.seanshubin.condorcet.domain.db.Report
-import com.seanshubin.condorcet.json.JsonUtil.pretty
+import com.seanshubin.condorcet.json.JsonMappers.pretty
 import com.seanshubin.condorcet.logger.LoggerFactory
 import com.seanshubin.condorcet.table.formatter.RowStyleTableFormatter
 import com.seanshubin.condorcet.util.ListDifference

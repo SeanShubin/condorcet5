@@ -1,8 +1,8 @@
 package com.seanshubin.condorcet.domain.db
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.seanshubin.condorcet.json.JsonUtil.compact
-import com.seanshubin.condorcet.json.JsonUtil.parser
+import com.seanshubin.condorcet.json.JsonMappers.compact
+import com.seanshubin.condorcet.json.JsonMappers.parser
 import java.time.Instant
 
 interface Event {

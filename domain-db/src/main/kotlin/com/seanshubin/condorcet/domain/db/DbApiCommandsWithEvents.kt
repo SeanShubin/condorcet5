@@ -1,6 +1,6 @@
 package com.seanshubin.condorcet.domain.db
 
-import com.seanshubin.condorcet.json.JsonUtil.compact
+import com.seanshubin.condorcet.json.JsonMappers.compact
 import java.time.Clock
 import java.time.Instant
 

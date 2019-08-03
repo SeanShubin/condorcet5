@@ -3,7 +3,7 @@ package com.seanshubin.condorcet.json.api
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.seanshubin.condorcet.domain.Api
 import com.seanshubin.condorcet.domain.Credentials
-import com.seanshubin.condorcet.json.JsonUtil
+import com.seanshubin.condorcet.json.JsonMappers
 import java.time.Instant
 
 interface Request {
@@ -12,25 +12,27 @@ interface Request {
     companion object {
         fun parse(name: String, json: String): Request =
                 when (name) {
-                    "login" -> JsonUtil.parser.readValue<LoginRequest>(json)
-                    "register" -> JsonUtil.parser.readValue<RegisterRequest>(json)
-                    "createElection" -> JsonUtil.parser.readValue<CreateElectionRequest>(json)
-                    "setEndDate" -> JsonUtil.parser.readValue<SetEndDateRequest>(json)
-                    "setSecretBallot" -> JsonUtil.parser.readValue<SetSecretBallotRequest>(json)
-                    "doneEditingElection" -> JsonUtil.parser.readValue<DoneEditingElectionRequest>(json)
-                    "endElection" -> JsonUtil.parser.readValue<EndElectionRequest>(json)
-                    "setCandidateNames" -> JsonUtil.parser.readValue<SetCandidateNamesRequest>(json)
-                    "setVoters" -> JsonUtil.parser.readValue<SetVotersRequest>(json)
-                    "setVotersToAll" -> JsonUtil.parser.readValue<SetVotersToAllRequest>(json)
-                    "listElections" -> JsonUtil.parser.readValue<ListElectionsRequest>(json)
-                    "getElection" -> JsonUtil.parser.readValue<GetElectionRequest>(json)
-                    "copyElection" -> JsonUtil.parser.readValue<CopyElectionRequest>(json)
-                    "listBallots" -> JsonUtil.parser.readValue<ListBallotsRequest>(json)
-                    "getBallot" -> JsonUtil.parser.readValue<GetBallotRequest>(json)
-                    "castBallot" -> JsonUtil.parser.readValue<CastBallotRequest>(json)
-                    "tally" -> JsonUtil.parser.readValue<TallyRequest>(json)
+                    "login" -> parse<LoginRequest>(json)
+                    "register" -> parse<RegisterRequest>(json)
+                    "createElection" -> parse<CreateElectionRequest>(json)
+                    "setEndDate" -> parse<SetEndDateRequest>(json)
+                    "setSecretBallot" -> parse<SetSecretBallotRequest>(json)
+                    "doneEditingElection" -> parse<DoneEditingElectionRequest>(json)
+                    "endElection" -> parse<EndElectionRequest>(json)
+                    "setCandidateNames" -> parse<SetCandidateNamesRequest>(json)
+                    "setVoters" -> parse<SetVotersRequest>(json)
+                    "setVotersToAll" -> parse<SetVotersToAllRequest>(json)
+                    "listElections" -> parse<ListElectionsRequest>(json)
+                    "getElection" -> parse<GetElectionRequest>(json)
+                    "copyElection" -> parse<CopyElectionRequest>(json)
+                    "listBallots" -> parse<ListBallotsRequest>(json)
+                    "getBallot" -> parse<GetBallotRequest>(json)
+                    "castBallot" -> parse<CastBallotRequest>(json)
+                    "tally" -> parse<TallyRequest>(json)
                     else -> throw UnsupportedOperationException("Unknown command '$name'")
                 }
+
+        private inline fun <reified T> parse(json: String): T = JsonMappers.parser.readValue(json)
     }
 
     data class LoginRequest(val nameOrEmail: String, val password: String) : Request {
