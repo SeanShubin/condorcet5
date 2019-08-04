@@ -14,19 +14,35 @@ import io.ktor.auth.principal
 import io.ktor.features.CORS
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.StatusPages
+import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.jackson
 import io.ktor.request.receive
 import io.ktor.response.respond
+import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.routing.routing
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
 import java.util.*
 
-fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
+fun main(args: Array<String>) {
+    val server = embeddedServer(Netty, port = 8080) {
+        routing {
+            get("/") {
+                call.respondText("Hello World!", ContentType.Text.Plain)
+            }
+            get("/demo") {
+                call.respondText("HELLO WORLD!")
+            }
+        }
+    }
+    server.start(wait = true)
+}
 
 fun Application.module() {
     val simpleJwt = SimpleJWT("my-super-secret-for-jwt")
