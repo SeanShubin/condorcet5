@@ -12,7 +12,7 @@ class DeepTests {
     @Test
     fun contrastFirstPastThePost() {
         // given
-        val logger = LoggerFactory.createLogger(Paths.get("out", "log"), "deep-tests")
+        val logger = LoggerFactory.instanceDefaultZone.createLogger(Paths.get("out", "log"), "deep-tests")
         ApiFactory.withApi(logger) { api ->
             val voters = listOf(
                     "Alice",

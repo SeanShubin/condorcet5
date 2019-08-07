@@ -18,11 +18,12 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 fun main() {
-    val logDir = LoggerFactory.createLogGroup(Paths.get("out", "log", "sample-data"))
+    val loggerFactory = LoggerFactory.instanceDefaultZone
+    val logDir = loggerFactory.createLogGroup(Paths.get("out", "log", "sample-data"))
     val sqlLogger = logDir.create("sql")
     fun logSql(sql: String) = sqlLogger.log("${sql.trim()};")
-    val debugLogger = logDir.create("debug")
     val connection = ConnectionFactory.createConnection(Connections.local, ::logSql)
+    val debugLogger = logDir.create("debug")
     fun execQuery(sql: String) {
         connection.execQuery(sql) { resultSet ->
             val iterator = ResultSetIterator.consume(resultSet)

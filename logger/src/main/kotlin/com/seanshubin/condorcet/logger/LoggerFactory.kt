@@ -7,11 +7,10 @@ import java.time.Clock
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-object LoggerFactory {
+class LoggerFactory(private val clock: Clock,
+                    private val files: FilesContract,
+                    private val emit: (String) -> Unit) {
     fun createLogger(path: Path, name: String): Logger {
-        val clock = Clock.systemDefaultZone()
-        val files: FilesContract = FilesDelegate
-        val emit: (String) -> Unit = ::println
         val now = clock.instant()
         val zone = clock.zone
         val zonedDateTime = ZonedDateTime.ofInstant(now, zone)
@@ -23,14 +22,20 @@ object LoggerFactory {
     }
 
     fun createLogGroup(baseDir: Path): LogGroup {
-        val files: FilesContract = FilesDelegate
-        val clock = Clock.systemDefaultZone()
         val now = clock.instant()
         val zone = clock.zone
         val zonedDateTime = ZonedDateTime.ofInstant(now, zone)
         val formattedDateTime = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(zonedDateTime)
         val logDir = baseDir.resolve(formattedDateTime.replace(':', '-').replace('.', '-'))
-        val emit: (String) -> Unit = ::println
         return LogGroup(emit, files, logDir)
+    }
+
+    companion object {
+        val instanceDefaultZone: LoggerFactory by lazy {
+            val clock: Clock = Clock.systemDefaultZone()
+            val files: FilesContract = FilesDelegate
+            val emit: (String) -> Unit = ::println
+            LoggerFactory(clock, files, emit)
+        }
     }
 }
