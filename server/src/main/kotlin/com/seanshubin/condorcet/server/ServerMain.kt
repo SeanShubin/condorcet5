@@ -11,7 +11,7 @@ import java.time.Clock
 import java.util.*
 
 fun main(args: Array<String>) {
-    val logDir = LoggerFactory.createDirectory(Paths.get("out", "log", "foo"))
+    val logDir = LoggerFactory.createLogGroup(Paths.get("out", "log", "foo"))
     val sqlLogger = logDir.create("sql")
     fun sqlEvent(sql: String) = sqlLogger.log("${sql.trim()};")
     val host = "localhost"

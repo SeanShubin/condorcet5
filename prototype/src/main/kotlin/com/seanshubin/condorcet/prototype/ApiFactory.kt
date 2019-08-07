@@ -12,10 +12,9 @@ import java.time.Clock
 import java.util.*
 
 object ApiFactory {
-    fun <T> withApi(connection: ConnectionWrapper,
-                    clock: Clock,
-                    uniqueIdGenerator: UniqueIdGenerator,
-                    f: (Api) -> T): T {
+    fun createApi(connection: ConnectionWrapper,
+                  clock: Clock,
+                  uniqueIdGenerator: UniqueIdGenerator): Api {
         fun loadResource(name: String): String = ClassLoaderUtil.loadResourceAsString("sql/$name")
         val dbFromResource = DbFromResourceImpl(
                 connection,
@@ -28,6 +27,14 @@ object ApiFactory {
         val seed = 12345L
         val random = Random(seed)
         val api = ApiBackedByDb(dbQueries, dbCommands, clock, passwordUtil, uniqueIdGenerator, random)
+        return api
+    }
+
+    fun <T> withApi(connection: ConnectionWrapper,
+                    clock: Clock,
+                    uniqueIdGenerator: UniqueIdGenerator,
+                    f: (Api) -> T): T {
+        val api = createApi(connection, clock, uniqueIdGenerator)
         return f(api)
     }
 

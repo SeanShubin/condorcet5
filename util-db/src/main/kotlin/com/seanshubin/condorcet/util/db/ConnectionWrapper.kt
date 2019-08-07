@@ -7,7 +7,7 @@ import java.sql.Timestamp
 import java.time.Instant
 
 class ConnectionWrapper(private val connection: Connection,
-                        private val sqlEvent: (String) -> Unit) {
+                        private val sqlEvent: (String) -> Unit) : AutoCloseable {
     fun <T> execQuery(sql: String, vararg parameters: Any?, f: (ResultSet) -> T): T {
         val statement = connection.prepareStatement(sql) as ClientPreparedStatement
         updateParameters(parameters, statement)
@@ -25,6 +25,10 @@ class ConnectionWrapper(private val connection: Connection,
             sqlEvent(statement.asSql())
             statement.executeUpdate()
         }
+    }
+
+    override fun close() {
+        connection.close()
     }
 
     private fun updateParameters(parameters: Array<out Any?>, statement: ClientPreparedStatement) {

@@ -8,7 +8,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 object LoggerFactory {
-    fun create(path: Path, name: String): Logger {
+    fun createLogger(path: Path, name: String): Logger {
         val clock = Clock.systemDefaultZone()
         val files: FilesContract = FilesDelegate
         val emit: (String) -> Unit = ::println
@@ -22,7 +22,7 @@ object LoggerFactory {
         return ConsoleAndFileLogger(emit, files, logFile)
     }
 
-    fun createDirectory(baseDir: Path): LogDirectory {
+    fun createLogGroup(baseDir: Path): LogGroup {
         val files: FilesContract = FilesDelegate
         val clock = Clock.systemDefaultZone()
         val now = clock.instant()
@@ -31,6 +31,6 @@ object LoggerFactory {
         val formattedDateTime = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(zonedDateTime)
         val logDir = baseDir.resolve(formattedDateTime.replace(':', '-').replace('.', '-'))
         val emit: (String) -> Unit = ::println
-        return LogDirectory(emit, files, logDir)
+        return LogGroup(emit, files, logDir)
     }
 }

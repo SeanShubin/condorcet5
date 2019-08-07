@@ -6,11 +6,8 @@ object ConnectionFactory {
     fun <T> withConnection(info: ConnectionInfo,
                            sqlEvent: (String) -> Unit,
                            f: (ConnectionWrapper) -> T): T {
-        val (host, user, password) = info
-        val url = "jdbc:mysql://$host?serverTimezone=UTC"
-        val connection = DriverManager.getConnection(url, user, password)
-        return connection.use {
-            val connectionWrapper = ConnectionWrapper(connection, sqlEvent)
+        val connectionWrapper = createConnection(info, sqlEvent)
+        return connectionWrapper.use {
             return f(connectionWrapper)
         }
     }
@@ -18,5 +15,13 @@ object ConnectionFactory {
     fun <T> withConnection(info: ConnectionInfo,
                            f: (ConnectionWrapper) -> T): T {
         return withConnection(info, {}, f)
+    }
+
+    fun createConnection(info: ConnectionInfo,
+                         sqlEvent: (String) -> Unit): ConnectionWrapper {
+        val (host, user, password) = info
+        val url = "jdbc:mysql://$host?serverTimezone=UTC"
+        val connection = DriverManager.getConnection(url, user, password)
+        return ConnectionWrapper(connection, sqlEvent)
     }
 }

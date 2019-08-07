@@ -13,7 +13,7 @@ import java.time.Instant
 import kotlin.test.assertEquals
 
 fun main() {
-    val logger = LoggerFactory.create(Paths.get("out", "log"), "integration-test")
+    val logger = LoggerFactory.createLogger(Paths.get("out", "log"), "integration-test")
     val emit: (String) -> Unit = logger::log
     fun sqlEvent(sql: String): Unit = emit(sql)
     ConnectionFactory.withConnection(
