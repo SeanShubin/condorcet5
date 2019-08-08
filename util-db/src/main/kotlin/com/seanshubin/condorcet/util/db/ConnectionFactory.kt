@@ -20,6 +20,13 @@ object ConnectionFactory {
     fun createConnection(info: ConnectionInfo,
                          sqlEvent: (String) -> Unit): ConnectionWrapper {
         val (host, user, password) = info
+        return createConnection(host, user, password, sqlEvent)
+    }
+
+    fun createConnection(host: String,
+                         user: String,
+                         password: String,
+                         sqlEvent: (String) -> Unit): ConnectionWrapper {
         val url = "jdbc:mysql://$host?serverTimezone=UTC"
         val connection = DriverManager.getConnection(url, user, password)
         return ConnectionWrapper(connection, sqlEvent)

@@ -14,4 +14,8 @@ object ClassLoaderUtil {
             return inputStream.toString(charset)
         }
     }
+
+    fun loadResourceRelativeFunction(relativeTo: String): (String) -> String = {
+        loadResourceAsString("$relativeTo/$it")
+    }
 }

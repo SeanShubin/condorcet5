@@ -4,4 +4,5 @@ import org.eclipse.jetty.server.Server
 
 object JettyServerFactory {
     fun createWithPort(port: Int): JettyServerContract = JettyServerDelegate(Server(port))
+    fun createFunction(port: Int): () -> JettyServerContract = { JettyServerDelegate(Server(port)) }
 }
