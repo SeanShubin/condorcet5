@@ -7,7 +7,6 @@ import java.time.Instant
 interface Api {
     // auth
     fun login(nameOrEmail: String, password: String): Credentials
-
     fun register(name: String, email: String, password: String): Credentials
 
     // election

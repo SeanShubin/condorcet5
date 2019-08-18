@@ -63,7 +63,8 @@ object Schema {
     val eventType = Field("type", STRING)
     val eventText = Field("text", TEXT)
     val event = Table("event", eventWhen, eventSource, eventOwner, eventType, eventText)
-    val lastSyncedEvent = Field("event_id", INT)
-    val lastSynced = Table("last_synced", lastSyncedEvent)
-    val tables = listOf(user, event, lastSynced, status, election, candidate, voter, ballot, ranking, tally)
+    val intVariableName = Field("name", STRING, unique = true)
+    val intVariableValue = Field("value", INT)
+    val intVariable = Table("int_variable", intVariableName, intVariableValue)
+    val tables = listOf(intVariable, user, event, status, election, candidate, voter, ballot, ranking, tally)
 }

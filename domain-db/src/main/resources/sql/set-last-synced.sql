@@ -1,3 +1,3 @@
-update last_synced
-set event_id = ?
-where id = 1
+update int_variable
+set value = ?
+where name = 'last-synced'

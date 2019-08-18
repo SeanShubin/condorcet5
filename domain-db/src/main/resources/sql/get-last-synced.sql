@@ -1,2 +1,3 @@
-select event_id
-from last_synced
+select value
+from int_variable
+where name = 'last-synced'

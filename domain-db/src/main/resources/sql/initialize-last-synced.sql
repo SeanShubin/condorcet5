@@ -1,2 +1,2 @@
-insert into last_synced (event_id)
-values (?)
+insert into int_variable (name, value)
+values ('last-synced', ?)
