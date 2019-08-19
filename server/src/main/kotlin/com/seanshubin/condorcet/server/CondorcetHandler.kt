@@ -1,9 +1,10 @@
 package com.seanshubin.condorcet.server
 
 import com.seanshubin.condorcet.json.JsonMappers
+import com.seanshubin.condorcet.json.api.JsonApi
 import javax.servlet.http.HttpServletResponse
 
-class CondorcetHandler(private val jsonApi: (String, String) -> String) : ValueHandler {
+class CondorcetHandler(private val jsonApi: JsonApi) : ValueHandler {
     override fun handle(request: Request): Response =
             try {
                 val command = commandFromUri(request.uri)

@@ -9,6 +9,8 @@ import java.time.Instant
 
 class ApiSample : Api {
     private val sample = Sample()
+    override fun lastSynced(): Int = sample.lastSynced()
+
     override fun login(nameOrEmail: String, password: String): Credentials = sample.credentials()
 
     override fun register(name: String, email: String, password: String): Credentials = sample.credentials()
@@ -43,6 +45,7 @@ class ApiSample : Api {
 
     private class Sample {
         var index = 0
+        fun lastSynced(): Int = ++index
         fun string(caption: String): String = "$caption-${++index}"
         fun userName(): String = string("userName")
         fun password(): String = string("password")
