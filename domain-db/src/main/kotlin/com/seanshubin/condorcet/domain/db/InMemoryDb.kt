@@ -13,6 +13,10 @@ class InMemoryDb : MutableDbCommands, MutableDbQueries {
     private val rankingTable: Table<DbUserElectionCandidate, DbRanking> = InMemoryTable("ranking")
     private val tallyTable: Table<String, DbTally> = InMemoryTable("tally")
 
+    override fun lastSynced(): Int {
+        TODO("not implemented")
+    }
+
     override fun findUserByName(user: String): DbUser =
             userTable.find { it.name.equals(user, ignoreCase = true) }
 

@@ -7,6 +7,8 @@ import java.time.Instant
 
 class ApiWrappedInDbTransaction(private val api: Api,
                                 private val t: TransactionFunction) : Api {
+    override fun lastSynced(): Int = api.lastSynced()
+
     override fun login(nameOrEmail: String, password: String): Credentials = t.inTransaction {
         api.login(nameOrEmail, password)
     }

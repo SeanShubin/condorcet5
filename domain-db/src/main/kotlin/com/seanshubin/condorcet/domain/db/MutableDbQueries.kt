@@ -1,6 +1,7 @@
 package com.seanshubin.condorcet.domain.db
 
 interface MutableDbQueries {
+    fun lastSynced(): Int
     fun findUserByName(user: String): DbUser
     fun searchUserByName(user: String): DbUser?
     fun searchUserByEmail(email: String): DbUser?

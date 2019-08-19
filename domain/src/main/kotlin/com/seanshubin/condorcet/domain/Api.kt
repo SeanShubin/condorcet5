@@ -5,6 +5,9 @@ import com.seanshubin.condorcet.domain.db.Report
 import java.time.Instant
 
 interface Api {
+    // health
+    fun lastSynced(): Int
+
     // auth
     fun login(nameOrEmail: String, password: String): Credentials
     fun register(name: String, email: String, password: String): Credentials

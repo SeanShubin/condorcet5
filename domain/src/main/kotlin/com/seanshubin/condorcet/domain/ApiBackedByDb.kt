@@ -21,6 +21,8 @@ class ApiBackedByDb(private val dbQuery: MutableDbQueries,
                     private val passwordUtil: PasswordUtil,
                     private val uniqueIdGenerator: UniqueIdGenerator,
                     private val random: Random) : Api {
+    override fun lastSynced(): Int = dbQuery.lastSynced()
+
     override fun login(nameOrEmail: String, password: String): Credentials {
         val dbUser =
                 dbQuery.searchUserByName(nameOrEmail) ?: dbQuery.searchUserByEmail(nameOrEmail)

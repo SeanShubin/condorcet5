@@ -5,6 +5,8 @@ import com.seanshubin.condorcet.domain.db.Report
 import java.time.Instant
 
 class InputCleaningApi(private val delegate: Api) : Api {
+    override fun lastSynced(): Int = delegate.lastSynced()
+
     override fun login(nameOrEmail: String, password: String): Credentials =
             delegate.login(nameOrEmail.clean(), password)
 

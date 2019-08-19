@@ -7,6 +7,8 @@ import java.sql.ResultSet
 class ResourceDbApiQueries(private val dbFromResource: DbFromResource) :
         MutableDbQueries,
         DbFromResource by dbFromResource {
+    override fun lastSynced(): Int = queryZeroOrOneInt("get-last-synced.sql") ?: 0
+
     override fun findUserByName(user: String): DbUser = queryExactlyOneRow(
             ::createUser,
             "user-by-name.sql",

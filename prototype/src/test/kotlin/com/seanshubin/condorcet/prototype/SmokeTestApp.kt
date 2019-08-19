@@ -58,6 +58,7 @@ fun main() {
     val pet = "Pet"
     val scienceFiction = "Science Fiction"
     val fantasy = "Fantasy"
+    assertEquals(0, api.lastSynced())
     api.register("Alice", "alice@email.com", "alice-password")
     api.register("Bob", "bob@email.com", "bob-password")
     api.register("Carol", "carol@email.com", "carol-password")
@@ -210,5 +211,6 @@ fun main() {
             pretty.writeValueAsString(actualTally))
 
     assertTrue(difference.isSame, difference.messageLines.joinToString("\n"))
+    assertEquals(50, api.lastSynced())
     SampleData.displayDebug().forEach(::execQuery)
 }
