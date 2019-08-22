@@ -9,57 +9,31 @@ class DbFromResourceImpl(private val connection: ConnectionWrapper,
                                         sqlResource: String,
                                         vararg parameters: Any?): T {
         val sql = loadResource(sqlResource)
-        return connection.execQuery(sql, *parameters) { resultSet ->
-            if (resultSet.next()) {
-                val result = createFunction(resultSet)
-                if (resultSet.next()) {
-                    throw RuntimeException("No more than 1 row expected for '$sql'")
-                }
-                result
-            } else {
-                throw RuntimeException("Exactly 1 row expected for '$sql', got none")
-            }
-        }
+        return connection.queryExactlyOneRow(sql, *parameters) { createFunction(it) }
     }
 
     override fun <T> queryZeroOrOneRow(createFunction: (ResultSet) -> T,
                                        sqlResource: String,
                                        vararg parameters: Any?): T? {
         val sql = loadResource(sqlResource)
-        return connection.execQuery(sql, *parameters) { resultSet ->
-            if (resultSet.next()) {
-                val result = createFunction(resultSet)
-                if (resultSet.next()) {
-                    throw RuntimeException("No more than 1 row expected for '$sql'")
-                }
-                result
-            } else {
-                null
-            }
-        }
+        return connection.queryZeroOrOneRow(sql, *parameters) { createFunction(it) }
     }
 
     override fun <T> query(createFunction: (ResultSet) -> T,
                            sqlResource: String,
                            vararg parameters: Any?): List<T> {
         val sql = loadResource(sqlResource)
-        return connection.execQuery(sql, *parameters) { resultSet ->
-            val results = mutableListOf<T>()
-            while (resultSet.next()) {
-                results.add(createFunction(resultSet))
-            }
-            results
-        }
+        return connection.queryList(sql, *parameters) { createFunction(it) }
     }
 
     override fun queryExactlyOneInt(sqlResource: String, vararg parameters: Any?): Int =
-            queryExactlyOneRow(::createInt, sqlResource, *parameters)
+            queryExactlyOneRow(ConnectionWrapper::createInt, sqlResource, *parameters)
 
     override fun queryZeroOrOneInt(sqlResource: String, vararg parameters: Any?): Int? =
-            queryZeroOrOneRow(::createInt, sqlResource, *parameters)
+            queryZeroOrOneRow(ConnectionWrapper::createInt, sqlResource, *parameters)
 
     override fun update(sqlResource: String, vararg parameters: Any?): Int {
         val sql = loadResource(sqlResource)
-        return connection.execUpdate(sql, *parameters)
+        return connection.update(sql, *parameters)
     }
 }

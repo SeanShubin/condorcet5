@@ -20,7 +20,7 @@ fun main() {
             Connections.local,
             ::sqlEvent) { connection ->
         fun execQuery(sql: String) {
-            connection.execQuery(sql) { resultSet ->
+            connection.query(sql) { resultSet ->
                 val iterator = ResultSetIterator.consume(resultSet)
                 val header = iterator.columnNames
                 val table = iterator.consumeRemainingToTable()
@@ -30,10 +30,10 @@ fun main() {
         }
 
         fun execUpdate(sql: String) {
-            connection.execUpdate(sql)
+            connection.update(sql)
         }
-        connection.execUpdate("create database if not exists sample")
-        connection.execUpdate("use sample")
+        connection.update("create database if not exists sample")
+        connection.update("use sample")
         SampleData.dropTables().forEach(::execUpdate)
         SampleData.createTables().forEach(::execUpdate)
         SampleData.staticData().forEach(::execUpdate)

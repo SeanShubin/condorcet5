@@ -56,10 +56,10 @@ object ApiFactory {
                                     f: (Api) -> T): T {
         return withApi(connection, clock, uniqueIdGenerator) { api ->
             fun execUpdate(sql: String) {
-                connection.execUpdate(sql)
+                connection.update(sql)
             }
-            connection.execUpdate("create database if not exists sample")
-            connection.execUpdate("use sample")
+            connection.update("create database if not exists sample")
+            connection.update("use sample")
             SampleData.dropTables().forEach(::execUpdate)
             SampleData.createTables().forEach(::execUpdate)
             SampleData.staticData().forEach(::execUpdate)

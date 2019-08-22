@@ -25,7 +25,7 @@ fun main() {
     val connection = ConnectionFactory.createConnection(Connections.local, ::logSql)
     val debugLogger = logDir.create("debug")
     fun execQuery(sql: String) {
-        connection.execQuery(sql) { resultSet ->
+        connection.query(sql) { resultSet ->
             val iterator = ResultSetIterator.consume(resultSet)
             val header = iterator.columnNames
             val table = iterator.consumeRemainingToTable()
@@ -36,10 +36,10 @@ fun main() {
     }
 
     fun execUpdate(sql: String) {
-        connection.execUpdate(sql)
+        connection.update(sql)
     }
-    connection.execUpdate("create database if not exists sample")
-    connection.execUpdate("use sample")
+    execUpdate("create database if not exists sample")
+    execUpdate("use sample")
     SampleData.dropTables().forEach(::execUpdate)
     SampleData.createTables().forEach(::execUpdate)
     SampleData.staticData().forEach(::execUpdate)

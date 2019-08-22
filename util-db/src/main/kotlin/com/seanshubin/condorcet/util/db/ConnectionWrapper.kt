@@ -8,7 +8,7 @@ import java.time.Instant
 
 class ConnectionWrapper(private val connection: Connection,
                         private val sqlEvent: (String) -> Unit) : AutoCloseable {
-    fun <T> execQuery(sql: String, vararg parameters: Any?, f: (ResultSet) -> T): T {
+    fun <T> query(sql: String, vararg parameters: Any?, f: (ResultSet) -> T): T {
         val statement = connection.prepareStatement(sql) as ClientPreparedStatement
         updateParameters(parameters, statement)
         return statement.use {
@@ -17,8 +17,52 @@ class ConnectionWrapper(private val connection: Connection,
         }
     }
 
+    fun <T> queryList(sql: String, vararg parameters: Any?, f: (ResultSet) -> T): List<T> {
+        val list = mutableListOf<T>()
+        val statement = connection.prepareStatement(sql) as ClientPreparedStatement
+        updateParameters(parameters, statement)
+        statement.use {
+            val resultSet = statement.executeQuery()
+            while (resultSet.next()) {
+                list.add(f(resultSet))
+            }
+        }
+        return list
+    }
 
-    fun execUpdate(sql: String, vararg parameters: Any?): Int {
+    fun <T> queryExactlyOneRow(sql: String, vararg parameters: Any?, f: (ResultSet) -> T): T =
+            query(sql, *parameters) { resultSet ->
+                if (resultSet.next()) {
+                    val result = f(resultSet)
+                    if (resultSet.next()) {
+                        throw RuntimeException("No more than 1 row expected for '$sql'")
+                    }
+                    result
+                } else {
+                    throw RuntimeException("Exactly 1 row expected for '$sql', got none")
+                }
+            }
+
+    fun <T> queryZeroOrOneRow(sql: String, vararg parameters: Any?, f: (ResultSet) -> T): T? =
+            query(sql, *parameters) { resultSet ->
+                if (resultSet.next()) {
+                    val result = f(resultSet)
+                    if (resultSet.next()) {
+                        throw RuntimeException("No more than 1 row expected for '$sql'")
+                    }
+                    result
+                } else {
+                    null
+                }
+            }
+
+    fun queryExactlyOneInt(sql: String, vararg parameters: Any?): Int =
+            queryExactlyOneRow(sql, *parameters) { createInt(it) }
+
+    fun queryZeroOrOneInt(sql: String, vararg parameters: Any?): Int? =
+            queryZeroOrOneRow(sql, *parameters) { createInt(it) }
+
+    fun update(sql: String, vararg parameters: Any?): Int {
         val statement = connection.prepareStatement(sql) as ClientPreparedStatement
         updateParameters(parameters, statement)
         return statement.use {
@@ -44,5 +88,9 @@ class ConnectionWrapper(private val connection: Connection,
                 else -> throw UnsupportedOperationException("Unsupported type ${any.javaClass.simpleName}")
             }
         }
+    }
+
+    companion object {
+        fun createInt(resultSet: ResultSet): Int = resultSet.getInt(1)
     }
 }
