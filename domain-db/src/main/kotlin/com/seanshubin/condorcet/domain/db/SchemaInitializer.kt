@@ -1,31 +1,34 @@
 package com.seanshubin.condorcet.domain.db
 
-import com.seanshubin.condorcet.util.db.ConnectionProvider
+import com.seanshubin.condorcet.util.db.ConnectionWrapper
 
-class SchemaInitializer(private val connectionProvider: ConnectionProvider,
+class SchemaInitializer(private val connection: ConnectionWrapper,
                         private val schemaName: String) : Initializer {
     override fun initialize() {
         if (needsInitialize()) {
             createDatabase()
+            useDatabase()
             createSchema()
             createStaticData()
+        } else {
+            useDatabase()
         }
     }
 
     private fun needsInitialize(): Boolean {
-        val connection = connectionProvider.getConnection()
-        val hasSchema = "select count(*) from information_schema.schemata where schema_name = ?;"
+        val hasSchema = "select count(*) from information_schema.schemata where schema_name = ?"
         return connection.queryExactlyOneInt(hasSchema, schemaName) == 0
     }
 
     private fun createDatabase() {
-        val connection = connectionProvider.getConnection()
-        connection.update("create database ?", schemaName)
-        connection.update("use ?", schemaName)
+        connection.update("create database $schemaName")
+    }
+
+    private fun useDatabase() {
+        connection.update("use $schemaName")
     }
 
     private fun createSchema() {
-        val connection = connectionProvider.getConnection()
         val createTableStatements = Schema.tables.flatMap { it.toCreateTableStatements() }
         createTableStatements.forEach {
             connection.update(it)
@@ -33,10 +36,8 @@ class SchemaInitializer(private val connectionProvider: ConnectionProvider,
     }
 
     private fun createStaticData() {
-        val connection = connectionProvider.getConnection()
-        val statusValues = listOf("editing", "live", "complete")
-        statusValues.forEach {
-            connection.update("insert into status (name) values (?)", it)
+        DbStatus.values().forEach {
+            connection.update("insert into status (name) values (?)", it.name.toLowerCase())
         }
     }
 }

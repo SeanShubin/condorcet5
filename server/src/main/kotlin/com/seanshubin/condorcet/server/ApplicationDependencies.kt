@@ -27,6 +27,7 @@ class ApplicationDependencies(args: Array<String>) {
     private val host: String = "localhost"
     private val user: String = "root"
     private val password: String = "insecure"
+    private val schemaName: String = "condorcet"
     private val connection: ConnectionWrapper = ConnectionFactory.createConnection(host, user, password, sqlEvent)
     private val loadResource: (String) -> String = ClassLoaderUtil.loadResourceRelativeFunction("sql")
     private val dbFromResource: DbFromResource = DbFromResourceImpl(connection, loadResource)
@@ -49,5 +50,6 @@ class ApplicationDependencies(args: Array<String>) {
     private val valueHandler: ValueHandler = CondorcetHandler(jsonApi)
     private val handler: Handler = ValueHandlerToJettyHandlerAdapter(valueHandler)
     private val createJetty: () -> JettyServerContract = JettyServerFactory.createFunction(port)
-    val applicationRunner: Runnable = ApplicationRunner(handler, createJetty)
+    private val initializer: Initializer = SchemaInitializerFactory.create(connection, schemaName)
+    val applicationRunner: Runnable = ApplicationRunner(initializer, handler, createJetty)
 }

@@ -1,6 +1,7 @@
 package com.seanshubin.condorcet.domain.db
 
 import com.seanshubin.condorcet.util.db.ConnectionWrapper
+import com.seanshubin.condorcet.util.db.ConnectionWrapper.Companion.createInt
 import java.sql.ResultSet
 
 class DbFromResourceImpl(private val connection: ConnectionWrapper,
@@ -27,10 +28,10 @@ class DbFromResourceImpl(private val connection: ConnectionWrapper,
     }
 
     override fun queryExactlyOneInt(sqlResource: String, vararg parameters: Any?): Int =
-            queryExactlyOneRow(ConnectionWrapper::createInt, sqlResource, *parameters)
+            queryExactlyOneRow(::createInt, sqlResource, *parameters)
 
     override fun queryZeroOrOneInt(sqlResource: String, vararg parameters: Any?): Int? =
-            queryZeroOrOneRow(ConnectionWrapper::createInt, sqlResource, *parameters)
+            queryZeroOrOneRow(::createInt, sqlResource, *parameters)
 
     override fun update(sqlResource: String, vararg parameters: Any?): Int {
         val sql = loadResource(sqlResource)
