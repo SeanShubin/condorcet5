@@ -65,6 +65,11 @@
             <artifactId>condorcet-util</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.seanshubin.condorcet</groupId>
+            <artifactId>condorcet-provision</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <parent>
         <groupId>com.seanshubin.condorcet</groupId>

@@ -97,7 +97,8 @@
     json-api        [domain]
     domain-db       [util-db json]
     prototype       [cloudformation domain-db table-formatter rds util-rds domain logger json]
-    detangler       [algorithm crypto table-formatter util-db util-rds util-server server domain-rds domain domain-db prototype util]
+    provision       [domain-db logger cloudformation]
+    detangler       [algorithm crypto table-formatter util-db util-rds util-server server domain-rds domain domain-db prototype util provision]
   }
   detangler [detangler]
   consoleEntryPoint {
