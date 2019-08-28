@@ -29,6 +29,10 @@
       group    com.amazonaws
       artifact aws-java-sdk-rds
     }
+    iam {
+        group com.amazonaws
+        artifact aws-java-sdk-iam
+    }
     cloudformation {
       group    com.amazonaws
       artifact aws-java-sdk-cloudformation
@@ -90,6 +94,7 @@
     util-db         [mysql-jdbc util]
     util-rds        [rds util util-db]
     util-server     []
+    retry           [coroutines contract]
     util            [coroutines]
     server          [util-server domain-rds ktor-server-core ktor-server-netty jetty json-api jwt ktor-auth ktor-jackson ktor-auth-jwt]
     domain-rds      [util-rds domain]
@@ -97,7 +102,7 @@
     json-api        [domain]
     domain-db       [util-db json]
     prototype       [cloudformation domain-db table-formatter rds util-rds domain logger json]
-    provision       [domain-db logger cloudformation]
+    provision       [domain-db logger cloudformation iam retry]
     detangler       [algorithm crypto table-formatter util-db util-rds util-server server domain-rds domain domain-db prototype util provision]
   }
   detangler [detangler]

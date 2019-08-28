@@ -3,30 +3,16 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>condorcet-provision</artifactId>
+    <artifactId>condorcet-retry</artifactId>
     <dependencies>
         <dependency>
             <groupId>com.seanshubin.condorcet</groupId>
-            <artifactId>condorcet-domain-db</artifactId>
+            <artifactId>condorcet-contract</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.seanshubin.condorcet</groupId>
-            <artifactId>condorcet-logger</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.seanshubin.condorcet</groupId>
-            <artifactId>condorcet-retry</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-cloudformation</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-iam</artifactId>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-coroutines-core</artifactId>
         </dependency>
     </dependencies>
     <parent>
