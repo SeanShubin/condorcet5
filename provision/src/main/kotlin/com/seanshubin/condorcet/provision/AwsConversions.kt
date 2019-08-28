@@ -1,4 +1,4 @@
-package com.seanshubin.condorcet.prototype
+package com.seanshubin.condorcet.provision
 
 import com.amazonaws.services.cloudformation.model.Parameter
 

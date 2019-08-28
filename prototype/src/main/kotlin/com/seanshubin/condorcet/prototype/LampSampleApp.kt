@@ -1,5 +1,6 @@
 package com.seanshubin.condorcet.prototype
 
+import com.amazonaws.services.cloudformation.AmazonCloudFormation
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder
 import com.amazonaws.services.cloudformation.model.CreateStackRequest
 import com.amazonaws.services.cloudformation.model.DescribeStacksRequest
@@ -12,7 +13,7 @@ fun main() {
     val templateResourcePath = "lamp.json"
     val templateBody = ClassLoaderUtil.loadResourceAsString(templateResourcePath)
     val builder = AmazonCloudFormationClientBuilder.standard()
-    val cloudFormation = builder.withRegion(awsRegion).build()
+    val cloudFormation: AmazonCloudFormation = builder.withRegion(awsRegion).build()
     val parameters = listOf(
             Pair("KeyName", "lamp-sample"),
             Pair("DBName", "lampdb"),

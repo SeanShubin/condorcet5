@@ -1,5 +1,8 @@
 package com.seanshubin.condorcet.provision
 
+import com.amazonaws.regions.Regions
+import com.amazonaws.services.cloudformation.AmazonCloudFormation
+import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder
 import com.seanshubin.condorcet.domain.db.Initializer
 import com.seanshubin.condorcet.domain.db.SchemaInitializerFactory
 import com.seanshubin.condorcet.logger.LogDecorators
@@ -22,5 +25,10 @@ class ProvisionDependencies {
     private val schemaName: String = "condorcet"
     private val connection: ConnectionWrapper = ConnectionFactory.createConnection(host, user, password, sqlEvent)
     private val initializer: Initializer = SchemaInitializerFactory.create(connection, schemaName)
-    val provisionSetup: Runnable = ProvisionSetup(initializer)
+    private val cloudFormationBuilder: AmazonCloudFormationClientBuilder = AmazonCloudFormationClientBuilder.standard()
+    private val awsRegion = Regions.US_WEST_1
+    private val cloudFormation: AmazonCloudFormation = cloudFormationBuilder.withRegion(awsRegion).build()
+    private val deployer: Deployer = CloudFormationDeployer(cloudFormation)
+    val provisionSetup: Runnable = ProvisionSetup(deployer, initializer)
+    val provisionTeardown: Runnable = ProvisionTeardown(deployer)
 }
