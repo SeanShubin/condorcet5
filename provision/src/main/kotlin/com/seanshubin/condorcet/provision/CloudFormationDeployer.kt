@@ -46,6 +46,6 @@ class CloudFormationDeployer(private val cloudFormation: SimplifiedCloudFormatio
             }
         }
         val millisecondsString = DurationFormat.milliseconds.format(millisecondsTaken)
-        stackStatusUpdate("Stack named '$stackName' changes to status $currentStatus in $millisecondsString")
+        stackStatusUpdate("Stack named '$stackName' changed to status $currentStatus in $millisecondsString")
     }
 }
