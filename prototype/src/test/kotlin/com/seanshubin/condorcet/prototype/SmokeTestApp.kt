@@ -129,7 +129,7 @@ fun main() {
     api.setCandidateNames(dave, fantasy, listOf("Marvel Cinematic Universe", "Lord of the Rings", "Harry Potter"))
     api.setVotersToAll(dave, fantasy)
 
-    api.copyElection(dave, "Government 2", "Government")
+    api.copyElection(dave, "Government Copy", "Government")
 
     assertEquals(alice, api.login("Alice", "alice-password"))
     assertEquals(bob, api.login("bob@email.com", "bob-password"))

@@ -7,18 +7,22 @@ import java.time.Clock
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-class LoggerFactory(private val clock: Clock,
-                    private val files: FilesContract,
-                    private val emit: (String) -> Unit) {
+class LoggerFactory(
+        private val clock: Clock,
+        private val files: FilesContract,
+        private val emit: (String) -> Unit
+) {
     fun createLogger(path: Path, name: String): Logger {
         val now = clock.instant()
         val zone = clock.zone
         val zonedDateTime = ZonedDateTime.ofInstant(now, zone)
         val formattedDateTime = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(zonedDateTime)
         val fileName = formattedDateTime.replace(':', '-').replace('.', '-') + "-$name"
-        files.createDirectories(path)
         val logFile = path.resolve(fileName)
-        return ConsoleAndFileLogger(emit, files, logFile)
+        val initialize: () -> Unit = {
+            files.createDirectories(path)
+        }
+        return LineEmittingAndFileLogger(initialize, emit, files, logFile)
     }
 
     fun createLogGroup(baseDir: Path): LogGroup {
